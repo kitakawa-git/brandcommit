@@ -1,9 +1,10 @@
 'use client'
 
-// 社員一覧ページ
+// 社員一覧ページ（マルチテナント対応: 自社の社員のみ表示）
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
+import { useAuth } from '../components/AuthProvider'
 import { colors, commonStyles } from '../components/AdminStyles'
 
 type Profile = {
@@ -16,14 +17,18 @@ type Profile = {
 }
 
 export default function MembersPage() {
+  const { companyId } = useAuth()
   const [members, setMembers] = useState<Profile[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    if (!companyId) return
+
     const fetchMembers = async () => {
       const { data, error } = await supabase
         .from('profiles')
         .select('id, name, position, department, slug, photo_url')
+        .eq('company_id', companyId)
         .order('created_at', { ascending: false })
 
       if (!error && data) {
@@ -32,7 +37,7 @@ export default function MembersPage() {
       setLoading(false)
     }
     fetchMembers()
-  }, [])
+  }, [companyId])
 
   return (
     <div>

@@ -18,13 +18,29 @@ export default function LoginPage() {
     setLoading(true)
     setError('')
 
-    const { error } = await supabase.auth.signInWithPassword({
+    // Supabase Authでログイン
+    const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
       email,
       password,
     })
 
-    if (error) {
+    if (authError) {
       setError('メールアドレスまたはパスワードが正しくありません')
+      setLoading(false)
+      return
+    }
+
+    // admin_usersテーブルで管理者として登録されているか確認
+    const { data: adminUser, error: adminError } = await supabase
+      .from('admin_users')
+      .select('company_id, role')
+      .eq('auth_id', authData.user.id)
+      .single()
+
+    if (adminError || !adminUser) {
+      // 管理者として未登録 → ログアウトしてエラー表示
+      setError('このアカウントは管理者として登録されていません。管理者に連絡してください。')
+      await supabase.auth.signOut()
       setLoading(false)
       return
     }

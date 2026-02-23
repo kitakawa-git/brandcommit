@@ -1,25 +1,31 @@
 'use client'
 
-// 社員編集ページ
+// 社員編集ページ（マルチテナント対応: 自社の社員のみ編集可能）
 import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
+import { useAuth } from '../../../components/AuthProvider'
 import { MemberForm } from '../../../components/MemberForm'
 import { colors } from '../../../components/AdminStyles'
 
 export default function EditMemberPage() {
   const params = useParams()
   const id = params.id as string
+  const { companyId } = useAuth()
 
   const [profile, setProfile] = useState<Record<string, string> | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    if (!companyId) return
+
     const fetchProfile = async () => {
+      // 自社のprofileのみ取得（company_idフィルタ付き）
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', id)
+        .eq('company_id', companyId)
         .single()
 
       if (!error && data) {
@@ -28,7 +34,7 @@ export default function EditMemberPage() {
       setLoading(false)
     }
     fetchProfile()
-  }, [id])
+  }, [id, companyId])
 
   if (loading) {
     return (

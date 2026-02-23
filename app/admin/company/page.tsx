@@ -1,8 +1,9 @@
 'use client'
 
-// 企業情報編集ページ
+// 企業情報編集ページ（マルチテナント対応: 自社のレコードのみ表示・編集）
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
+import { useAuth } from '../components/AuthProvider'
 import { ImageUpload } from '../components/ImageUpload'
 import { colors, commonStyles } from '../components/AdminStyles'
 
@@ -18,6 +19,7 @@ type Company = {
 }
 
 export default function CompanyPage() {
+  const { companyId } = useAuth()
   const [company, setCompany] = useState<Company | null>(null)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -25,12 +27,14 @@ export default function CompanyPage() {
   const [messageType, setMessageType] = useState<'success' | 'error'>('success')
 
   useEffect(() => {
-    // 最初の企業レコードを取得
+    if (!companyId) return
+
+    // 自社の企業レコードを取得
     const fetchCompany = async () => {
       const { data } = await supabase
         .from('companies')
         .select('*')
-        .limit(1)
+        .eq('id', companyId)
         .single()
 
       if (data) {
@@ -48,7 +52,7 @@ export default function CompanyPage() {
       setLoading(false)
     }
     fetchCompany()
-  }, [])
+  }, [companyId])
 
   const handleChange = (field: keyof Company, value: string) => {
     setCompany(prev => prev ? { ...prev, [field]: value } : null)
