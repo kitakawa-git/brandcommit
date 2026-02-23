@@ -14,6 +14,7 @@ type AuthContextType = {
   user: User | null
   companyId: string | null
   role: string | null
+  isSuperAdmin: boolean
   loading: boolean
   signOut: () => Promise<void>
 }
@@ -22,6 +23,7 @@ const AuthContext = createContext<AuthContextType>({
   user: null,
   companyId: null,
   role: null,
+  isSuperAdmin: false,
   loading: true,
   signOut: async () => {},
 })
@@ -30,6 +32,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [companyId, setCompanyId] = useState<string | null>(null)
   const [role, setRole] = useState<string | null>(null)
+  const [isSuperAdmin, setIsSuperAdmin] = useState(false)
   const [loading, setLoading] = useState(true)
   const [adminError, setAdminError] = useState(false) // admin_users未登録エラー
   const router = useRouter()
@@ -41,7 +44,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.log('[AuthProvider] admin_users検索中... authId:', authId)
       const { data, error } = await supabase
         .from('admin_users')
-        .select('company_id, role')
+        .select('company_id, role, is_superadmin')
         .eq('auth_id', authId)
         .single()
 
@@ -53,12 +56,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setAdminError(true)
         setCompanyId(null)
         setRole(null)
+        setIsSuperAdmin(false)
         return false
       }
 
-      console.log('[AuthProvider] companyId:', data.company_id, 'role:', data.role)
+      console.log('[AuthProvider] companyId:', data.company_id, 'role:', data.role, 'isSuperAdmin:', data.is_superadmin)
       setCompanyId(data.company_id)
       setRole(data.role)
+      setIsSuperAdmin(data.is_superadmin || false)
       setAdminError(false)
       return true
     } catch (err) {
@@ -66,6 +71,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setAdminError(true)
       setCompanyId(null)
       setRole(null)
+      setIsSuperAdmin(false)
       return false
     }
   }
@@ -103,6 +109,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         } else {
           setCompanyId(null)
           setRole(null)
+          setIsSuperAdmin(false)
           setAdminError(false)
         }
 
@@ -119,11 +126,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     await supabase.auth.signOut()
     setCompanyId(null)
     setRole(null)
+    setIsSuperAdmin(false)
     setAdminError(false)
     router.push('/admin/login')
   }
 
-  const contextValue = { user, companyId, role, loading, signOut }
+  const contextValue = { user, companyId, role, isSuperAdmin, loading, signOut }
 
   // ログインページではそのまま表示（サイドバー・ヘッダーなし）
   if (pathname === '/admin/login') {

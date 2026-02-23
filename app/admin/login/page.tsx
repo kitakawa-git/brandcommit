@@ -3,6 +3,7 @@
 // ログインページ
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import { colors, commonStyles } from '../components/AdminStyles'
 
@@ -11,6 +12,8 @@ export default function LoginPage() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [isSuperAdmin, setIsSuperAdmin] = useState(false)
+  const [loggedIn, setLoggedIn] = useState(false)
   const router = useRouter()
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -39,7 +42,7 @@ export default function LoginPage() {
       console.log('[Login] admin_users検索中...')
       const { data: adminUser, error: adminError } = await supabase
         .from('admin_users')
-        .select('company_id, role')
+        .select('company_id, role, is_superadmin')
         .eq('auth_id', authData.user.id)
         .single()
 
@@ -57,7 +60,16 @@ export default function LoginPage() {
         return
       }
 
-      // 3. ログイン成功 → 社員一覧へリダイレクト
+      // 3. スーパー管理者フラグを保存
+      if (adminUser.is_superadmin) {
+        setIsSuperAdmin(true)
+        setLoggedIn(true)
+        setLoading(false)
+        // スーパー管理者の場合は遷移先選択画面を表示
+        return
+      }
+
+      // 4. 通常管理者 → 社員一覧へリダイレクト
       console.log('[Login] リダイレクト: /admin/members (companyId:', adminUser.company_id, ')')
       router.replace('/admin/members')
     } catch (err) {
@@ -66,6 +78,82 @@ export default function LoginPage() {
       setError(`ログイン処理中にエラーが発生しました: ${err instanceof Error ? err.message : String(err)}`)
       setLoading(false)
     }
+  }
+
+  // スーパー管理者用の遷移先選択画面
+  if (loggedIn && isSuperAdmin) {
+    return (
+      <div style={{
+        minHeight: '100vh',
+        backgroundColor: colors.pageBg,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontFamily: 'sans-serif',
+      }}>
+        <div style={{
+          backgroundColor: colors.white,
+          borderRadius: 12,
+          padding: 40,
+          width: '100%',
+          maxWidth: 400,
+          boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+        }}>
+          <div style={{ textAlign: 'center', marginBottom: 24 }}>
+            <h1 style={{
+              fontSize: 24,
+              fontWeight: 'bold',
+              color: colors.textPrimary,
+              margin: '0 0 8px',
+            }}>
+              brandcommit
+            </h1>
+            <p style={{
+              fontSize: 14,
+              color: colors.textSecondary,
+              margin: 0,
+            }}>
+              ログイン成功 — 遷移先を選択
+            </p>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <Link
+              href="/superadmin/companies"
+              style={{
+                display: 'block',
+                padding: '16px 20px',
+                backgroundColor: '#1e3a5f',
+                color: '#ffffff',
+                borderRadius: 8,
+                textDecoration: 'none',
+                fontSize: 15,
+                fontWeight: 'bold',
+                textAlign: 'center',
+              }}
+            >
+              スーパー管理画面
+            </Link>
+            <Link
+              href="/admin/members"
+              style={{
+                display: 'block',
+                padding: '16px 20px',
+                backgroundColor: colors.primary,
+                color: '#ffffff',
+                borderRadius: 8,
+                textDecoration: 'none',
+                fontSize: 15,
+                fontWeight: 'bold',
+                textAlign: 'center',
+              }}
+            >
+              通常管理画面
+            </Link>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (
