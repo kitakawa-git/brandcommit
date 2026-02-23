@@ -1,4 +1,4 @@
-import { supabase } from '@/lib/supabase'
+import { createClient } from '@supabase/supabase-js'
 import { notFound } from 'next/navigation'
 
 type Props = {
@@ -8,11 +8,40 @@ type Props = {
 export default async function CardPage({ params }: Props) {
   const { slug } = await params
 
-  const { data: profile } = await supabase
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+  // デバッグ用：環境変数が設定されているか確認
+  if (!supabaseUrl || !supabaseKey) {
+    return (
+      <div style={{ padding: 40 }}>
+        <h1>環境変数エラー</h1>
+        <p>URL: {supabaseUrl ? '設定済み' : '未設定'}</p>
+        <p>KEY: {supabaseKey ? '設定済み' : '未設定'}</p>
+      </div>
+    )
+  }
+
+  const supabase = createClient(supabaseUrl, supabaseKey)
+
+  const { data: profile, error } = await supabase
     .from('profiles')
     .select('*, companies(*)')
     .eq('slug', slug)
     .single()
+
+  // デバッグ用：エラー内容を表示
+  if (error) {
+    return (
+      <div style={{ padding: 40 }}>
+        <h1>データ取得エラー</h1>
+        <p>slug: {slug}</p>
+        <p>エラー: {error.message}</p>
+        <p>コード: {error.code}</p>
+        <p>URL: {supabaseUrl}</p>
+      </div>
+    )
+  }
 
   if (!profile) {
     notFound()
@@ -26,7 +55,6 @@ export default async function CardPage({ params }: Props) {
       backgroundColor: '#f8f8f8',
       fontFamily: 'sans-serif',
     }}>
-      {/* ヘッダー */}
       <div style={{
         backgroundColor: company?.brand_color_primary || '#1a1a1a',
         padding: '40px 20px',
@@ -53,7 +81,6 @@ export default async function CardPage({ params }: Props) {
         </p>
       </div>
 
-      {/* 個人セクション */}
       <div style={{
         maxWidth: 480,
         margin: '0 auto',
@@ -72,90 +99,52 @@ export default async function CardPage({ params }: Props) {
           </div>
         )}
 
-        {/* 連絡先 */}
-        <div style={{
-          display: 'flex',
-          gap: 12,
-          marginBottom: 24,
-        }}>
+        <div style={{ display: 'flex', gap: 12, marginBottom: 24 }}>
           {profile.email && (
             <a href={`mailto:${profile.email}`} style={{
-              flex: 1,
-              display: 'block',
-              textAlign: 'center',
-              padding: '12px 0',
-              backgroundColor: '#ffffff',
-              borderRadius: 12,
+              flex: 1, display: 'block', textAlign: 'center', padding: '12px 0',
+              backgroundColor: '#ffffff', borderRadius: 12,
               color: company?.brand_color_primary || '#1a1a1a',
-              textDecoration: 'none',
-              fontSize: 14,
-              fontWeight: 'bold',
+              textDecoration: 'none', fontSize: 14, fontWeight: 'bold',
             }}>
               ✉ メール
             </a>
           )}
           {profile.phone && (
             <a href={`tel:${profile.phone}`} style={{
-              flex: 1,
-              display: 'block',
-              textAlign: 'center',
-              padding: '12px 0',
-              backgroundColor: '#ffffff',
-              borderRadius: 12,
+              flex: 1, display: 'block', textAlign: 'center', padding: '12px 0',
+              backgroundColor: '#ffffff', borderRadius: 12,
               color: company?.brand_color_primary || '#1a1a1a',
-              textDecoration: 'none',
-              fontSize: 14,
-              fontWeight: 'bold',
+              textDecoration: 'none', fontSize: 14, fontWeight: 'bold',
             }}>
               📞 電話
             </a>
           )}
         </div>
 
-        {/* 企業セクション */}
         {company && (
-          <div style={{
-            backgroundColor: '#ffffff',
-            borderRadius: 12,
-            padding: 20,
-          }}>
+          <div style={{ backgroundColor: '#ffffff', borderRadius: 12, padding: 20 }}>
             <h2 style={{
-              fontSize: 18,
-              margin: '0 0 8px',
+              fontSize: 18, margin: '0 0 8px',
               color: company.brand_color_primary || '#1a1a1a',
             }}>
               {company.name}
             </h2>
             {company.slogan && (
-              <p style={{
-                fontSize: 14,
-                color: '#666',
-                margin: '0 0 16px',
-                fontStyle: 'italic',
-              }}>
+              <p style={{ fontSize: 14, color: '#666', margin: '0 0 16px', fontStyle: 'italic' }}>
                 {company.slogan}
               </p>
             )}
             {company.mvv && (
-              <p style={{
-                fontSize: 13,
-                color: '#333',
-                lineHeight: 1.8,
-                margin: '0 0 16px',
-              }}>
+              <p style={{ fontSize: 13, color: '#333', lineHeight: 1.8, margin: '0 0 16px' }}>
                 {company.mvv}
               </p>
             )}
             {company.website_url && (
               <a href={company.website_url} target="_blank" style={{
-                display: 'block',
-                textAlign: 'center',
-                padding: '12px 0',
+                display: 'block', textAlign: 'center', padding: '12px 0',
                 backgroundColor: company.brand_color_primary || '#1a1a1a',
-                borderRadius: 8,
-                color: '#ffffff',
-                textDecoration: 'none',
-                fontSize: 14,
+                borderRadius: 8, color: '#ffffff', textDecoration: 'none', fontSize: 14,
               }}>
                 コーポレートサイトを見る →
               </a>
@@ -163,13 +152,7 @@ export default async function CardPage({ params }: Props) {
           </div>
         )}
 
-        {/* フッター */}
-        <p style={{
-          textAlign: 'center',
-          fontSize: 11,
-          color: '#999',
-          marginTop: 32,
-        }}>
+        <p style={{ textAlign: 'center', fontSize: 11, color: '#999', marginTop: 32 }}>
           Powered by brandcommit
         </p>
       </div>
