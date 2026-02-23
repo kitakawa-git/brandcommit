@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
 import { notFound } from 'next/navigation'
+import QRCode from 'qrcode'
 
 type Props = {
   params: Promise<{ slug: string }>
@@ -44,6 +45,13 @@ export default async function CardPage({ params }: Props) {
   }
 
   const company = profile.companies
+
+  // QRコードをサーバーサイドで生成
+  const cardUrl = `https://brandcommit.vercel.app/card/${slug}`
+  const qrDataUrl = await QRCode.toDataURL(cardUrl, {
+    width: 160,
+    margin: 1,
+  })
 
   return (
     <div style={{
@@ -168,8 +176,22 @@ export default async function CardPage({ params }: Props) {
           </div>
         )}
 
+        {/* QRコード */}
+        <div style={{ textAlign: 'center', marginTop: 32 }}>
+          <img
+            src={qrDataUrl}
+            alt="QRコード"
+            width={160}
+            height={160}
+            style={{ display: 'block', margin: '0 auto' }}
+          />
+          <p style={{ fontSize: 11, color: '#999', marginTop: 8 }}>
+            名刺に印刷用
+          </p>
+        </div>
+
         {/* フッター */}
-        <p style={{ textAlign: 'center', fontSize: 11, color: '#999', marginTop: 32 }}>
+        <p style={{ textAlign: 'center', fontSize: 11, color: '#999', marginTop: 16 }}>
           Powered by brandcommit
         </p>
       </div>
