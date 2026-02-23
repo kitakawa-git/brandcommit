@@ -37,30 +37,45 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // admin_usersテーブルからcompany_idとroleを取得
   const fetchAdminUser = async (authId: string) => {
-    const { data, error } = await supabase
-      .from('admin_users')
-      .select('company_id, role')
-      .eq('auth_id', authId)
-      .single()
+    try {
+      console.log('[AuthProvider] admin_users検索中... authId:', authId)
+      const { data, error } = await supabase
+        .from('admin_users')
+        .select('company_id, role')
+        .eq('auth_id', authId)
+        .single()
 
-    if (error || !data) {
-      // admin_usersに未登録
+      console.log('[AuthProvider] admin_users結果:', { data, error: error?.message })
+
+      if (error || !data) {
+        // admin_usersに未登録またはRLSでブロック
+        console.warn('[AuthProvider] admin_user見つからず:', error?.message || '該当レコードなし')
+        setAdminError(true)
+        setCompanyId(null)
+        setRole(null)
+        return false
+      }
+
+      console.log('[AuthProvider] companyId:', data.company_id, 'role:', data.role)
+      setCompanyId(data.company_id)
+      setRole(data.role)
+      setAdminError(false)
+      return true
+    } catch (err) {
+      console.error('[AuthProvider] fetchAdminUser例外:', err)
       setAdminError(true)
       setCompanyId(null)
       setRole(null)
       return false
     }
-
-    setCompanyId(data.company_id)
-    setRole(data.role)
-    setAdminError(false)
-    return true
   }
 
   useEffect(() => {
     // 現在のセッション確認
+    console.log('[AuthProvider] セッション確認中... pathname:', pathname)
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       const currentUser = session?.user ?? null
+      console.log('[AuthProvider] セッション結果:', currentUser ? `user=${currentUser.email}` : 'なし')
       setUser(currentUser)
 
       if (currentUser) {
@@ -72,6 +87,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (!currentUser && pathname !== '/admin/login') {
         router.push('/admin/login')
       }
+    }).catch((err) => {
+      console.error('[AuthProvider] getSession例外:', err)
+      setLoading(false)
     })
 
     // 認証状態変更の監視

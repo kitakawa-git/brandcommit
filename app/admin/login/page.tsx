@@ -18,34 +18,54 @@ export default function LoginPage() {
     setLoading(true)
     setError('')
 
-    // Supabase Authでログイン
-    const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    })
+    try {
+      // 1. Supabase Authでログイン
+      console.log('[Login] 認証開始:', email)
+      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      })
 
-    if (authError) {
-      setError('メールアドレスまたはパスワードが正しくありません')
+      if (authError) {
+        console.error('[Login] 認証エラー:', authError.message)
+        setError('メールアドレスまたはパスワードが正しくありません')
+        setLoading(false)
+        return
+      }
+
+      console.log('[Login] 認証成功: userId =', authData.user.id)
+
+      // 2. admin_usersテーブルで管理者として登録されているか確認
+      console.log('[Login] admin_users検索中...')
+      const { data: adminUser, error: adminError } = await supabase
+        .from('admin_users')
+        .select('company_id, role')
+        .eq('auth_id', authData.user.id)
+        .single()
+
+      console.log('[Login] admin_users結果:', { adminUser, adminError: adminError?.message })
+
+      if (adminError || !adminUser) {
+        // 管理者として未登録 → ログアウトしてエラー表示
+        const errorMsg = adminError
+          ? `管理者データ取得エラー: ${adminError.message}（RLSが有効の可能性があります。sql/002_disable_rls.sql を実行してください）`
+          : 'このアカウントは管理者として登録されていません。admin_usersテーブルにデータがあるか確認してください。'
+        console.error('[Login]', errorMsg)
+        setError(errorMsg)
+        await supabase.auth.signOut()
+        setLoading(false)
+        return
+      }
+
+      // 3. ログイン成功 → 社員一覧へリダイレクト
+      console.log('[Login] リダイレクト: /admin/members (companyId:', adminUser.company_id, ')')
+      router.replace('/admin/members')
+    } catch (err) {
+      // 予期しないエラー
+      console.error('[Login] 予期しないエラー:', err)
+      setError(`ログイン処理中にエラーが発生しました: ${err instanceof Error ? err.message : String(err)}`)
       setLoading(false)
-      return
     }
-
-    // admin_usersテーブルで管理者として登録されているか確認
-    const { data: adminUser, error: adminError } = await supabase
-      .from('admin_users')
-      .select('company_id, role')
-      .eq('auth_id', authData.user.id)
-      .single()
-
-    if (adminError || !adminUser) {
-      // 管理者として未登録 → ログアウトしてエラー表示
-      setError('このアカウントは管理者として登録されていません。管理者に連絡してください。')
-      await supabase.auth.signOut()
-      setLoading(false)
-      return
-    }
-
-    router.push('/admin/members')
   }
 
   return (
@@ -86,7 +106,11 @@ export default function LoginPage() {
 
         {/* エラーメッセージ */}
         {error && (
-          <div style={commonStyles.error}>
+          <div style={{
+            ...commonStyles.error,
+            whiteSpace: 'pre-wrap',
+            wordBreak: 'break-word',
+          }}>
             {error}
           </div>
         )}
