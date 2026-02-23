@@ -11,7 +11,6 @@ export default async function CardPage({ params }: Props) {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
   const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
-  // デバッグ用：環境変数が設定されているか確認
   if (!supabaseUrl || !supabaseKey) {
     return (
       <div style={{ padding: 40 }}>
@@ -30,15 +29,12 @@ export default async function CardPage({ params }: Props) {
     .eq('slug', slug)
     .single()
 
-  // デバッグ用：エラー内容を表示
   if (error) {
     return (
       <div style={{ padding: 40 }}>
         <h1>データ取得エラー</h1>
         <p>slug: {slug}</p>
         <p>エラー: {error.message}</p>
-        <p>コード: {error.code}</p>
-        <p>URL: {supabaseUrl}</p>
       </div>
     )
   }
@@ -55,32 +51,50 @@ export default async function CardPage({ params }: Props) {
       backgroundColor: '#f8f8f8',
       fontFamily: 'sans-serif',
     }}>
+      {/* ヘッダー */}
       <div style={{
         backgroundColor: company?.brand_color_primary || '#1a1a1a',
         padding: '40px 20px',
         textAlign: 'center',
         color: '#ffffff',
       }}>
-        <div style={{
-          width: 80,
-          height: 80,
-          borderRadius: '50%',
-          backgroundColor: '#ffffff',
-          margin: '0 auto 16px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          fontSize: 32,
-          color: company?.brand_color_primary || '#1a1a1a',
-        }}>
-          {profile.name?.charAt(0)}
-        </div>
+        {profile.photo_url ? (
+          <img
+            src={profile.photo_url}
+            alt={profile.name}
+            style={{
+              width: 100,
+              height: 100,
+              borderRadius: '50%',
+              objectFit: 'cover',
+              margin: '0 auto 16px',
+              display: 'block',
+              border: '3px solid #ffffff',
+            }}
+          />
+        ) : (
+          <div style={{
+            width: 100,
+            height: 100,
+            borderRadius: '50%',
+            backgroundColor: '#ffffff',
+            margin: '0 auto 16px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: 36,
+            color: company?.brand_color_primary || '#1a1a1a',
+          }}>
+            {profile.name?.charAt(0)}
+          </div>
+        )}
         <h1 style={{ fontSize: 24, margin: '0 0 4px' }}>{profile.name}</h1>
         <p style={{ fontSize: 14, margin: 0, opacity: 0.8 }}>
           {profile.position} / {profile.department}
         </p>
       </div>
 
+      {/* 個人セクション */}
       <div style={{
         maxWidth: 480,
         margin: '0 auto',
@@ -99,6 +113,7 @@ export default async function CardPage({ params }: Props) {
           </div>
         )}
 
+        {/* 連絡先 */}
         <div style={{ display: 'flex', gap: 12, marginBottom: 24 }}>
           {profile.email && (
             <a href={`mailto:${profile.email}`} style={{
@@ -122,6 +137,7 @@ export default async function CardPage({ params }: Props) {
           )}
         </div>
 
+        {/* 企業セクション */}
         {company && (
           <div style={{ backgroundColor: '#ffffff', borderRadius: 12, padding: 20 }}>
             <h2 style={{
@@ -152,6 +168,7 @@ export default async function CardPage({ params }: Props) {
           </div>
         )}
 
+        {/* フッター */}
         <p style={{ textAlign: 'center', fontSize: 11, color: '#999', marginTop: 32 }}>
           Powered by brandcommit
         </p>
