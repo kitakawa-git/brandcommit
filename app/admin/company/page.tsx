@@ -16,6 +16,8 @@ type Company = {
   brand_color_primary: string
   brand_color_secondary: string
   website_url: string
+  brand_story: string
+  provided_values: string[]
 }
 
 export default function CompanyPage() {
@@ -47,6 +49,8 @@ export default function CompanyPage() {
           brand_color_primary: data.brand_color_primary || '#1a1a1a',
           brand_color_secondary: data.brand_color_secondary || '#666666',
           website_url: data.website_url || '',
+          brand_story: data.brand_story || '',
+          provided_values: data.provided_values || [],
         })
       }
       setLoading(false)
@@ -54,8 +58,29 @@ export default function CompanyPage() {
     fetchCompany()
   }, [companyId])
 
-  const handleChange = (field: keyof Company, value: string) => {
+  const handleChange = (field: keyof Company, value: string | string[]) => {
     setCompany(prev => prev ? { ...prev, [field]: value } : null)
+  }
+
+  // 提供価値の追加
+  const addProvidedValue = () => {
+    if (!company || company.provided_values.length >= 5) return
+    handleChange('provided_values', [...company.provided_values, ''])
+  }
+
+  // 提供価値の更新
+  const updateProvidedValue = (index: number, value: string) => {
+    if (!company) return
+    const updated = [...company.provided_values]
+    updated[index] = value
+    handleChange('provided_values', updated)
+  }
+
+  // 提供価値の削除
+  const removeProvidedValue = (index: number) => {
+    if (!company) return
+    const updated = company.provided_values.filter((_, i) => i !== index)
+    handleChange('provided_values', updated)
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -63,6 +88,9 @@ export default function CompanyPage() {
     if (!company) return
     setSaving(true)
     setMessage('')
+
+    // 空の提供価値を除外
+    const cleanedValues = company.provided_values.filter(v => v.trim() !== '')
 
     const { error } = await supabase
       .from('companies')
@@ -74,6 +102,8 @@ export default function CompanyPage() {
         brand_color_primary: company.brand_color_primary,
         brand_color_secondary: company.brand_color_secondary,
         website_url: company.website_url,
+        brand_story: company.brand_story,
+        provided_values: cleanedValues,
       })
       .eq('id', company.id)
 
@@ -83,6 +113,8 @@ export default function CompanyPage() {
     } else {
       setMessage('保存しました')
       setMessageType('success')
+      // クリーンな値でstateも更新
+      handleChange('provided_values', cleanedValues)
     }
     setSaving(false)
   }
@@ -169,6 +201,60 @@ export default function CompanyPage() {
             />
           </div>
 
+          {/* ブランドストーリー */}
+          <div style={commonStyles.formGroup}>
+            <label style={commonStyles.label}>ブランドストーリー</label>
+            <textarea
+              value={company.brand_story}
+              onChange={(e) => handleChange('brand_story', e.target.value)}
+              placeholder="企業のブランドストーリーを入力（名刺ページに表示されます）"
+              style={{ ...commonStyles.textarea, minHeight: 150 }}
+            />
+          </div>
+
+          {/* 提供価値 */}
+          <div style={commonStyles.formGroup}>
+            <label style={commonStyles.label}>提供価値（最大5項目）</label>
+            <p style={{ fontSize: 12, color: colors.textSecondary, margin: '0 0 8px' }}>
+              名刺ページにカード形式で表示されます
+            </p>
+            {company.provided_values.map((value, index) => (
+              <div key={index} style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
+                <input
+                  type="text"
+                  value={value}
+                  onChange={(e) => updateProvidedValue(index, e.target.value)}
+                  placeholder={`提供価値 ${index + 1}`}
+                  style={{ ...commonStyles.input, flex: 1 }}
+                />
+                <button
+                  type="button"
+                  onClick={() => removeProvidedValue(index)}
+                  style={{
+                    ...commonStyles.dangerButton,
+                    padding: '8px 14px',
+                    fontSize: 13,
+                  }}
+                >
+                  削除
+                </button>
+              </div>
+            ))}
+            {company.provided_values.length < 5 && (
+              <button
+                type="button"
+                onClick={addProvidedValue}
+                style={{
+                  ...commonStyles.buttonOutline,
+                  padding: '8px 16px',
+                  fontSize: 13,
+                }}
+              >
+                ＋ 提供価値を追加
+              </button>
+            )}
+          </div>
+
           {/* ブランドカラー（プライマリ） */}
           <div style={commonStyles.formGroup}>
             <label style={commonStyles.label}>ブランドカラー（プライマリ）</label>
@@ -193,7 +279,6 @@ export default function CompanyPage() {
                 placeholder="#1a1a1a"
                 style={{ ...commonStyles.input, width: 140 }}
               />
-              {/* カラープレビュー */}
               <div style={{
                 width: 80,
                 height: 40,
@@ -228,7 +313,6 @@ export default function CompanyPage() {
                 placeholder="#666666"
                 style={{ ...commonStyles.input, width: 140 }}
               />
-              {/* カラープレビュー */}
               <div style={{
                 width: 80,
                 height: 40,

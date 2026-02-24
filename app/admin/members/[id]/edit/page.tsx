@@ -74,6 +74,10 @@ export default function EditMemberPage() {
           slug: profile.slug || '',
           photo_url: profile.photo_url || '',
           company_id: profile.company_id || '',
+          sns_x: profile.sns_x || '',
+          sns_linkedin: profile.sns_linkedin || '',
+          sns_facebook: profile.sns_facebook || '',
+          sns_instagram: profile.sns_instagram || '',
         }}
         companyId={profile.company_id || ''}
       />

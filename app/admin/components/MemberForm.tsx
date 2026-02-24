@@ -18,6 +18,10 @@ type ProfileData = {
   slug: string
   photo_url: string
   company_id: string
+  sns_x: string
+  sns_linkedin: string
+  sns_facebook: string
+  sns_instagram: string
 }
 
 type Props = {
@@ -39,6 +43,10 @@ export function MemberForm({ initialData, companyId }: Props) {
     slug: initialData?.slug || '',
     photo_url: initialData?.photo_url || '',
     company_id: companyId,
+    sns_x: initialData?.sns_x || '',
+    sns_linkedin: initialData?.sns_linkedin || '',
+    sns_facebook: initialData?.sns_facebook || '',
+    sns_instagram: initialData?.sns_instagram || '',
   })
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
@@ -69,6 +77,10 @@ export function MemberForm({ initialData, companyId }: Props) {
       slug: form.slug,
       photo_url: form.photo_url,
       company_id: form.company_id,
+      sns_x: form.sns_x || null,
+      sns_linkedin: form.sns_linkedin || null,
+      sns_facebook: form.sns_facebook || null,
+      sns_instagram: form.sns_instagram || null,
     }
 
     if (isEdit) {
@@ -186,6 +198,67 @@ export function MemberForm({ initialData, companyId }: Props) {
             placeholder="090-1234-5678"
             style={commonStyles.input}
           />
+        </div>
+
+        {/* === SNSリンクセクション === */}
+        <div style={{
+          marginTop: 8,
+          marginBottom: 20,
+          paddingTop: 20,
+          borderTop: `1px solid ${colors.border}`,
+        }}>
+          <h3 style={{
+            fontSize: 15,
+            fontWeight: 'bold',
+            color: colors.textPrimary,
+            margin: '0 0 16px',
+          }}>
+            SNSリンク
+          </h3>
+
+          <div style={commonStyles.formGroup}>
+            <label style={commonStyles.label}>X (Twitter)</label>
+            <input
+              type="url"
+              value={form.sns_x}
+              onChange={(e) => handleChange('sns_x', e.target.value)}
+              placeholder="https://x.com/username"
+              style={commonStyles.input}
+            />
+          </div>
+
+          <div style={commonStyles.formGroup}>
+            <label style={commonStyles.label}>LinkedIn</label>
+            <input
+              type="url"
+              value={form.sns_linkedin}
+              onChange={(e) => handleChange('sns_linkedin', e.target.value)}
+              placeholder="https://linkedin.com/in/username"
+              style={commonStyles.input}
+            />
+          </div>
+
+          <div style={commonStyles.formGroup}>
+            <label style={commonStyles.label}>Facebook</label>
+            <input
+              type="url"
+              value={form.sns_facebook}
+              onChange={(e) => handleChange('sns_facebook', e.target.value)}
+              placeholder="https://facebook.com/username"
+              style={commonStyles.input}
+            />
+          </div>
+
+          <div style={commonStyles.formGroup}>
+            <label style={commonStyles.label}>Instagram</label>
+            <input
+              type="url"
+              value={form.sns_instagram}
+              onChange={(e) => handleChange('sns_instagram', e.target.value)}
+              placeholder="https://instagram.com/username"
+              style={commonStyles.input}
+            />
+          </div>
         </div>
 
         {/* スラッグ */}
