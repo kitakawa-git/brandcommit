@@ -1,34 +1,21 @@
 'use client'
 
-// ブランドパーソナリティ 編集ページ（1企業1レコード、upsert方式）
+// ブランドパーソナリティ 編集ページ（トーンオブボイス・コミュニケーションスタイルのみ）
+// 特性（traits）はブランド方針ページに移動済み
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '../../components/AuthProvider'
 import { colors, commonStyles } from '../../components/AdminStyles'
 
-type TraitItem = {
-  name: string
-  score: number
-  description: string
-}
-
 type Personality = {
-  traits: TraitItem[]
   tone_of_voice: string
   communication_style: string
 }
-
-const defaultTraits: TraitItem[] = Array.from({ length: 5 }, () => ({
-  name: '',
-  score: 5,
-  description: '',
-}))
 
 export default function BrandPersonalityPage() {
   const { companyId } = useAuth()
   const [personalityId, setPersonalityId] = useState<string | null>(null)
   const [personality, setPersonality] = useState<Personality>({
-    traits: [...defaultTraits],
     tone_of_voice: '',
     communication_style: '',
   })
@@ -57,11 +44,7 @@ export default function BrandPersonalityPage() {
 
       if (result.data) {
         setPersonalityId(result.data.id)
-        const traits = result.data.traits && Array.isArray(result.data.traits) && result.data.traits.length === 5
-          ? result.data.traits
-          : [...defaultTraits]
         setPersonality({
-          traits,
           tone_of_voice: result.data.tone_of_voice || '',
           communication_style: result.data.communication_style || '',
         })
@@ -82,14 +65,8 @@ export default function BrandPersonalityPage() {
     fetchPersonality()
   }, [companyId])
 
-  const handleChange = (field: 'tone_of_voice' | 'communication_style', value: string) => {
+  const handleChange = (field: keyof Personality, value: string) => {
     setPersonality(prev => ({ ...prev, [field]: value }))
-  }
-
-  const updateTrait = (index: number, field: keyof TraitItem, value: string | number) => {
-    const updated = [...personality.traits]
-    updated[index] = { ...updated[index], [field]: value }
-    setPersonality(prev => ({ ...prev, traits: updated }))
   }
 
   // Supabase REST API直接fetch
@@ -164,13 +141,11 @@ export default function BrandPersonalityPage() {
     setMessageType('error')
 
     try {
-      // セッショントークンを取得（RLSポリシー用）
       const { data: { session } } = await supabase.auth.getSession()
       const token = session?.access_token || ''
 
       const saveData: Record<string, unknown> = {
         company_id: companyId,
-        traits: personality.traits,
         tone_of_voice: personality.tone_of_voice || null,
         communication_style: personality.communication_style || null,
       }
@@ -201,32 +176,21 @@ export default function BrandPersonalityPage() {
   }
 
   if (loading) {
-    return (
-      <p style={{ color: colors.textSecondary, textAlign: 'center', padding: 40 }}>
-        読み込み中...
-      </p>
-    )
+    return <p style={{ color: colors.textSecondary, textAlign: 'center', padding: 40 }}>読み込み中...</p>
   }
 
   if (fetchError) {
     return (
       <div style={{ textAlign: 'center', padding: 40 }}>
         <p style={{ color: '#dc2626', fontSize: 14, marginBottom: 12 }}>{fetchError}</p>
-        <button onClick={fetchPersonality} style={{ ...commonStyles.buttonOutline, padding: '8px 16px', fontSize: 13 }}>
-          再読み込み
-        </button>
+        <button onClick={fetchPersonality} style={{ ...commonStyles.buttonOutline, padding: '8px 16px', fontSize: 13 }}>再読み込み</button>
       </div>
     )
   }
 
   return (
     <div>
-      <h2 style={{
-        fontSize: 20,
-        fontWeight: 'bold',
-        color: colors.textPrimary,
-        margin: '0 0 24px',
-      }}>
+      <h2 style={{ fontSize: 20, fontWeight: 'bold', color: colors.textPrimary, margin: '0 0 24px' }}>
         ブランドパーソナリティ
       </h2>
 
@@ -238,53 +202,6 @@ export default function BrandPersonalityPage() {
         )}
 
         <form onSubmit={handleSubmit}>
-          {/* 特性（5つ固定） */}
-          <div style={commonStyles.formGroup}>
-            <label style={commonStyles.label}>特性（5つ）</label>
-            <p style={{ fontSize: 12, color: colors.textSecondary, margin: '0 0 12px' }}>
-              ブランドの性格を表す特性とスコア（1〜10）を設定します
-            </p>
-            {personality.traits.map((trait, index) => (
-              <div key={index} style={{
-                display: 'flex',
-                gap: 8,
-                marginBottom: 8,
-                alignItems: 'center',
-              }}>
-                <span style={{
-                  fontSize: 13,
-                  fontWeight: 'bold',
-                  color: colors.textSecondary,
-                  minWidth: 20,
-                }}>
-                  {index + 1}.
-                </span>
-                <input
-                  type="text"
-                  value={trait.name}
-                  onChange={(e) => updateTrait(index, 'name', e.target.value)}
-                  placeholder="特性名"
-                  style={{ ...commonStyles.input, flex: 1 }}
-                />
-                <input
-                  type="number"
-                  min={1}
-                  max={10}
-                  value={trait.score}
-                  onChange={(e) => updateTrait(index, 'score', parseInt(e.target.value) || 5)}
-                  style={{ ...commonStyles.input, width: 70, textAlign: 'center' }}
-                />
-                <input
-                  type="text"
-                  value={trait.description}
-                  onChange={(e) => updateTrait(index, 'description', e.target.value)}
-                  placeholder="この特性の説明"
-                  style={{ ...commonStyles.input, flex: 2 }}
-                />
-              </div>
-            ))}
-          </div>
-
           {/* トーンオブボイス */}
           <div style={commonStyles.formGroup}>
             <label style={commonStyles.label}>トーンオブボイス</label>
@@ -310,11 +227,7 @@ export default function BrandPersonalityPage() {
           <button
             type="submit"
             disabled={saving}
-            style={{
-              ...commonStyles.button,
-              marginTop: 8,
-              opacity: saving ? 0.6 : 1,
-            }}
+            style={{ ...commonStyles.button, marginTop: 8, opacity: saving ? 0.6 : 1 }}
           >
             {saving ? '保存中...' : '保存する'}
           </button>

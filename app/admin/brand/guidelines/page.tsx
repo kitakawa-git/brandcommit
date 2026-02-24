@@ -1,38 +1,47 @@
 'use client'
 
-// ブランド方針 編集ページ（MVV・スローガン・ストーリー等）
-// コードパターン: app/admin/company/page.tsx に準拠
+// ブランド方針 編集ページ
+// スローガン・コンセプトビジュアル・動画・メッセージ・MVV・ストーリー・沿革・事業内容・特性
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '../../components/AuthProvider'
+import { ImageUpload } from '../../components/ImageUpload'
 import { colors, commonStyles } from '../../components/AdminStyles'
 
-type ValueItem = {
-  name: string
-  description: string
-}
+type ValueItem = { name: string; description: string }
+type HistoryItem = { year: string; event: string }
+type BusinessItem = { title: string; description: string }
+type TraitItem = { name: string; score: number; description: string }
 
 type Guidelines = {
+  slogan: string
+  concept_visual_url: string
+  brand_video_url: string
+  brand_statement: string
   mission: string
   vision: string
   values: ValueItem[]
-  slogan: string
-  brand_statement: string
   brand_story: string
-  brand_video_url: string
+  history: HistoryItem[]
+  business_content: BusinessItem[]
+  traits: TraitItem[]
 }
 
 export default function BrandGuidelinesPage() {
   const { companyId } = useAuth()
   const [guidelinesId, setGuidelinesId] = useState<string | null>(null)
   const [guidelines, setGuidelines] = useState<Guidelines>({
+    slogan: '',
+    concept_visual_url: '',
+    brand_video_url: '',
+    brand_statement: '',
     mission: '',
     vision: '',
     values: [],
-    slogan: '',
-    brand_statement: '',
     brand_story: '',
-    brand_video_url: '',
+    history: [],
+    business_content: [],
+    traits: [],
   })
   const [loading, setLoading] = useState(true)
   const [fetchError, setFetchError] = useState('')
@@ -60,13 +69,17 @@ export default function BrandGuidelinesPage() {
       if (result.data) {
         setGuidelinesId(result.data.id)
         setGuidelines({
+          slogan: result.data.slogan || '',
+          concept_visual_url: result.data.concept_visual_url || '',
+          brand_video_url: result.data.brand_video_url || '',
+          brand_statement: result.data.brand_statement || '',
           mission: result.data.mission || '',
           vision: result.data.vision || '',
           values: result.data.values || [],
-          slogan: result.data.slogan || '',
-          brand_statement: result.data.brand_statement || '',
           brand_story: result.data.brand_story || '',
-          brand_video_url: result.data.brand_video_url || '',
+          history: result.data.history || [],
+          business_content: result.data.business_content || [],
+          traits: result.data.traits || [],
         })
       }
     } catch (err) {
@@ -85,30 +98,66 @@ export default function BrandGuidelinesPage() {
     fetchGuidelines()
   }, [companyId])
 
-  const handleChange = (field: keyof Guidelines, value: string | ValueItem[]) => {
+  // --- ジェネリック更新 ---
+  const handleChange = (field: keyof Guidelines, value: unknown) => {
     setGuidelines(prev => ({ ...prev, [field]: value }))
   }
 
-  // バリューの追加
+  // --- バリュー ---
   const addValue = () => {
     if (guidelines.values.length >= 10) return
     handleChange('values', [...guidelines.values, { name: '', description: '' }])
   }
-
-  // バリューの更新
   const updateValue = (index: number, field: 'name' | 'description', value: string) => {
     const updated = [...guidelines.values]
     updated[index] = { ...updated[index], [field]: value }
     handleChange('values', updated)
   }
-
-  // バリューの削除
   const removeValue = (index: number) => {
-    const updated = guidelines.values.filter((_, i) => i !== index)
-    handleChange('values', updated)
+    handleChange('values', guidelines.values.filter((_, i) => i !== index))
   }
 
-  // URL正規化: http(s)://がなければhttps://を自動付与、空欄はそのまま
+  // --- 沿革 ---
+  const addHistory = () => {
+    handleChange('history', [...guidelines.history, { year: '', event: '' }])
+  }
+  const updateHistory = (index: number, field: 'year' | 'event', value: string) => {
+    const updated = [...guidelines.history]
+    updated[index] = { ...updated[index], [field]: value }
+    handleChange('history', updated)
+  }
+  const removeHistory = (index: number) => {
+    handleChange('history', guidelines.history.filter((_, i) => i !== index))
+  }
+
+  // --- 事業内容 ---
+  const addBusiness = () => {
+    handleChange('business_content', [...guidelines.business_content, { title: '', description: '' }])
+  }
+  const updateBusiness = (index: number, field: 'title' | 'description', value: string) => {
+    const updated = [...guidelines.business_content]
+    updated[index] = { ...updated[index], [field]: value }
+    handleChange('business_content', updated)
+  }
+  const removeBusiness = (index: number) => {
+    handleChange('business_content', guidelines.business_content.filter((_, i) => i !== index))
+  }
+
+  // --- ブランド特性 ---
+  const addTrait = () => {
+    if (guidelines.traits.length >= 5) return
+    handleChange('traits', [...guidelines.traits, { name: '', score: 5, description: '' }])
+  }
+  const updateTrait = (index: number, field: keyof TraitItem, value: string | number) => {
+    const updated = [...guidelines.traits]
+    updated[index] = { ...updated[index], [field]: value }
+    handleChange('traits', updated)
+  }
+  const removeTrait = (index: number) => {
+    handleChange('traits', guidelines.traits.filter((_, i) => i !== index))
+  }
+
+  // URL正規化
   const normalizeUrl = (url: string): string => {
     const trimmed = url.trim()
     if (!trimmed) return ''
@@ -116,12 +165,11 @@ export default function BrandGuidelinesPage() {
     return 'https://' + trimmed
   }
 
-  // Supabase REST APIに直接fetchで保存（JSクライアントの認証ハングを回避）
+  // Supabase REST API直接fetch (PATCH)
   const supabasePatch = async (table: string, id: string, data: Record<string, unknown>, token: string): Promise<{ ok: boolean; error?: string }> => {
     const url = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/${table}?id=eq.${id}`
     const controller = new AbortController()
     const timeoutId = setTimeout(() => controller.abort(), 10000)
-
     try {
       const res = await fetch(url, {
         method: 'PATCH',
@@ -135,7 +183,6 @@ export default function BrandGuidelinesPage() {
         signal: controller.signal,
       })
       clearTimeout(timeoutId)
-
       if (!res.ok) {
         const body = await res.text()
         return { ok: false, error: `HTTP ${res.status}: ${body}` }
@@ -144,18 +191,17 @@ export default function BrandGuidelinesPage() {
     } catch (err) {
       clearTimeout(timeoutId)
       if (err instanceof DOMException && err.name === 'AbortError') {
-        return { ok: false, error: 'タイムアウト（10秒）: サーバーからの応答がありません。' }
+        return { ok: false, error: 'タイムアウト（10秒）' }
       }
       return { ok: false, error: err instanceof Error ? err.message : '不明なエラー' }
     }
   }
 
-  // Supabase REST APIに直接fetchでINSERT
+  // Supabase REST API直接fetch (INSERT)
   const supabaseInsert = async (table: string, data: Record<string, unknown>, token: string): Promise<{ ok: boolean; error?: string; data?: Record<string, unknown> }> => {
     const url = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/${table}`
     const controller = new AbortController()
     const timeoutId = setTimeout(() => controller.abort(), 10000)
-
     try {
       const res = await fetch(url, {
         method: 'POST',
@@ -169,7 +215,6 @@ export default function BrandGuidelinesPage() {
         signal: controller.signal,
       })
       clearTimeout(timeoutId)
-
       if (!res.ok) {
         const body = await res.text()
         return { ok: false, error: `HTTP ${res.status}: ${body}` }
@@ -179,7 +224,7 @@ export default function BrandGuidelinesPage() {
     } catch (err) {
       clearTimeout(timeoutId)
       if (err instanceof DOMException && err.name === 'AbortError') {
-        return { ok: false, error: 'タイムアウト（10秒）: サーバーからの応答がありません。' }
+        return { ok: false, error: 'タイムアウト（10秒）' }
       }
       return { ok: false, error: err instanceof Error ? err.message : '不明なエラー' }
     }
@@ -193,33 +238,34 @@ export default function BrandGuidelinesPage() {
     setMessageType('error')
 
     try {
-      // セッショントークンを取得（RLSポリシー用）
       const { data: { session } } = await supabase.auth.getSession()
       const token = session?.access_token || ''
 
-      // 空のバリューを除外
       const cleanedValues = guidelines.values.filter(v => v.name.trim() !== '')
+      const cleanedHistory = guidelines.history.filter(h => h.year.trim() !== '' || h.event.trim() !== '')
+      const cleanedBusiness = guidelines.business_content.filter(b => b.title.trim() !== '')
+      const cleanedTraits = guidelines.traits.filter(t => t.name.trim() !== '')
 
       const saveData: Record<string, unknown> = {
         company_id: companyId,
+        slogan: guidelines.slogan || null,
+        concept_visual_url: guidelines.concept_visual_url || null,
+        brand_video_url: guidelines.brand_video_url ? normalizeUrl(guidelines.brand_video_url) : null,
+        brand_statement: guidelines.brand_statement || null,
         mission: guidelines.mission || null,
         vision: guidelines.vision || null,
         values: cleanedValues.length > 0 ? cleanedValues : [],
-        slogan: guidelines.slogan || null,
-        brand_statement: guidelines.brand_statement || null,
         brand_story: guidelines.brand_story || null,
-        brand_video_url: guidelines.brand_video_url ? normalizeUrl(guidelines.brand_video_url) : null,
+        history: cleanedHistory.length > 0 ? cleanedHistory : [],
+        business_content: cleanedBusiness.length > 0 ? cleanedBusiness : [],
+        traits: cleanedTraits.length > 0 ? cleanedTraits : [],
       }
-
-      console.log('[BrandGuidelines Save] 保存開始', { guidelinesId, companyId })
 
       let result: { ok: boolean; error?: string; data?: Record<string, unknown> }
 
       if (guidelinesId) {
-        // 既存レコードの更新
         result = await supabasePatch('brand_guidelines', guidelinesId, saveData, token)
       } else {
-        // 新規作成
         result = await supabaseInsert('brand_guidelines', saveData, token)
         if (result.ok && result.data) {
           setGuidelinesId(result.data.id as string)
@@ -227,20 +273,20 @@ export default function BrandGuidelinesPage() {
       }
 
       if (result.ok) {
-        console.log('[BrandGuidelines Save] 保存成功')
         setMessage('保存しました')
         setMessageType('success')
         handleChange('values', cleanedValues)
+        handleChange('history', cleanedHistory)
+        handleChange('business_content', cleanedBusiness)
+        handleChange('traits', cleanedTraits)
         if (guidelines.brand_video_url) {
           handleChange('brand_video_url', normalizeUrl(guidelines.brand_video_url))
         }
       } else {
-        console.error('[BrandGuidelines Save] エラー:', result.error)
         setMessage('保存に失敗しました: ' + result.error)
         setMessageType('error')
       }
     } catch (err) {
-      console.error('[BrandGuidelines Save] 予期しないエラー:', err)
       const errorMessage = err instanceof Error ? err.message : '不明なエラーが発生しました'
       setMessage('保存に失敗しました: ' + errorMessage)
       setMessageType('error')
@@ -250,37 +296,25 @@ export default function BrandGuidelinesPage() {
   }
 
   if (loading) {
-    return (
-      <p style={{ color: colors.textSecondary, textAlign: 'center', padding: 40 }}>
-        読み込み中...
-      </p>
-    )
+    return <p style={{ color: colors.textSecondary, textAlign: 'center', padding: 40 }}>読み込み中...</p>
   }
 
   if (fetchError) {
     return (
       <div style={{ textAlign: 'center', padding: 40 }}>
         <p style={{ color: '#dc2626', fontSize: 14, marginBottom: 12 }}>{fetchError}</p>
-        <button onClick={fetchGuidelines} style={{ ...commonStyles.buttonOutline, padding: '8px 16px', fontSize: 13 }}>
-          再読み込み
-        </button>
+        <button onClick={fetchGuidelines} style={{ ...commonStyles.buttonOutline, padding: '8px 16px', fontSize: 13 }}>再読み込み</button>
       </div>
     )
   }
 
   return (
     <div>
-      <h2 style={{
-        fontSize: 20,
-        fontWeight: 'bold',
-        color: colors.textPrimary,
-        margin: '0 0 24px',
-      }}>
+      <h2 style={{ fontSize: 20, fontWeight: 'bold', color: colors.textPrimary, margin: '0 0 24px' }}>
         ブランド方針
       </h2>
 
       <div style={commonStyles.card}>
-        {/* メッセージ */}
         {message && (
           <div style={messageType === 'success' ? commonStyles.success : commonStyles.error}>
             {message}
@@ -288,7 +322,53 @@ export default function BrandGuidelinesPage() {
         )}
 
         <form onSubmit={handleSubmit}>
-          {/* ミッション */}
+          {/* 1. スローガン */}
+          <div style={commonStyles.formGroup}>
+            <label style={commonStyles.label}>スローガン</label>
+            <input
+              type="text"
+              value={guidelines.slogan}
+              onChange={(e) => handleChange('slogan', e.target.value)}
+              placeholder="企業スローガン"
+              style={commonStyles.input}
+            />
+          </div>
+
+          {/* 2. コンセプトビジュアル */}
+          <div style={commonStyles.formGroup}>
+            <label style={commonStyles.label}>コンセプトビジュアル</label>
+            <ImageUpload
+              bucket="avatars"
+              folder="concept-visuals"
+              currentUrl={guidelines.concept_visual_url}
+              onUpload={(url) => handleChange('concept_visual_url', url)}
+            />
+          </div>
+
+          {/* 3. ブランド動画URL */}
+          <div style={commonStyles.formGroup}>
+            <label style={commonStyles.label}>ブランド動画URL</label>
+            <input
+              type="text"
+              value={guidelines.brand_video_url}
+              onChange={(e) => handleChange('brand_video_url', e.target.value)}
+              placeholder="https://youtube.com/..."
+              style={commonStyles.input}
+            />
+          </div>
+
+          {/* 4. メッセージ（旧ブランドステートメント） */}
+          <div style={commonStyles.formGroup}>
+            <label style={commonStyles.label}>メッセージ</label>
+            <textarea
+              value={guidelines.brand_statement}
+              onChange={(e) => handleChange('brand_statement', e.target.value)}
+              placeholder="ブランドとしてのメッセージ"
+              style={{ ...commonStyles.textarea, minHeight: 100 }}
+            />
+          </div>
+
+          {/* 5. ミッション */}
           <div style={commonStyles.formGroup}>
             <label style={commonStyles.label}>ミッション</label>
             <textarea
@@ -299,7 +379,7 @@ export default function BrandGuidelinesPage() {
             />
           </div>
 
-          {/* ビジョン */}
+          {/* 6. ビジョン */}
           <div style={commonStyles.formGroup}>
             <label style={commonStyles.label}>ビジョン</label>
             <textarea
@@ -310,19 +390,14 @@ export default function BrandGuidelinesPage() {
             />
           </div>
 
-          {/* バリュー */}
+          {/* 7. バリュー */}
           <div style={commonStyles.formGroup}>
             <label style={commonStyles.label}>バリュー（最大10個）</label>
             <p style={{ fontSize: 12, color: colors.textSecondary, margin: '0 0 8px' }}>
               企業が大切にする価値観を設定します
             </p>
             {guidelines.values.map((value, index) => (
-              <div key={index} style={{
-                display: 'flex',
-                gap: 8,
-                marginBottom: 8,
-                alignItems: 'flex-start',
-              }}>
+              <div key={index} style={{ display: 'flex', gap: 8, marginBottom: 8, alignItems: 'flex-start' }}>
                 <input
                   type="text"
                   value={value.name}
@@ -337,59 +412,19 @@ export default function BrandGuidelinesPage() {
                   placeholder="説明"
                   style={{ ...commonStyles.input, flex: 2 }}
                 />
-                <button
-                  type="button"
-                  onClick={() => removeValue(index)}
-                  style={{
-                    ...commonStyles.dangerButton,
-                    padding: '8px 14px',
-                    fontSize: 13,
-                    whiteSpace: 'nowrap',
-                  }}
-                >
+                <button type="button" onClick={() => removeValue(index)} style={{ ...commonStyles.dangerButton, padding: '8px 14px', fontSize: 13, whiteSpace: 'nowrap' }}>
                   削除
                 </button>
               </div>
             ))}
             {guidelines.values.length < 10 && (
-              <button
-                type="button"
-                onClick={addValue}
-                style={{
-                  ...commonStyles.buttonOutline,
-                  padding: '8px 16px',
-                  fontSize: 13,
-                }}
-              >
+              <button type="button" onClick={addValue} style={{ ...commonStyles.buttonOutline, padding: '8px 16px', fontSize: 13 }}>
                 + バリューを追加
               </button>
             )}
           </div>
 
-          {/* スローガン */}
-          <div style={commonStyles.formGroup}>
-            <label style={commonStyles.label}>スローガン</label>
-            <input
-              type="text"
-              value={guidelines.slogan}
-              onChange={(e) => handleChange('slogan', e.target.value)}
-              placeholder="企業スローガン"
-              style={commonStyles.input}
-            />
-          </div>
-
-          {/* ブランドステートメント */}
-          <div style={commonStyles.formGroup}>
-            <label style={commonStyles.label}>ブランドステートメント</label>
-            <textarea
-              value={guidelines.brand_statement}
-              onChange={(e) => handleChange('brand_statement', e.target.value)}
-              placeholder="ブランドとしての宣言文"
-              style={{ ...commonStyles.textarea, minHeight: 100 }}
-            />
-          </div>
-
-          {/* ブランドストーリー */}
+          {/* 8. ブランドストーリー */}
           <div style={commonStyles.formGroup}>
             <label style={commonStyles.label}>ブランドストーリー</label>
             <textarea
@@ -400,27 +435,120 @@ export default function BrandGuidelinesPage() {
             />
           </div>
 
-          {/* ブランド動画URL */}
+          {/* 9. 沿革 */}
           <div style={commonStyles.formGroup}>
-            <label style={commonStyles.label}>ブランド動画URL</label>
-            <input
-              type="text"
-              value={guidelines.brand_video_url}
-              onChange={(e) => handleChange('brand_video_url', e.target.value)}
-              placeholder="https://youtube.com/..."
-              style={commonStyles.input}
-            />
+            <label style={commonStyles.label}>沿革</label>
+            <p style={{ fontSize: 12, color: colors.textSecondary, margin: '0 0 8px' }}>
+              企業の歩みを年と出来事で記録します
+            </p>
+            {guidelines.history.map((item, index) => (
+              <div key={index} style={{ display: 'flex', gap: 8, marginBottom: 8, alignItems: 'center' }}>
+                <input
+                  type="text"
+                  value={item.year}
+                  onChange={(e) => updateHistory(index, 'year', e.target.value)}
+                  placeholder="年"
+                  style={{ ...commonStyles.input, width: 80, flexShrink: 0 }}
+                />
+                <input
+                  type="text"
+                  value={item.event}
+                  onChange={(e) => updateHistory(index, 'event', e.target.value)}
+                  placeholder="出来事"
+                  style={{ ...commonStyles.input, flex: 1 }}
+                />
+                <button type="button" onClick={() => removeHistory(index)} style={{ ...commonStyles.dangerButton, padding: '8px 14px', fontSize: 13, whiteSpace: 'nowrap' }}>
+                  削除
+                </button>
+              </div>
+            ))}
+            <button type="button" onClick={addHistory} style={{ ...commonStyles.buttonOutline, padding: '8px 16px', fontSize: 13 }}>
+              + 沿革を追加
+            </button>
+          </div>
+
+          {/* 10. 事業内容 */}
+          <div style={commonStyles.formGroup}>
+            <label style={commonStyles.label}>事業内容</label>
+            {guidelines.business_content.map((item, index) => (
+              <div key={index} style={{
+                border: `1px solid ${colors.border}`,
+                borderRadius: 8,
+                padding: 12,
+                marginBottom: 8,
+              }}>
+                <div style={{ display: 'flex', gap: 8, marginBottom: 8, alignItems: 'center' }}>
+                  <input
+                    type="text"
+                    value={item.title}
+                    onChange={(e) => updateBusiness(index, 'title', e.target.value)}
+                    placeholder="事業タイトル"
+                    style={{ ...commonStyles.input, flex: 1 }}
+                  />
+                  <button type="button" onClick={() => removeBusiness(index)} style={{ ...commonStyles.dangerButton, padding: '8px 14px', fontSize: 13, whiteSpace: 'nowrap' }}>
+                    削除
+                  </button>
+                </div>
+                <textarea
+                  value={item.description}
+                  onChange={(e) => updateBusiness(index, 'description', e.target.value)}
+                  placeholder="事業の説明"
+                  style={{ ...commonStyles.textarea, minHeight: 60 }}
+                />
+              </div>
+            ))}
+            <button type="button" onClick={addBusiness} style={{ ...commonStyles.buttonOutline, padding: '8px 16px', fontSize: 13 }}>
+              + 事業内容を追加
+            </button>
+          </div>
+
+          {/* 11. ブランド特性 */}
+          <div style={commonStyles.formGroup}>
+            <label style={commonStyles.label}>ブランド特性（最大5つ）</label>
+            <p style={{ fontSize: 12, color: colors.textSecondary, margin: '0 0 8px' }}>
+              ブランドの性格を表す特性とスコア（1〜10）を設定します
+            </p>
+            {guidelines.traits.map((trait, index) => (
+              <div key={index} style={{ display: 'flex', gap: 8, marginBottom: 8, alignItems: 'center' }}>
+                <input
+                  type="text"
+                  value={trait.name}
+                  onChange={(e) => updateTrait(index, 'name', e.target.value)}
+                  placeholder="特性名"
+                  style={{ ...commonStyles.input, flex: 1 }}
+                />
+                <input
+                  type="number"
+                  min={1}
+                  max={10}
+                  value={trait.score}
+                  onChange={(e) => updateTrait(index, 'score', parseInt(e.target.value) || 5)}
+                  style={{ ...commonStyles.input, width: 70, textAlign: 'center' }}
+                />
+                <input
+                  type="text"
+                  value={trait.description}
+                  onChange={(e) => updateTrait(index, 'description', e.target.value)}
+                  placeholder="この特性の説明"
+                  style={{ ...commonStyles.input, flex: 2 }}
+                />
+                <button type="button" onClick={() => removeTrait(index)} style={{ ...commonStyles.dangerButton, padding: '8px 14px', fontSize: 13, whiteSpace: 'nowrap' }}>
+                  削除
+                </button>
+              </div>
+            ))}
+            {guidelines.traits.length < 5 && (
+              <button type="button" onClick={addTrait} style={{ ...commonStyles.buttonOutline, padding: '8px 16px', fontSize: 13 }}>
+                + 特性を追加
+              </button>
+            )}
           </div>
 
           {/* 保存ボタン */}
           <button
             type="submit"
             disabled={saving}
-            style={{
-              ...commonStyles.button,
-              marginTop: 8,
-              opacity: saving ? 0.6 : 1,
-            }}
+            style={{ ...commonStyles.button, marginTop: 8, opacity: saving ? 0.6 : 1 }}
           >
             {saving ? '保存中...' : '保存する'}
           </button>
