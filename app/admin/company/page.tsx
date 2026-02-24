@@ -91,6 +91,16 @@ export default function CompanyPage() {
     return 'https://' + trimmed
   }
 
+  // タイムアウト付きPromise: ハング防止（10秒で強制エラー）
+  const withTimeout = <T,>(promise: PromiseLike<T>, ms: number): Promise<T> => {
+    return Promise.race([
+      Promise.resolve(promise),
+      new Promise<T>((_, reject) =>
+        setTimeout(() => reject(new Error(`タイムアウト（${ms / 1000}秒）: サーバーからの応答がありません。ページをリロードして再度お試しください。`)), ms)
+      ),
+    ])
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!company) return
@@ -105,10 +115,22 @@ export default function CompanyPage() {
       const normalizedWebsiteUrl = normalizeUrl(company.website_url)
 
       console.log('[Company Save] Step 1: 保存開始', { companyId: company.id })
-      console.log('[Company Save] website_url:', company.website_url, '→', normalizedWebsiteUrl)
-      console.log('[Company Save] provided_values:', JSON.stringify(cleanedValues))
-      console.log('[Company Save] provided_values type:', typeof cleanedValues, Array.isArray(cleanedValues))
-      console.log('[Company Save] brand_story:', company.brand_story ? `${company.brand_story.length}文字` : '未設定')
+
+      // Step 1.5: セッション確認（トークンリフレッシュを事前に実行）
+      console.log('[Company Save] Step 1.5: セッション確認中...')
+      try {
+        const { data: sessionData, error: sessionError } = await withTimeout(
+          supabase.auth.getSession(),
+          5000
+        )
+        if (sessionError) {
+          console.error('[Company Save] セッションエラー:', sessionError.message)
+        } else {
+          console.log('[Company Save] セッションOK:', sessionData.session ? 'あり' : 'なし')
+        }
+      } catch (sessionErr) {
+        console.warn('[Company Save] セッション確認タイムアウト、保存を続行します')
+      }
 
       // まず全フィールドで保存を試みる
       const fullUpdateData = {
@@ -123,19 +145,22 @@ export default function CompanyPage() {
         provided_values: cleanedValues.length > 0 ? cleanedValues : null,
       }
 
-      console.log('[Company Save] Step 2: 全フィールドで保存試行')
+      console.log('[Company Save] Step 2: 全フィールドで保存試行', JSON.stringify(fullUpdateData))
 
-      const { error } = await supabase
-        .from('companies')
-        .update(fullUpdateData)
-        .eq('id', company.id)
+      const { error } = await withTimeout(
+        supabase
+          .from('companies')
+          .update(fullUpdateData)
+          .eq('id', company.id),
+        10000
+      )
 
       if (error) {
-        console.error('[Company Save] Step 3: 全フィールド保存エラー:', error.message, error.code, error.details)
+        console.error('[Company Save] Step 3: 保存エラー:', error.message, error.code, error.details)
 
         // カラムが存在しない場合は基本フィールドのみで再試行
         if (error.message.includes('column') || error.code === 'PGRST204' || error.code === '42703') {
-          console.log('[Company Save] Step 4: 新カラム未作成の可能性 → 基本フィールドのみで再試行')
+          console.log('[Company Save] Step 4: 新カラム未作成 → 基本フィールドのみで再試行')
 
           const basicUpdateData = {
             name: company.name,
@@ -147,10 +172,14 @@ export default function CompanyPage() {
             website_url: normalizedWebsiteUrl,
           }
 
-          const { error: basicError } = await supabase
-            .from('companies')
-            .update(basicUpdateData)
-            .eq('id', company.id)
+          const { error: basicError } = await withTimeout(
+            supabase
+              .from('companies')
+              .update(basicUpdateData)
+              .eq('id', company.id)
+              .then(r => r),
+            10000
+          )
 
           if (basicError) {
             console.error('[Company Save] Step 5: 基本フィールド保存もエラー:', basicError.message)
@@ -183,6 +212,7 @@ export default function CompanyPage() {
       const errorMessage = err instanceof Error ? err.message : '不明なエラーが発生しました'
       const msg = '保存に失敗しました: ' + errorMessage
       setMessage(msg)
+      setMessageType('error')
       window.alert(msg)
     } finally {
       console.log('[Company Save] finally: setSaving(false)')
