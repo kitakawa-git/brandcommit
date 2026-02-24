@@ -1,6 +1,6 @@
 'use client'
 
-// 社員一覧ページ（マルチテナント対応: 自社の社員のみ表示）
+// 従業員一覧ページ（マルチテナント対応: 自社の従業員のみ表示）
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
@@ -67,7 +67,7 @@ export default function MembersPage() {
           color: colors.textPrimary,
           margin: 0,
         }}>
-          社員一覧
+          従業員一覧
         </h2>
         <Link href="/admin/members/new" style={commonStyles.button}>
           ＋ 新規追加
@@ -82,7 +82,7 @@ export default function MembersPage() {
           </p>
         ) : members.length === 0 ? (
           <p style={{ color: colors.textSecondary, textAlign: 'center', padding: 40 }}>
-            社員が登録されていません
+            従業員が登録されていません
           </p>
         ) : (
           <table style={commonStyles.table}>

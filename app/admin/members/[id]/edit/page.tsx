@@ -1,6 +1,6 @@
 'use client'
 
-// 社員編集ページ（マルチテナント対応: 自社の社員のみ編集可能）
+// 従業員編集ページ（マルチテナント対応: 自社の従業員のみ編集可能）
 import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
@@ -54,7 +54,7 @@ export default function EditMemberPage() {
   if (!profile) {
     return (
       <p style={{ color: colors.textSecondary, textAlign: 'center', padding: 40 }}>
-        社員データが見つかりません
+        従業員データが見つかりません
       </p>
     )
   }
@@ -67,7 +67,7 @@ export default function EditMemberPage() {
         color: colors.textPrimary,
         margin: '0 0 24px',
       }}>
-        社員を編集
+        従業員を編集
       </h2>
       <MemberForm
         initialData={{

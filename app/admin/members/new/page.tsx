@@ -1,6 +1,6 @@
 'use client'
 
-// 社員新規追加ページ（マルチテナント対応: useAuth()からcompanyIdを取得）
+// 従業員新規追加ページ（マルチテナント対応: useAuth()からcompanyIdを取得）
 import { useAuth } from '../../components/AuthProvider'
 import { MemberForm } from '../../components/MemberForm'
 import { colors } from '../../components/AdminStyles'
@@ -24,7 +24,7 @@ export default function NewMemberPage() {
         color: colors.textPrimary,
         margin: '0 0 24px',
       }}>
-        社員を追加
+        従業員を追加
       </h2>
       <MemberForm companyId={companyId} />
     </div>

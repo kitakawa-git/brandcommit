@@ -1,6 +1,6 @@
 'use client'
 
-// 社員フォーム（新規追加・編集共通）
+// 従業員フォーム（新規追加・編集共通）
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'

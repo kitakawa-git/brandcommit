@@ -1,6 +1,6 @@
 'use client'
 
-// メンバー管理（ポータル） — 招待リンク管理 + メンバーアカウント手動作成 + 一覧
+// アカウント管理（ポータル） — 招待リンク管理 + アカウント手動作成 + 一覧
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '../components/AuthProvider'
@@ -169,7 +169,7 @@ export default function MembersPortalPage() {
       const result = await res.json()
       if (!res.ok) throw new Error(result.error || '作成に失敗')
 
-      showMessage('メンバーアカウントを作成しました', 'success')
+      showMessage('アカウントを作成しました', 'success')
       setNewEmail('')
       setNewPassword('')
       setNewDisplayName('')
@@ -181,7 +181,7 @@ export default function MembersPortalPage() {
     }
   }
 
-  // ── メンバー無効化 ──
+  // ── アカウント無効化 ──
   const handleDeactivateMember = async (memberId: string) => {
     try {
       const { data: { session } } = await supabase.auth.getSession()
@@ -204,7 +204,7 @@ export default function MembersPortalPage() {
 
       if (!res.ok) throw new Error(`HTTP ${res.status}`)
 
-      showMessage('メンバーを無効化しました', 'success')
+      showMessage('アカウントを無効化しました', 'success')
       await fetchData()
     } catch (err) {
       showMessage('無効化に失敗: ' + (err instanceof Error ? err.message : '不明'), 'error')
@@ -222,7 +222,7 @@ export default function MembersPortalPage() {
   return (
     <div>
       <h2 style={{ fontSize: 20, fontWeight: 'bold', color: colors.textPrimary, margin: '0 0 24px' }}>
-        メンバー管理（ポータル）
+        アカウント管理
       </h2>
 
       {message && (
@@ -237,7 +237,7 @@ export default function MembersPortalPage() {
           招待リンク
         </h3>
         <p style={{ fontSize: 12, color: colors.textSecondary, margin: '0 0 12px' }}>
-          社員に共有すると、セルフ登録でメンバーアカウントを作成できます
+          社員に共有すると、セルフ登録でアカウントを作成できます
         </p>
 
         <button
@@ -371,15 +371,15 @@ export default function MembersPortalPage() {
         </form>
       </div>
 
-      {/* ── セクション3: メンバー一覧 ── */}
+      {/* ── セクション3: アカウント一覧 ── */}
       <div style={commonStyles.card}>
         <h3 style={{ fontSize: 16, fontWeight: 'bold', color: colors.textPrimary, margin: '0 0 16px' }}>
-          メンバー一覧
+          アカウント一覧
         </h3>
 
         {members.length === 0 ? (
           <p style={{ fontSize: 14, color: colors.textSecondary }}>
-            まだメンバーがいません
+            まだアカウントがありません
           </p>
         ) : (
           <table style={commonStyles.table}>
