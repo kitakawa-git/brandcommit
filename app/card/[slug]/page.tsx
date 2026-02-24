@@ -2,6 +2,7 @@ import { createClient } from '@supabase/supabase-js'
 import { notFound } from 'next/navigation'
 import QRCode from 'qrcode'
 import { generateHighResQRDataURL, getQRFilename } from '@/lib/qr-download'
+import { CardViewTracker } from './CardViewTracker'
 
 type Props = {
   params: Promise<{ slug: string }>
@@ -123,6 +124,9 @@ export default async function CardPage({ params }: Props) {
       backgroundColor: '#f8f8f8',
       fontFamily: 'sans-serif',
     }}>
+      {/* アクセス記録（クライアントコンポーネント） */}
+      <CardViewTracker profileId={profile.id} />
+
       {/* SNSホバー用CSS（サーバーコンポーネントではインラインstyleでhover不可） */}
       <style>{`
         .sns-icon {

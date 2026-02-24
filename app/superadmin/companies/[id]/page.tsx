@@ -47,6 +47,7 @@ export default function CompanyDetailPage() {
   const [saving, setSaving] = useState(false)
   const [message, setMessage] = useState('')
   const [messageType, setMessageType] = useState<'success' | 'error'>('success')
+  const [viewStats, setViewStats] = useState({ total: 0, month: 0, week: 0 })
 
   // 編集用フォーム
   const [editName, setEditName] = useState('')
@@ -101,6 +102,30 @@ export default function CompanyDetailPage() {
           auth_email: null, // クライアントサイドではauth.usersにアクセスできないため
         }))
         setAdminUsers(adminsWithEmail)
+
+        // アクセス解析サマリー
+        if (profilesData && profilesData.length > 0) {
+          const profileIds = profilesData.map((p: Profile) => p.id)
+          const { data: viewsData } = await supabase
+            .from('card_views')
+            .select('viewed_at')
+            .in('profile_id', profileIds)
+
+          if (viewsData) {
+            const now = new Date()
+            const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString()
+            const dayOfWeek = now.getDay()
+            const diff = dayOfWeek === 0 ? 6 : dayOfWeek - 1
+            const weekStart = new Date(now.getFullYear(), now.getMonth(), now.getDate() - diff)
+            weekStart.setHours(0, 0, 0, 0)
+
+            setViewStats({
+              total: viewsData.length,
+              month: viewsData.filter(v => v.viewed_at >= monthStart).length,
+              week: viewsData.filter(v => new Date(v.viewed_at) >= weekStart).length,
+            })
+          }
+        }
       } catch (err) {
         console.error('[SuperAdmin] 企業詳細取得エラー:', err)
       }
@@ -177,6 +202,33 @@ export default function CompanyDetailPage() {
       }}>
         {company.name}
       </h2>
+
+      {/* === アクセス解析サマリー === */}
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(3, 1fr)',
+        gap: 16,
+        marginBottom: 24,
+      }}>
+        {[
+          { label: '総閲覧数', value: viewStats.total, color: '#2563eb' },
+          { label: '今月', value: viewStats.month, color: '#16a34a' },
+          { label: '今週', value: viewStats.week, color: '#f59e0b' },
+        ].map((stat) => (
+          <div key={stat.label} style={{
+            ...commonStyles.card,
+            textAlign: 'center',
+            padding: 20,
+          }}>
+            <p style={{ fontSize: 12, color: colors.textSecondary, margin: '0 0 6px' }}>
+              📊 {stat.label}
+            </p>
+            <p style={{ fontSize: 28, fontWeight: 'bold', color: stat.color, margin: 0 }}>
+              {stat.value.toLocaleString()}
+            </p>
+          </div>
+        ))}
+      </div>
 
       {/* === 企業情報編集セクション === */}
       <div style={{ ...commonStyles.card, marginBottom: 24 }}>
