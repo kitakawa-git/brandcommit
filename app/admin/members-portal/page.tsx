@@ -268,6 +268,10 @@ export default function MembersPortalPage() {
           アカウント手動作成
         </h3>
 
+        <p style={{ fontSize: 12, color: colors.textSecondary, margin: '0 0 16px' }}>
+          名刺プロフィールも同時に作成されます
+        </p>
+
         <form onSubmit={handleCreateMember}>
           <div style={commonStyles.formGroup}>
             <label style={commonStyles.label}>メールアドレス</label>

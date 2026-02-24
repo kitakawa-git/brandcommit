@@ -1,6 +1,6 @@
 'use client'
 
-// 招待リンクからのセルフ登録ページ
+// 招待リンクからのセルフ登録ページ（API Route経由）
 import { Suspense, useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
@@ -31,7 +31,6 @@ function PortalRegisterContent() {
   const searchParams = useSearchParams()
   const token = searchParams.get('token')
 
-  const [companyId, setCompanyId] = useState<string | null>(null)
   const [companyName, setCompanyName] = useState('')
   const [tokenValid, setTokenValid] = useState<boolean | null>(null) // null = 検証中
 
@@ -61,8 +60,6 @@ function PortalRegisterContent() {
         setTokenValid(false)
         return
       }
-
-      setCompanyId(data.company_id)
 
       // 会社名を取得
       const { data: company } = await supabase
@@ -95,35 +92,32 @@ function PortalRegisterContent() {
     setLoading(true)
 
     try {
-      // 1. Supabase Auth でサインアップ
-      const { data: authData, error: signUpError } = await supabase.auth.signUp({
-        email,
-        password,
+      // API Route経由でサーバーサイドでAuth + profiles + members を一括作成
+      const res = await fetch('/api/members/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email,
+          password,
+          display_name: displayName,
+          token,
+        }),
       })
 
-      if (signUpError) {
-        throw new Error(signUpError.message)
+      const result = await res.json()
+      if (!res.ok) throw new Error(result.error || '登録に失敗しました')
+
+      // 登録成功 → signInWithPassword でログイン
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email: result.email,
+        password: result.password,
+      })
+
+      if (signInError) {
+        throw new Error('ログインに失敗しました: ' + signInError.message)
       }
 
-      if (!authData.user) {
-        throw new Error('ユーザー作成に失敗しました')
-      }
-
-      // 2. members テーブルに INSERT
-      const { error: memberError } = await supabase
-        .from('members')
-        .insert({
-          auth_id: authData.user.id,
-          company_id: companyId,
-          display_name: displayName,
-          email,
-        })
-
-      if (memberError) {
-        throw new Error(memberError.message)
-      }
-
-      // 3. ポータルへリダイレクト
+      // ポータルへリダイレクト
       router.replace('/portal')
     } catch (err) {
       setError(err instanceof Error ? err.message : '登録に失敗しました')

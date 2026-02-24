@@ -67,7 +67,7 @@ export default function EditMemberPage() {
         color: colors.textPrimary,
         margin: '0 0 24px',
       }}>
-        従業員を編集
+        アカウント編集
       </h2>
       <MemberForm
         initialData={{

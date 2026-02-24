@@ -10,13 +10,27 @@ const supabaseAdmin = createClient(
 
 export async function POST(req: NextRequest) {
   try {
-    const { email, password, display_name, company_id } = await req.json()
+    const { email, password, display_name, token } = await req.json()
 
-    if (!email || !password || !display_name || !company_id) {
+    if (!email || !password || !display_name || !token) {
       return NextResponse.json({ error: '必須項目が不足しています' }, { status: 400 })
     }
 
-    // 1. Supabase Auth でユーザー作成
+    // 1. invite_links テーブルでトークン検証 → company_id 取得
+    const { data: invite, error: inviteError } = await supabaseAdmin
+      .from('invite_links')
+      .select('company_id')
+      .eq('token', token)
+      .eq('is_active', true)
+      .single()
+
+    if (inviteError || !invite) {
+      return NextResponse.json({ error: '無効または期限切れの招待リンクです' }, { status: 400 })
+    }
+
+    const company_id = invite.company_id
+
+    // 2. Supabase Auth でユーザー作成
     const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
       email,
       password,
@@ -27,7 +41,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: authError.message }, { status: 400 })
     }
 
-    // 2. profiles テーブルにレコード作成（名刺プロフィール）
+    // 3. profiles テーブルにレコード作成（名刺プロフィール）
     const { data: profileData, error: profileError } = await supabaseAdmin
       .from('profiles')
       .insert({
@@ -46,7 +60,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'プロフィール作成失敗: ' + profileError.message }, { status: 400 })
     }
 
-    // 3. members テーブルにレコード作成（profile_id を紐づけ）
+    // 4. members テーブルにレコード作成（profile_id を紐づけ）
     const { error: memberError } = await supabaseAdmin
       .from('members')
       .insert({
@@ -64,9 +78,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'メンバー作成失敗: ' + memberError.message }, { status: 400 })
     }
 
-    return NextResponse.json({ success: true, member_id: authData.user.id, profile_id: profileData.id })
+    // email と password を返す（クライアント側で signInWithPassword するため）
+    return NextResponse.json({ success: true, email, password })
   } catch (err) {
-    console.error('[API members/create] エラー:', err)
+    console.error('[API members/register] エラー:', err)
     return NextResponse.json(
       { error: err instanceof Error ? err.message : '不明なエラー' },
       { status: 500 }

@@ -1,56 +1,125 @@
 'use client'
 
-// アカウント一覧ページ（マルチテナント対応: 自社のアカウントのみ表示）
+// アカウント一覧ページ（統合: members + profiles JOIN）
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '../components/AuthProvider'
 import { colors, commonStyles } from '../components/AdminStyles'
-import { downloadQRCode } from '@/lib/qr-download'
 
-type Profile = {
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
+const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
+
+type MemberWithProfile = {
   id: string
-  name: string
-  position: string
-  department: string
-  slug: string
-  photo_url: string | null
+  auth_id: string
+  display_name: string
+  email: string
+  is_active: boolean
+  created_at: string
+  profile_id: string | null
+  profile: {
+    id: string
+    name: string
+    slug: string
+    card_enabled: boolean
+  } | null
 }
 
 export default function MembersPage() {
   const { companyId } = useAuth()
-  const [members, setMembers] = useState<Profile[]>([])
+  const [members, setMembers] = useState<MemberWithProfile[]>([])
   const [loading, setLoading] = useState(true)
-  const [downloadingId, setDownloadingId] = useState<string | null>(null)
-
-  const handleQRDownload = async (slug: string, name: string, id: string) => {
-    setDownloadingId(id)
-    try {
-      await downloadQRCode(slug, name)
-    } catch (err) {
-      console.error('QRコード生成エラー:', err)
-      alert('QRコードの生成に失敗しました')
-    }
-    setDownloadingId(null)
-  }
+  const [togglingId, setTogglingId] = useState<string | null>(null)
 
   useEffect(() => {
     if (!companyId) return
-
-    const fetchMembers = async () => {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('id, name, position, department, slug, photo_url')
-        .eq('company_id', companyId)
-        .order('created_at', { ascending: false })
-
-      if (!error && data) {
-        setMembers(data)
-      }
-      setLoading(false)
-    }
     fetchMembers()
   }, [companyId])
+
+  const fetchMembers = async () => {
+    if (!companyId) return
+
+    const { data, error } = await supabase
+      .from('members')
+      .select('*, profile:profiles(*)')
+      .eq('company_id', companyId)
+      .order('created_at', { ascending: false })
+
+    if (!error && data) {
+      setMembers(data as unknown as MemberWithProfile[])
+    }
+    setLoading(false)
+  }
+
+  // 名刺 ON/OFF トグル
+  const toggleCard = async (profileId: string, currentValue: boolean) => {
+    setTogglingId(profileId)
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      const token = session?.access_token || ''
+
+      const res = await fetch(`${supabaseUrl}/rest/v1/profiles?id=eq.${profileId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': anonKey,
+          'Authorization': `Bearer ${token}`,
+          'Prefer': 'return=minimal',
+        },
+        body: JSON.stringify({ card_enabled: !currentValue }),
+      })
+
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+
+      // ローカルステートを更新
+      setMembers(prev => prev.map(m => {
+        if (m.profile?.id === profileId) {
+          return {
+            ...m,
+            profile: { ...m.profile!, card_enabled: !currentValue }
+          }
+        }
+        return m
+      }))
+    } catch (err) {
+      console.error('card_enabled更新エラー:', err)
+      alert('名刺設定の更新に失敗しました')
+    } finally {
+      setTogglingId(null)
+    }
+  }
+
+  // アカウント無効化
+  const handleDeactivate = async (memberId: string) => {
+    if (!confirm('このアカウントを無効化しますか？')) return
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      const token = session?.access_token || ''
+
+      const res = await fetch(`${supabaseUrl}/rest/v1/members?id=eq.${memberId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': anonKey,
+          'Authorization': `Bearer ${token}`,
+          'Prefer': 'return=minimal',
+        },
+        body: JSON.stringify({ is_active: false }),
+      })
+
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+
+      // ローカルステートを更新
+      setMembers(prev => prev.map(m =>
+        m.id === memberId ? { ...m, is_active: false } : m
+      ))
+    } catch (err) {
+      console.error('無効化エラー:', err)
+      alert('アカウントの無効化に失敗しました')
+    }
+  }
 
   return (
     <div>
@@ -69,7 +138,7 @@ export default function MembersPage() {
         }}>
           アカウント一覧
         </h2>
-        <Link href="/admin/members/new" style={commonStyles.button}>
+        <Link href="/admin/members-portal" style={commonStyles.button}>
           ＋ 新規追加
         </Link>
       </div>
@@ -88,94 +157,119 @@ export default function MembersPage() {
           <table style={commonStyles.table}>
             <thead>
               <tr>
-                <th style={commonStyles.th}>名前</th>
-                <th style={commonStyles.th}>役職</th>
-                <th style={commonStyles.th}>部署</th>
-                <th style={commonStyles.th}>スラッグ</th>
+                <th style={commonStyles.th}>表示名</th>
+                <th style={commonStyles.th}>メール</th>
+                <th style={{ ...commonStyles.th, textAlign: 'center' as const }}>名刺</th>
+                <th style={{ ...commonStyles.th, textAlign: 'center' as const }}>ステータス</th>
+                <th style={commonStyles.th}>登録日</th>
                 <th style={{ ...commonStyles.th, textAlign: 'center' as const }}>操作</th>
               </tr>
             </thead>
             <tbody>
-              {members.map((member) => (
-                <tr key={member.id}>
-                  <td style={commonStyles.td}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                      {/* サムネイル */}
-                      {member.photo_url ? (
-                        <img
-                          src={member.photo_url}
-                          alt={member.name}
+              {members.map((member) => {
+                const cardEnabled = member.profile?.card_enabled ?? false
+                const profileId = member.profile?.id
+                return (
+                  <tr key={member.id}>
+                    {/* 表示名 */}
+                    <td style={commonStyles.td}>
+                      <span style={{ fontWeight: '500' }}>{member.display_name}</span>
+                    </td>
+
+                    {/* メール */}
+                    <td style={{ ...commonStyles.td, fontSize: 13 }}>
+                      {member.email}
+                    </td>
+
+                    {/* 名刺 ON/OFF */}
+                    <td style={{ ...commonStyles.td, textAlign: 'center' as const }}>
+                      {profileId ? (
+                        <button
+                          onClick={() => toggleCard(profileId, cardEnabled)}
+                          disabled={togglingId === profileId}
                           style={{
-                            width: 32,
-                            height: 32,
-                            borderRadius: '50%',
-                            objectFit: 'cover',
+                            padding: '4px 12px',
+                            borderRadius: 12,
+                            border: 'none',
+                            fontSize: 12,
+                            fontWeight: 'bold',
+                            cursor: togglingId === profileId ? 'default' : 'pointer',
+                            opacity: togglingId === profileId ? 0.5 : 1,
+                            backgroundColor: cardEnabled ? '#dcfce7' : '#f3f4f6',
+                            color: cardEnabled ? '#16a34a' : '#9ca3af',
                           }}
-                        />
+                        >
+                          {cardEnabled ? '✅ ON' : 'OFF'}
+                        </button>
                       ) : (
-                        <div style={{
-                          width: 32,
-                          height: 32,
-                          borderRadius: '50%',
-                          backgroundColor: colors.primary,
-                          color: '#fff',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          fontSize: 14,
-                          fontWeight: 'bold',
-                        }}>
-                          {member.name?.charAt(0)}
-                        </div>
+                        <span style={{ color: '#9ca3af', fontSize: 12 }}>-</span>
                       )}
-                      <span style={{ fontWeight: '500' }}>{member.name}</span>
-                    </div>
-                  </td>
-                  <td style={commonStyles.td}>{member.position || '-'}</td>
-                  <td style={commonStyles.td}>{member.department || '-'}</td>
-                  <td style={commonStyles.td}>
-                    <code style={{
-                      backgroundColor: '#f3f4f6',
-                      padding: '2px 8px',
-                      borderRadius: 4,
-                      fontSize: 13,
-                    }}>
-                      {member.slug}
-                    </code>
-                  </td>
-                  <td style={{ ...commonStyles.td, textAlign: 'center' as const }}>
-                    <div style={{ display: 'flex', gap: 12, justifyContent: 'center' }}>
-                      <Link
-                        href={`/admin/members/${member.id}/edit`}
-                        style={{
-                          color: colors.primary,
-                          textDecoration: 'none',
-                          fontSize: 14,
-                          fontWeight: '500',
-                        }}
-                      >
-                        編集
-                      </Link>
-                      <button
-                        onClick={() => handleQRDownload(member.slug, member.name, member.id)}
-                        disabled={downloadingId === member.id}
-                        style={{
-                          color: colors.primary,
-                          background: 'none',
-                          border: 'none',
-                          fontSize: 14,
-                          fontWeight: '500',
-                          cursor: downloadingId === member.id ? 'default' : 'pointer',
-                          opacity: downloadingId === member.id ? 0.5 : 1,
-                          padding: 0,
-                        }}
-                      >
-                        {downloadingId === member.id ? '生成中...' : 'QR'}
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
+                    </td>
+
+                    {/* ステータス */}
+                    <td style={{ ...commonStyles.td, textAlign: 'center' as const }}>
+                      <span style={{
+                        padding: '2px 8px',
+                        borderRadius: 4,
+                        fontSize: 12,
+                        fontWeight: 'bold',
+                        backgroundColor: member.is_active ? '#dcfce7' : '#fee2e2',
+                        color: member.is_active ? '#16a34a' : '#dc2626',
+                      }}>
+                        {member.is_active ? '有効' : '無効'}
+                      </span>
+                    </td>
+
+                    {/* 登録日 */}
+                    <td style={{ ...commonStyles.td, fontSize: 12, color: colors.textSecondary }}>
+                      {new Date(member.created_at).toLocaleDateString('ja-JP')}
+                    </td>
+
+                    {/* 操作 */}
+                    <td style={{ ...commonStyles.td, textAlign: 'center' as const }}>
+                      <div style={{ display: 'flex', gap: 12, justifyContent: 'center' }}>
+                        {profileId && cardEnabled ? (
+                          <Link
+                            href={`/admin/members/${profileId}/edit`}
+                            style={{
+                              color: colors.primary,
+                              textDecoration: 'none',
+                              fontSize: 14,
+                              fontWeight: '500',
+                            }}
+                          >
+                            編集
+                          </Link>
+                        ) : (
+                          <span style={{
+                            color: '#d1d5db',
+                            fontSize: 14,
+                            fontWeight: '500',
+                          }}>
+                            編集
+                          </span>
+                        )}
+                        {member.is_active && (
+                          <button
+                            onClick={() => handleDeactivate(member.id)}
+                            style={{
+                              color: '#dc2626',
+                              background: 'none',
+                              border: 'none',
+                              fontSize: 14,
+                              fontWeight: '500',
+                              cursor: 'pointer',
+                              padding: 0,
+                            }}
+                          >
+                            無効化
+                          </button>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                )
+              })}
             </tbody>
           </table>
         )}

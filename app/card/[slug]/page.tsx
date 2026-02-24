@@ -73,6 +73,7 @@ export default async function CardPage({ params }: Props) {
     .from('profiles')
     .select('*, companies(*)')
     .eq('slug', slug)
+    .eq('card_enabled', true)
     .single()
 
   if (error) {
