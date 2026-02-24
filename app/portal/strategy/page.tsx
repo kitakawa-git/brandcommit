@@ -82,137 +82,113 @@ export default function PortalStrategyPage() {
 
       {/* ===== ターゲット ===== */}
       {target && (
-        <div style={{ ...portalStyles.card, marginBottom: 16 }}>
-          <h3 style={{ fontSize: 16, fontWeight: 'bold', color: portalColors.textPrimary, margin: '0 0 12px' }}>
-            ターゲット
-          </h3>
-          <div style={{
-            fontSize: 14,
-            color: portalColors.textPrimary,
-            lineHeight: 1.8,
-            whiteSpace: 'pre-wrap',
-          }}>
-            {target}
+        <div style={portalStyles.section}>
+          <h2 style={portalStyles.sectionTitle}>ターゲット</h2>
+          <div style={portalStyles.card}>
+            <div style={{ ...portalStyles.value, whiteSpace: 'pre-wrap' }}>{target}</div>
           </div>
         </div>
       )}
 
       {/* ===== ペルソナ ===== */}
       {validPersonas.length > 0 && (
-        <h3 style={{ fontSize: 16, fontWeight: 'bold', color: portalColors.textPrimary, margin: '0 0 12px' }}>
-          ペルソナ
-        </h3>
-      )}
-      {validPersonas.length > 0 && (
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
-          gap: 16,
-          marginBottom: 16,
-        }}>
-          {validPersonas.map((persona, i) => (
-            <div key={i} style={portalStyles.card}>
-              <div style={{ marginBottom: 12 }}>
-                <h3 style={{ fontSize: 18, fontWeight: 'bold', color: portalColors.textPrimary, margin: '0 0 4px' }}>
-                  {persona.name}
-                </h3>
-                <div style={{ fontSize: 13, color: portalColors.textSecondary }}>
-                  {[persona.age_range, persona.occupation].filter(Boolean).join(' / ')}
-                </div>
-              </div>
-
-              {persona.description && (
-                <div style={{ fontSize: 14, color: portalColors.textPrimary, lineHeight: 1.7, marginBottom: 16 }}>
-                  {persona.description}
-                </div>
-              )}
-
-              {persona.needs.length > 0 && (
+        <div style={portalStyles.section}>
+          <h2 style={portalStyles.sectionTitle}>ペルソナ</h2>
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+            gap: 16,
+          }}>
+            {validPersonas.map((persona, i) => (
+              <div key={i} style={portalStyles.card}>
                 <div style={{ marginBottom: 12 }}>
-                  <div style={{ ...portalStyles.label, marginBottom: 8 }}>ニーズ</div>
-                  {persona.needs.map((need, ni) => (
-                    <div key={ni} style={portalStyles.tag}>
-                      {need}
-                    </div>
-                  ))}
+                  <div style={{ fontSize: 16, fontWeight: 'bold', color: portalColors.textPrimary, marginBottom: 4 }}>
+                    {persona.name}
+                  </div>
+                  <div style={{ fontSize: 13, color: portalColors.textSecondary }}>
+                    {[persona.age_range, persona.occupation].filter(Boolean).join(' / ')}
+                  </div>
                 </div>
-              )}
 
-              {persona.pain_points.length > 0 && (
-                <div>
-                  <div style={{ ...portalStyles.label, marginBottom: 8 }}>課題</div>
-                  {persona.pain_points.map((point, pi) => (
-                    <div key={pi} style={{
-                      ...portalStyles.tag,
-                      backgroundColor: '#fef2f2',
-                      borderColor: '#fecaca',
-                      color: portalColors.danger,
-                    }}>
-                      {point}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          ))}
+                {persona.description && (
+                  <div style={{ fontSize: 14, color: portalColors.textSecondary, lineHeight: 1.6, marginBottom: 16 }}>
+                    {persona.description}
+                  </div>
+                )}
+
+                {persona.needs.length > 0 && (
+                  <div style={{ marginBottom: 12 }}>
+                    <div style={{ ...portalStyles.label, marginBottom: 8 }}>ニーズ</div>
+                    {persona.needs.map((need, ni) => (
+                      <div key={ni} style={portalStyles.tag}>
+                        {need}
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {persona.pain_points.length > 0 && (
+                  <div>
+                    <div style={{ ...portalStyles.label, marginBottom: 8 }}>課題</div>
+                    {persona.pain_points.map((point, pi) => (
+                      <div key={pi} style={{
+                        ...portalStyles.tag,
+                        backgroundColor: '#fef2f2',
+                        borderColor: '#fecaca',
+                        color: portalColors.danger,
+                      }}>
+                        {point}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
         </div>
       )}
 
       {/* ===== ポジショニングマップ ===== */}
       {positioningMapUrl && (
-        <h3 style={{ fontSize: 16, fontWeight: 'bold', color: portalColors.textPrimary, margin: '0 0 12px' }}>
-          ポジショニングマップ
-        </h3>
-      )}
-      {positioningMapUrl && (
-        <div style={{ ...portalStyles.card, marginBottom: 16 }}>
-          <img
-            src={positioningMapUrl}
-            alt="ポジショニングマップ"
-            onClick={() => setModalImage(positioningMapUrl)}
-            style={{
-              maxWidth: '100%',
-              maxHeight: 400,
-              borderRadius: 8,
-              border: `1px solid ${portalColors.cardBorder}`,
-              cursor: 'pointer',
-            }}
-          />
+        <div style={portalStyles.section}>
+          <h2 style={portalStyles.sectionTitle}>ポジショニングマップ</h2>
+          <div style={portalStyles.card}>
+            <img
+              src={positioningMapUrl}
+              alt="ポジショニングマップ"
+              onClick={() => setModalImage(positioningMapUrl)}
+              style={{
+                maxWidth: '100%',
+                maxHeight: 400,
+                borderRadius: 8,
+                border: `1px solid ${portalColors.cardBorder}`,
+                cursor: 'pointer',
+              }}
+            />
+          </div>
         </div>
       )}
 
       {/* ===== 行動指針 ===== */}
       {actionGuidelines.length > 0 && (
-        <h3 style={{ fontSize: 16, fontWeight: 'bold', color: portalColors.textPrimary, margin: '0 0 12px' }}>
-          行動指針
-        </h3>
-      )}
-      {actionGuidelines.length > 0 && (
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-          gap: 16,
-        }}>
-          {actionGuidelines.map((g, i) => (
-            <div key={i} style={portalStyles.card}>
-              <h4 style={{
-                fontSize: 15,
-                fontWeight: 'bold',
-                color: portalColors.textPrimary,
-                margin: '0 0 8px',
-              }}>
-                {g.title}
-              </h4>
-              <p style={{
-                fontSize: 14,
-                color: portalColors.textSecondary,
-                margin: 0,
-                lineHeight: 1.7,
-              }}>
-                {g.description}
-              </p>
-            </div>
-          ))}
+        <div style={portalStyles.section}>
+          <h2 style={portalStyles.sectionTitle}>行動指針</h2>
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+            gap: 16,
+          }}>
+            {actionGuidelines.map((g, i) => (
+              <div key={i} style={portalStyles.card}>
+                <div style={{ fontSize: 16, fontWeight: 'bold', color: portalColors.textPrimary, marginBottom: 8 }}>
+                  {g.title}
+                </div>
+                <div style={{ fontSize: 14, color: portalColors.textSecondary, lineHeight: 1.6 }}>
+                  {g.description}
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       )}
 
