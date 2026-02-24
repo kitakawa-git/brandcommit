@@ -15,6 +15,7 @@ type Visuals = {
   accent_color: string
   fonts: { primary: string; secondary: string }
   visual_guidelines: string | null
+  logo_concept: string | null
   logo_sections: LogoSection[]
 }
 
@@ -38,6 +39,7 @@ export default function PortalVisualsPage() {
             accent_color: d.accent_color || '#f59e0b',
             fonts: (d.fonts as { primary: string; secondary: string }) || { primary: '', secondary: '' },
             visual_guidelines: d.visual_guidelines,
+            logo_concept: d.logo_concept || null,
             logo_sections: (d.logo_sections as LogoSection[]) || [],
           })
         }
@@ -72,6 +74,16 @@ export default function PortalVisualsPage() {
       <p style={portalStyles.pageDescription}>
         ロゴガイドライン・ブランドカラー・フォント規定
       </p>
+
+      {/* ロゴコンセプト */}
+      {data.logo_concept && (
+        <div style={portalStyles.section}>
+          <h2 style={portalStyles.sectionTitle}>ロゴコンセプト</h2>
+          <div style={portalStyles.card}>
+            <div style={portalStyles.value}>{data.logo_concept}</div>
+          </div>
+        </div>
+      )}
 
       {/* ロゴガイドライン */}
       {validSections.length > 0 && (

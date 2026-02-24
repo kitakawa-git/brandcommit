@@ -20,6 +20,7 @@ type Visuals = {
   accent_color: string
   fonts: Fonts
   visual_guidelines: string
+  logo_concept: string
   logo_sections: LogoSection[]
 }
 
@@ -32,6 +33,7 @@ export default function BrandVisualsPage() {
     accent_color: '#2563eb',
     fonts: { primary: '', secondary: '' },
     visual_guidelines: '',
+    logo_concept: '',
     logo_sections: [],
   })
   const [loading, setLoading] = useState(true)
@@ -67,6 +69,7 @@ export default function BrandVisualsPage() {
           accent_color: result.data.accent_color || '#2563eb',
           fonts: result.data.fonts || { primary: '', secondary: '' },
           visual_guidelines: result.data.visual_guidelines || '',
+          logo_concept: result.data.logo_concept || '',
           logo_sections: (result.data.logo_sections as LogoSection[]) || [],
         })
       }
@@ -281,6 +284,7 @@ export default function BrandVisualsPage() {
         accent_color: visuals.accent_color,
         fonts: visuals.fonts,
         visual_guidelines: visuals.visual_guidelines || null,
+        logo_concept: visuals.logo_concept || null,
         logo_sections: cleanedSections,
       }
 
@@ -382,6 +386,17 @@ export default function BrandVisualsPage() {
         )}
 
         <form onSubmit={handleSubmit}>
+          {/* ロゴコンセプト */}
+          <div style={commonStyles.formGroup}>
+            <label style={commonStyles.label}>ロゴコンセプト</label>
+            <textarea
+              value={visuals.logo_concept}
+              onChange={(e) => handleChange('logo_concept', e.target.value)}
+              placeholder="ロゴに込めた意味やコンセプトを記述"
+              style={{ ...commonStyles.textarea, minHeight: 100 }}
+            />
+          </div>
+
           {/* ロゴガイドライン */}
           <div style={{ marginBottom: 20, paddingBottom: 20, borderBottom: `1px solid ${colors.border}` }}>
             <h3 style={{ fontSize: 15, fontWeight: 'bold', color: colors.textPrimary, margin: '0 0 16px' }}>
