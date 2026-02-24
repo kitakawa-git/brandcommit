@@ -80,9 +80,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
+  // 初回マウント時のみセッション確認 + リスナー登録
   useEffect(() => {
-    // 現在のセッション確認
-    console.log('[AuthProvider] セッション確認中... pathname:', pathname)
+    console.log('[AuthProvider] 初回セッション確認中...')
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       const currentUser = session?.user ?? null
       console.log('[AuthProvider] セッション結果:', currentUser ? `user=${currentUser.email}` : 'なし')
@@ -93,38 +93,43 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       setLoading(false)
-
-      if (!currentUser && pathname !== '/admin/login') {
-        router.push('/admin/login')
-      }
     }).catch((err) => {
       console.error('[AuthProvider] getSession例外:', err)
       setLoading(false)
     })
 
-    // 認証状態変更の監視
+    // 認証状態変更の監視（マウント時に1回だけ登録）
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (_event, session) => {
+      async (event, session) => {
+        console.log('[AuthProvider] onAuthStateChange:', event)
         const currentUser = session?.user ?? null
         setUser(currentUser)
 
-        if (currentUser) {
-          await fetchAdminUser(currentUser.id)
-        } else {
+        if (event === 'SIGNED_OUT') {
+          // 明示的ログアウト時のみ状態クリア
           setCompanyId(null)
           setRole(null)
           setIsSuperAdmin(false)
           setAdminError(false)
+          return
         }
 
-        if (!currentUser && pathname !== '/admin/login') {
-          router.push('/admin/login')
+        if (currentUser) {
+          await fetchAdminUser(currentUser.id)
         }
       }
     )
 
     return () => subscription.unsubscribe()
-  }, [pathname, router])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  // パス変更時のリダイレクト（セッション確認とは分離）
+  useEffect(() => {
+    if (!loading && !user && pathname !== '/admin/login') {
+      router.push('/admin/login')
+    }
+  }, [loading, user, pathname, router])
 
   const signOut = async () => {
     await supabase.auth.signOut()
