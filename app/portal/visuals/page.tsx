@@ -1,7 +1,7 @@
 'use client'
 
 // ブランドビジュアル 閲覧ページ（ロゴセクション＋カラー＋フォント＋ガイドライン）
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { supabase } from '@/lib/supabase'
 import { usePortalAuth } from '../components/PortalAuthProvider'
 import { portalColors, portalStyles } from '../components/PortalStyles'
@@ -23,6 +23,16 @@ export default function PortalVisualsPage() {
   const { companyId } = usePortalAuth()
   const [data, setData] = useState<Visuals | null>(null)
   const [loading, setLoading] = useState(true)
+  const [modalImage, setModalImage] = useState<string | null>(null)
+
+  const closeModal = useCallback(() => setModalImage(null), [])
+
+  useEffect(() => {
+    if (!modalImage) return
+    const handleKey = (e: KeyboardEvent) => { if (e.key === 'Escape') closeModal() }
+    window.addEventListener('keydown', handleKey)
+    return () => window.removeEventListener('keydown', handleKey)
+  }, [modalImage, closeModal])
 
   useEffect(() => {
     if (!companyId) return
@@ -146,13 +156,17 @@ export default function PortalVisualsPage() {
                 }}>
                   {section.items.map((item, iIdx) => (
                     <div key={iIdx} style={{ textAlign: 'center' }}>
-                      <div style={{
-                        padding: 16,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        minHeight: 120,
-                      }}>
+                      <div
+                        onClick={() => setModalImage(item.url)}
+                        style={{
+                          padding: 16,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          minHeight: 120,
+                          cursor: 'pointer',
+                        }}
+                      >
                         <img
                           src={item.url}
                           alt={item.caption || ''}
@@ -214,6 +228,48 @@ export default function PortalVisualsPage() {
           <div style={portalStyles.card}>
             <div style={portalStyles.value}>{data.visual_guidelines}</div>
           </div>
+        </div>
+      )}
+
+      {/* 画像拡大モーダル */}
+      {modalImage && (
+        <div
+          onClick={closeModal}
+          style={{
+            position: 'fixed',
+            top: 0, left: 0, right: 0, bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.7)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 9999,
+          }}
+        >
+          <button
+            onClick={closeModal}
+            style={{
+              position: 'absolute',
+              top: 16, right: 16,
+              background: 'none',
+              border: 'none',
+              color: '#ffffff',
+              fontSize: 32,
+              cursor: 'pointer',
+              lineHeight: 1,
+            }}
+          >
+            ×
+          </button>
+          <img
+            src={modalImage}
+            alt=""
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              maxWidth: '90vw',
+              maxHeight: '90vh',
+              objectFit: 'contain',
+            }}
+          />
         </div>
       )}
     </div>
