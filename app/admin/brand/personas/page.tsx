@@ -178,8 +178,10 @@ export default function BrandPersonasPage() {
         throw new Error(`削除エラー: HTTP ${delRes.status}: ${body}`)
       }
 
-      // 2. 現在のリストを全INSERT（空のnameは除外）
-      const cleanedPersonas = personas.filter(p => p.name.trim() !== '')
+      // 2. 現在のリストを全INSERT（名前・年齢層・職業のいずれかが入力されていれば登録）
+      const cleanedPersonas = personas.filter(p =>
+        p.name.trim() !== '' || p.age_range.trim() !== '' || p.occupation.trim() !== ''
+      )
       if (cleanedPersonas.length > 0) {
         const insertData = cleanedPersonas.map((p, i) => ({
           company_id: companyId,
@@ -281,14 +283,14 @@ export default function BrandPersonasPage() {
                 </button>
               </div>
 
-              {/* 名前 */}
+              {/* ペルソナ名称 */}
               <div style={commonStyles.formGroup}>
-                <label style={commonStyles.label}>名前</label>
+                <label style={commonStyles.label}>ペルソナ名称</label>
                 <input
                   type="text"
                   value={persona.name}
                   onChange={(e) => updatePersona(index, 'name', e.target.value)}
-                  placeholder="ペルソナの名前（例: 田中太郎）"
+                  placeholder="例: 情報感度の高いマーケター"
                   style={commonStyles.input}
                 />
               </div>
