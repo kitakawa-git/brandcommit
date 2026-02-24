@@ -6,6 +6,6 @@ import { useRouter } from 'next/navigation'
 
 export default function BrandTermsRedirect() {
   const router = useRouter()
-  useEffect(() => { router.replace('/admin/brand/personality') }, [router])
+  useEffect(() => { router.replace('/admin/brand/verbal') }, [router])
   return null
 }

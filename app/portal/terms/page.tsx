@@ -6,6 +6,6 @@ import { useRouter } from 'next/navigation'
 
 export default function PortalTermsRedirect() {
   const router = useRouter()
-  useEffect(() => { router.replace('/portal/personality') }, [router])
+  useEffect(() => { router.replace('/portal/verbal') }, [router])
   return null
 }
