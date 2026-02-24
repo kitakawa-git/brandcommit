@@ -1,6 +1,6 @@
 'use client'
 
-// ブランドビジュアル 閲覧ページ（ロゴセクション＋カラー＋フォント＋ガイドライン）
+// ビジュアルアイデンティティ 閲覧ページ（ロゴセクション＋カラー＋フォント＋ガイドライン）
 import { useEffect, useState, useCallback } from 'react'
 import { supabase } from '@/lib/supabase'
 import { usePortalAuth } from '../components/PortalAuthProvider'
@@ -109,7 +109,7 @@ export default function PortalVisualsPage() {
 
   return (
     <div style={portalStyles.pageContainer}>
-      <h1 style={portalStyles.pageTitle}>ブランドビジュアル</h1>
+      <h1 style={portalStyles.pageTitle}>ビジュアルアイデンティティ</h1>
       <p style={portalStyles.pageDescription}>
         ロゴガイドライン・ブランドカラー・フォント規定
       </p>
