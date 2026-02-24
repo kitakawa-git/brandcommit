@@ -1,65 +1,180 @@
-import Image from "next/image";
+// brandcommit ランディングページ
+import Link from 'next/link'
+
+const features = [
+  {
+    icon: '📇',
+    title: 'スマート名刺',
+    description: 'QRコード対応のデジタル名刺を簡単作成。印刷用の高解像度QRコードもワンクリックでダウンロード。',
+  },
+  {
+    icon: '🎨',
+    title: 'ブランド管理',
+    description: 'MVV・ブランドカラー・ストーリーを一元管理。名刺ページに自動反映されます。',
+  },
+  {
+    icon: '👥',
+    title: 'チーム連携',
+    description: '全社員の名刺を統一されたブランドデザインで管理。一括QRコードダウンロードにも対応。',
+  },
+]
 
 export default function Home() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div style={{
+      minHeight: '100vh',
+      fontFamily: 'sans-serif',
+      backgroundColor: '#ffffff',
+    }}>
+      {/* ヘッダー */}
+      <header style={{
+        padding: '16px 24px',
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        maxWidth: 1080,
+        margin: '0 auto',
+      }}>
+        <span style={{
+          fontSize: 20,
+          fontWeight: 'bold',
+          color: '#111827',
+        }}>
+          brandcommit
+        </span>
+        <Link href="/admin/login" style={{
+          color: '#2563eb',
+          textDecoration: 'none',
+          fontSize: 14,
+          fontWeight: 'bold',
+        }}>
+          ログイン
+        </Link>
+      </header>
+
+      {/* ヒーローセクション */}
+      <section style={{
+        textAlign: 'center',
+        padding: '80px 24px 60px',
+        maxWidth: 720,
+        margin: '0 auto',
+      }}>
+        <h1 style={{
+          fontSize: 40,
+          fontWeight: 'bold',
+          color: '#111827',
+          margin: '0 0 16px',
+          lineHeight: 1.3,
+        }}>
+          ブランドを、約束にする。
+        </h1>
+        <p style={{
+          fontSize: 18,
+          color: '#6b7280',
+          margin: '0 0 40px',
+          lineHeight: 1.7,
+        }}>
+          中小企業のためのスマート名刺 × ブランディングSaaS
+        </p>
+        <div style={{
+          display: 'flex',
+          gap: 16,
+          justifyContent: 'center',
+          flexWrap: 'wrap',
+        }}>
+          <Link href="/signup" style={{
+            padding: '14px 32px',
+            backgroundColor: '#2563eb',
+            color: '#ffffff',
+            border: 'none',
+            borderRadius: 8,
+            fontSize: 16,
+            fontWeight: 'bold',
+            textDecoration: 'none',
+            display: 'inline-block',
+          }}>
+            無料で始める
+          </Link>
+          <Link href="/admin/login" style={{
+            padding: '14px 32px',
+            backgroundColor: 'transparent',
+            color: '#111827',
+            border: '1px solid #e5e7eb',
+            borderRadius: 8,
+            fontSize: 16,
+            textDecoration: 'none',
+            display: 'inline-block',
+          }}>
+            ログイン
+          </Link>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+      </section>
+
+      {/* 特徴セクション */}
+      <section style={{
+        padding: '60px 24px 80px',
+        maxWidth: 960,
+        margin: '0 auto',
+      }}>
+        <h2 style={{
+          textAlign: 'center',
+          fontSize: 24,
+          fontWeight: 'bold',
+          color: '#111827',
+          margin: '0 0 48px',
+        }}>
+          主な機能
+        </h2>
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
+          gap: 32,
+        }}>
+          {features.map((feature) => (
+            <div key={feature.title} style={{
+              backgroundColor: '#f9fafb',
+              borderRadius: 12,
+              padding: 32,
+              textAlign: 'center',
+            }}>
+              <div style={{ fontSize: 36, marginBottom: 16 }}>
+                {feature.icon}
+              </div>
+              <h3 style={{
+                fontSize: 18,
+                fontWeight: 'bold',
+                color: '#111827',
+                margin: '0 0 12px',
+              }}>
+                {feature.title}
+              </h3>
+              <p style={{
+                fontSize: 14,
+                color: '#6b7280',
+                margin: 0,
+                lineHeight: 1.7,
+              }}>
+                {feature.description}
+              </p>
+            </div>
+          ))}
         </div>
-      </main>
+      </section>
+
+      {/* フッター */}
+      <footer style={{
+        padding: '24px',
+        textAlign: 'center',
+        borderTop: '1px solid #e5e7eb',
+      }}>
+        <p style={{
+          fontSize: 13,
+          color: '#9ca3af',
+          margin: 0,
+        }}>
+          &copy; brandcommit
+        </p>
+      </footer>
     </div>
-  );
+  )
 }

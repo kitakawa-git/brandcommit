@@ -253,6 +253,21 @@ export default function LoginPage() {
             {loading ? 'ログイン中...' : 'ログイン'}
           </button>
         </form>
+
+        {/* サインアップリンク */}
+        <p style={{
+          textAlign: 'center',
+          fontSize: 13,
+          color: colors.textSecondary,
+          marginTop: 24,
+          marginBottom: 0,
+        }}>
+          アカウントをお持ちでない方は{' '}
+          <Link href="/signup" style={{ color: colors.primary, textDecoration: 'none', fontWeight: 'bold' }}>
+            こちら
+          </Link>
+          {' '}から登録
+        </p>
       </div>
     </div>
   )
