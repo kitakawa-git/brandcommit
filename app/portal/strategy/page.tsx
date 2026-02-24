@@ -99,6 +99,11 @@ export default function PortalStrategyPage() {
 
       {/* ===== ペルソナ ===== */}
       {validPersonas.length > 0 && (
+        <h3 style={{ fontSize: 16, fontWeight: 'bold', color: portalColors.textPrimary, margin: '0 0 12px' }}>
+          ペルソナ
+        </h3>
+      )}
+      {validPersonas.length > 0 && (
         <div style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
@@ -155,10 +160,12 @@ export default function PortalStrategyPage() {
 
       {/* ===== ポジショニングマップ ===== */}
       {positioningMapUrl && (
+        <h3 style={{ fontSize: 16, fontWeight: 'bold', color: portalColors.textPrimary, margin: '0 0 12px' }}>
+          ポジショニングマップ
+        </h3>
+      )}
+      {positioningMapUrl && (
         <div style={{ ...portalStyles.card, marginBottom: 16 }}>
-          <h3 style={{ fontSize: 16, fontWeight: 'bold', color: portalColors.textPrimary, margin: '0 0 12px' }}>
-            ポジショニングマップ
-          </h3>
           <img
             src={positioningMapUrl}
             alt="ポジショニングマップ"
@@ -175,6 +182,11 @@ export default function PortalStrategyPage() {
       )}
 
       {/* ===== 行動指針 ===== */}
+      {actionGuidelines.length > 0 && (
+        <h3 style={{ fontSize: 16, fontWeight: 'bold', color: portalColors.textPrimary, margin: '0 0 12px' }}>
+          行動指針
+        </h3>
+      )}
       {actionGuidelines.length > 0 && (
         <div style={{
           display: 'grid',
