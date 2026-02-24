@@ -35,7 +35,7 @@ const navItems: NavItem[] = [
 
 const brandItems: NavItem[] = [
   { href: '/admin/brand/guidelines', label: 'ブランド方針', icon: FileText },
-  { href: '/admin/brand/visuals', label: 'ビジュアルアイデンティティ', icon: Palette },
+  { href: '/admin/brand/visuals', label: 'ビジュアル', icon: Palette },
   { href: '/admin/brand/verbal', label: 'バーバル', icon: Heart },
   { href: '/admin/brand/personas', label: '顧客ペルソナ', icon: Target },
   { href: '/admin/brand/values', label: '提供価値', icon: Diamond },
