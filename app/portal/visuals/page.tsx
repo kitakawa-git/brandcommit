@@ -78,56 +78,60 @@ export default function PortalVisualsPage() {
         <div style={portalStyles.section}>
           <h2 style={portalStyles.sectionTitle}>ロゴガイドライン</h2>
 
-          {validSections.map((section, sIdx) => (
-            <div key={sIdx} style={portalStyles.card}>
-              {/* セクションタイトル */}
-              {section.title && (
-                <h3 style={{
-                  fontSize: 15,
-                  fontWeight: 'bold',
-                  color: portalColors.textPrimary,
-                  margin: '0 0 12px',
-                  paddingBottom: 8,
-                  borderBottom: `1px solid ${portalColors.border}`,
-                }}>
-                  {section.title}
-                </h3>
-              )}
-
-              {/* 画像グリッド */}
-              <div style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(3, 1fr)',
-                gap: 16,
+          <div style={portalStyles.card}>
+            {validSections.map((section, sIdx) => (
+              <div key={sIdx} style={{
+                paddingBottom: sIdx < validSections.length - 1 ? 20 : 0,
+                marginBottom: sIdx < validSections.length - 1 ? 20 : 0,
+                borderBottom: sIdx < validSections.length - 1 ? `1px solid ${portalColors.border}` : 'none',
               }}>
-                {section.items.map((item, iIdx) => (
-                  <div key={iIdx} style={{ textAlign: 'center' }}>
-                    <div style={{
-                      padding: 16,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      minHeight: 120,
-                    }}>
-                      <img
-                        src={item.url}
-                        alt={item.caption || ''}
-                        style={{ maxWidth: '100%', maxHeight: 140, objectFit: 'contain' }}
-                      />
-                    </div>
-                    {item.caption && (
+                {/* セクションタイトル */}
+                {section.title && (
+                  <h3 style={{
+                    fontSize: 15,
+                    fontWeight: 'bold',
+                    color: portalColors.textPrimary,
+                    margin: '0 0 12px',
+                  }}>
+                    {section.title}
+                  </h3>
+                )}
+
+                {/* 画像グリッド */}
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(3, 1fr)',
+                  gap: 16,
+                }}>
+                  {section.items.map((item, iIdx) => (
+                    <div key={iIdx} style={{ textAlign: 'center' }}>
                       <div style={{
-                        fontSize: 13,
-                        color: portalColors.textSecondary,
+                        padding: 16,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        minHeight: 120,
                       }}>
-                        {item.caption}
+                        <img
+                          src={item.url}
+                          alt={item.caption || ''}
+                          style={{ maxWidth: '100%', maxHeight: 140, objectFit: 'contain' }}
+                        />
                       </div>
-                    )}
-                  </div>
-                ))}
+                      {item.caption && (
+                        <div style={{
+                          fontSize: 13,
+                          color: portalColors.textSecondary,
+                        }}>
+                          {item.caption}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       )}
 
