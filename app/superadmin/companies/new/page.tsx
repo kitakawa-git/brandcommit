@@ -11,6 +11,7 @@ export default function NewCompanyPage() {
   const router = useRouter()
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
+  const [successMessage, setSuccessMessage] = useState('')
 
   // 企業情報
   const [companyName, setCompanyName] = useState('')
@@ -28,47 +29,90 @@ export default function NewCompanyPage() {
     e.preventDefault()
     setSaving(true)
     setError('')
+    setSuccessMessage('')
 
     try {
-      // 認証トークンを取得
-      const { data: { session } } = await supabase.auth.getSession()
-      if (!session) {
-        setError('認証セッションがありません。再ログインしてください。')
-        setSaving(false)
+      // ステップ1: 認証トークンを取得
+      console.log('[NewCompany] ステップ1: 認証セッション取得中...')
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+
+      if (sessionError) {
+        console.error('[NewCompany] ステップ1失敗: セッションエラー:', sessionError.message)
+        setError(`セッションエラー: ${sessionError.message}`)
         return
       }
 
-      // API Routeにリクエスト
-      const res = await fetch('/api/superadmin/create-company', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session.access_token}`,
-        },
-        body: JSON.stringify({
-          companyName,
-          slogan,
-          mvv,
-          brandColorPrimary,
-          brandColorSecondary,
-          websiteUrl,
-          adminEmail,
-          adminPassword,
-        }),
-      })
+      if (!session) {
+        console.error('[NewCompany] ステップ1失敗: セッションなし')
+        setError('認証セッションがありません。再ログインしてください。')
+        return
+      }
 
-      const result = await res.json()
+      console.log('[NewCompany] ステップ1完了: トークン取得成功')
+
+      // ステップ2: API Routeにリクエスト
+      console.log('[NewCompany] ステップ2: API呼び出し中... POST /api/superadmin/create-company')
+      console.log('[NewCompany] 送信データ:', { companyName, adminEmail, slogan: slogan ? '(あり)' : '(なし)' })
+
+      let res: Response
+      try {
+        res = await fetch('/api/superadmin/create-company', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session.access_token}`,
+          },
+          body: JSON.stringify({
+            companyName,
+            slogan,
+            mvv,
+            brandColorPrimary,
+            brandColorSecondary,
+            websiteUrl,
+            adminEmail,
+            adminPassword,
+          }),
+        })
+      } catch (fetchErr) {
+        // ネットワークエラー（fetch自体が失敗）
+        console.error('[NewCompany] ステップ2失敗: fetch例外:', fetchErr)
+        setError(`ネットワークエラー: ${fetchErr instanceof Error ? fetchErr.message : String(fetchErr)}`)
+        return
+      }
+
+      console.log('[NewCompany] ステップ2完了: APIレスポンス status=', res.status)
+
+      // ステップ3: レスポンス解析
+      console.log('[NewCompany] ステップ3: レスポンス解析中...')
+      let result
+      try {
+        result = await res.json()
+      } catch (jsonErr) {
+        console.error('[NewCompany] ステップ3失敗: JSON解析エラー:', jsonErr)
+        setError(`APIレスポンス解析エラー (status=${res.status}): レスポンスがJSONではありません`)
+        return
+      }
+
+      console.log('[NewCompany] ステップ3完了: レスポンス=', JSON.stringify(result))
 
       if (!res.ok) {
-        setError(result.error || '作成に失敗しました')
-        setSaving(false)
+        console.error('[NewCompany] APIエラー:', result.error)
+        setError(result.error || `作成に失敗しました (status=${res.status})`)
         return
       }
 
-      // 成功 → 企業一覧へ
-      router.push('/superadmin/companies')
+      // ステップ4: 成功
+      console.log('[NewCompany] ステップ4: 作成成功! → 企業一覧へ遷移')
+      setSuccessMessage(`企業「${result.company?.name}」を作成しました。リダイレクト中...`)
+      setTimeout(() => {
+        router.push('/superadmin/companies')
+      }, 1000)
     } catch (err) {
-      setError(`エラー: ${err instanceof Error ? err.message : String(err)}`)
+      console.error('[NewCompany] 予期しないエラー:', err)
+      setError(`予期しないエラー: ${err instanceof Error ? err.message : String(err)}`)
+    } finally {
+      // どのパスを通っても必ず saving を解除
+      console.log('[NewCompany] finally: setSaving(false)')
       setSaving(false)
     }
   }
@@ -104,6 +148,14 @@ export default function NewCompanyPage() {
       </h2>
 
       <div style={{ ...commonStyles.card, maxWidth: 600 }}>
+        {/* 成功メッセージ */}
+        {successMessage && (
+          <div style={commonStyles.success}>
+            {successMessage}
+          </div>
+        )}
+
+        {/* エラーメッセージ */}
         {error && (
           <div style={{
             ...commonStyles.error,

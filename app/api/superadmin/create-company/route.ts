@@ -6,13 +6,39 @@ import { createClient } from '@supabase/supabase-js'
 import { getSupabaseAdmin } from '@/lib/supabase-admin'
 
 export async function POST(request: NextRequest) {
-  try {
-    const supabaseAdmin = getSupabaseAdmin()
+  console.log('[CreateCompany] ===== API呼び出し開始 =====')
 
-    // 1. リクエストユーザーがスーパー管理者か確認
+  try {
+    // ステップ0: サービスロールキーの確認
+    console.log('[CreateCompany] ステップ0: SUPABASE_SERVICE_ROLE_KEY確認中...')
+    const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+    if (!serviceRoleKey || serviceRoleKey === 'ここにコピーしたキーを貼る') {
+      console.error('[CreateCompany] ステップ0失敗: SUPABASE_SERVICE_ROLE_KEY が未設定またはプレースホルダーのままです')
+      return NextResponse.json(
+        { error: 'SUPABASE_SERVICE_ROLE_KEY が .env.local に正しく設定されていません。Supabase ダッシュボード → Settings → API → service_role からキーをコピーして .env.local に設定してください。' },
+        { status: 500 }
+      )
+    }
+    console.log('[CreateCompany] ステップ0完了: SERVICE_ROLE_KEY設定済み (長さ:', serviceRoleKey.length, ')')
+
+    let supabaseAdmin
+    try {
+      supabaseAdmin = getSupabaseAdmin()
+      console.log('[CreateCompany] supabaseAdmin クライアント作成成功')
+    } catch (initErr) {
+      console.error('[CreateCompany] supabaseAdmin 初期化エラー:', initErr)
+      return NextResponse.json(
+        { error: `Supabase管理クライアント初期化エラー: ${initErr instanceof Error ? initErr.message : String(initErr)}` },
+        { status: 500 }
+      )
+    }
+
+    // ステップ1: リクエストユーザーがスーパー管理者か確認
+    console.log('[CreateCompany] ステップ1: 認証トークン確認中...')
     const authHeader = request.headers.get('Authorization')
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return NextResponse.json({ error: '認証が必要です' }, { status: 401 })
+      console.error('[CreateCompany] ステップ1失敗: Authorizationヘッダーなし')
+      return NextResponse.json({ error: '認証が必要です。再ログインしてください。' }, { status: 401 })
     }
 
     const token = authHeader.replace('Bearer ', '')
@@ -24,23 +50,43 @@ export async function POST(request: NextRequest) {
       global: { headers: { Authorization: `Bearer ${token}` } },
     })
 
+    console.log('[CreateCompany] ステップ1: getUser()呼び出し中...')
     const { data: { user }, error: authError } = await supabaseUser.auth.getUser()
     if (authError || !user) {
-      return NextResponse.json({ error: '認証エラー' }, { status: 401 })
+      console.error('[CreateCompany] ステップ1失敗: 認証エラー:', authError?.message || 'ユーザーなし')
+      return NextResponse.json({ error: `認証エラー: ${authError?.message || 'セッションが無効です。再ログインしてください。'}` }, { status: 401 })
     }
+    console.log('[CreateCompany] ステップ1完了: user=', user.email, 'id=', user.id)
 
-    // admin_usersからis_superadmin確認
+    // ステップ2: admin_usersからis_superadmin確認
+    console.log('[CreateCompany] ステップ2: スーパー管理者権限確認中...')
     const { data: adminUser, error: adminError } = await supabaseAdmin
       .from('admin_users')
-      .select('is_superadmin')
+      .select('*')
       .eq('auth_id', user.id)
       .single()
 
-    if (adminError || !adminUser?.is_superadmin) {
-      return NextResponse.json({ error: 'スーパー管理者権限が必要です' }, { status: 403 })
+    console.log('[CreateCompany] ステップ2結果:', {
+      adminUser: adminUser ? { is_superadmin: adminUser.is_superadmin, role: adminUser.role } : null,
+      error: adminError?.message,
+    })
+
+    if (adminError || !adminUser) {
+      console.error('[CreateCompany] ステップ2失敗: admin_users取得エラー:', adminError?.message || '該当レコードなし')
+      return NextResponse.json(
+        { error: `管理者情報取得エラー: ${adminError?.message || 'admin_usersにレコードがありません'}` },
+        { status: 403 }
+      )
     }
 
-    // 2. リクエストBody取得
+    if (!adminUser.is_superadmin) {
+      console.error('[CreateCompany] ステップ2失敗: スーパー管理者ではありません (is_superadmin=', adminUser.is_superadmin, ')')
+      return NextResponse.json({ error: 'スーパー管理者権限が必要です。is_superadmin=true であることを確認してください。' }, { status: 403 })
+    }
+    console.log('[CreateCompany] ステップ2完了: スーパー管理者確認OK')
+
+    // ステップ3: リクエストBody取得
+    console.log('[CreateCompany] ステップ3: リクエストBody解析中...')
     const body = await request.json()
     const {
       companyName,
@@ -53,15 +99,18 @@ export async function POST(request: NextRequest) {
       adminPassword,
     } = body
 
+    console.log('[CreateCompany] ステップ3: 企業名=', companyName, '管理者メール=', adminEmail)
+
     if (!companyName || !adminEmail || !adminPassword) {
+      console.error('[CreateCompany] ステップ3失敗: 必須項目不足', { companyName: !!companyName, adminEmail: !!adminEmail, adminPassword: !!adminPassword })
       return NextResponse.json(
         { error: '企業名、管理者メールアドレス、パスワードは必須です' },
         { status: 400 }
       )
     }
 
-    // 3. Auth userを作成
-    console.log('[CreateCompany] Auth user作成中:', adminEmail)
+    // ステップ4: Auth userを作成
+    console.log('[CreateCompany] ステップ4: Auth user作成中... email=', adminEmail)
     const { data: authData, error: createUserError } = await supabaseAdmin.auth.admin.createUser({
       email: adminEmail,
       password: adminPassword,
@@ -69,16 +118,17 @@ export async function POST(request: NextRequest) {
     })
 
     if (createUserError) {
-      console.error('[CreateCompany] Auth user作成エラー:', createUserError.message)
+      console.error('[CreateCompany] ステップ4失敗: Auth user作成エラー:', createUserError.message)
       return NextResponse.json(
         { error: `アカウント作成エラー: ${createUserError.message}` },
         { status: 400 }
       )
     }
 
-    console.log('[CreateCompany] Auth user作成成功:', authData.user.id)
+    console.log('[CreateCompany] ステップ4完了: Auth user作成成功 id=', authData.user.id)
 
-    // 4. 企業レコードを作成
+    // ステップ5: 企業レコードを作成
+    console.log('[CreateCompany] ステップ5: 企業レコード作成中...')
     const { data: company, error: companyError } = await supabaseAdmin
       .from('companies')
       .insert({
@@ -93,8 +143,9 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (companyError) {
-      console.error('[CreateCompany] 企業作成エラー:', companyError.message)
+      console.error('[CreateCompany] ステップ5失敗: 企業作成エラー:', companyError.message)
       // Auth userを削除（ロールバック）
+      console.log('[CreateCompany] ロールバック: Auth user削除中...')
       await supabaseAdmin.auth.admin.deleteUser(authData.user.id)
       return NextResponse.json(
         { error: `企業作成エラー: ${companyError.message}` },
@@ -102,9 +153,10 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    console.log('[CreateCompany] 企業作成成功:', company.id)
+    console.log('[CreateCompany] ステップ5完了: 企業作成成功 id=', company.id)
 
-    // 5. admin_usersに紐づけ
+    // ステップ6: admin_usersに紐づけ
+    console.log('[CreateCompany] ステップ6: admin_users紐づけ中...')
     const { error: adminInsertError } = await supabaseAdmin
       .from('admin_users')
       .insert({
@@ -114,8 +166,9 @@ export async function POST(request: NextRequest) {
       })
 
     if (adminInsertError) {
-      console.error('[CreateCompany] admin_users紐づけエラー:', adminInsertError.message)
+      console.error('[CreateCompany] ステップ6失敗: admin_users紐づけエラー:', adminInsertError.message)
       // ロールバック
+      console.log('[CreateCompany] ロールバック: 企業+Auth user削除中...')
       await supabaseAdmin.from('companies').delete().eq('id', company.id)
       await supabaseAdmin.auth.admin.deleteUser(authData.user.id)
       return NextResponse.json(
@@ -124,7 +177,8 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    console.log('[CreateCompany] 完了: company_id =', company.id, 'auth_id =', authData.user.id)
+    console.log('[CreateCompany] ステップ6完了: admin_users紐づけ成功')
+    console.log('[CreateCompany] ===== 全ステップ完了 ===== company_id=', company.id, 'auth_id=', authData.user.id)
 
     return NextResponse.json({
       success: true,
