@@ -27,7 +27,7 @@ type NavItem = {
 
 const navItems: NavItem[] = [
   { href: '/admin/members', label: 'アカウント一覧', icon: Users },
-  { href: '/admin/company', label: '企業情報', icon: Building2 },
+  { href: '/admin/company', label: 'ブランド基本情報', icon: Building2 },
   { href: '/admin/analytics', label: 'アクセス解析', icon: BarChart3 },
   { href: '/admin/card-template', label: 'QRコード出力', icon: CreditCard },
   { href: '/admin/members-portal', label: 'アカウント作成', icon: UserPlus },

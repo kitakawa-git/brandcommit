@@ -189,7 +189,7 @@ export default function CompanyPage() {
         color: colors.textPrimary,
         margin: '0 0 24px',
       }}>
-        企業情報
+        ブランド基本情報
       </h2>
 
       <div style={commonStyles.card}>
@@ -214,7 +214,7 @@ export default function CompanyPage() {
 
           {/* 企業名 */}
           <div style={commonStyles.formGroup}>
-            <label style={commonStyles.label}>企業名</label>
+            <label style={commonStyles.label}>ブランド名</label>
             <input
               type="text"
               value={company.name}
