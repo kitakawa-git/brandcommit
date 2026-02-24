@@ -12,6 +12,10 @@ const navItems = [
   { href: '/admin/card-template', label: '名刺テンプレート', icon: '🖨️' },
 ]
 
+const brandItems = [
+  { href: '/admin/brand/guidelines', label: 'ブランド方針', icon: '📋' },
+]
+
 export function Sidebar() {
   const pathname = usePathname()
 
@@ -49,6 +53,41 @@ export function Sidebar() {
       {/* ナビゲーションリンク */}
       <nav>
         {navItems.map((item) => {
+          const isActive = pathname.startsWith(item.href)
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              style={{
+                display: 'block',
+                padding: '12px 20px',
+                color: isActive ? colors.sidebarActiveText : colors.sidebarText,
+                backgroundColor: isActive ? colors.sidebarActiveBg : 'transparent',
+                textDecoration: 'none',
+                fontSize: 14,
+                transition: 'background-color 0.15s',
+              }}
+            >
+              {item.icon}　{item.label}
+            </Link>
+          )
+        })}
+
+        {/* 区切り線 + ブランド掲示セクション */}
+        <div style={{
+          borderTop: `1px solid ${colors.sidebarActiveBg}`,
+          margin: '12px 20px',
+        }} />
+        <p style={{
+          padding: '4px 20px 8px',
+          fontSize: 11,
+          color: colors.sidebarText,
+          margin: 0,
+          letterSpacing: 1,
+        }}>
+          ブランド掲示
+        </p>
+        {brandItems.map((item) => {
           const isActive = pathname.startsWith(item.href)
           return (
             <Link
