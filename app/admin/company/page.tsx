@@ -83,6 +83,14 @@ export default function CompanyPage() {
     handleChange('provided_values', updated)
   }
 
+  // URL正規化: http(s)://がなければhttps://を自動付与、空欄はそのまま
+  const normalizeUrl = (url: string): string => {
+    const trimmed = url.trim()
+    if (!trimmed) return ''
+    if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) return trimmed
+    return 'https://' + trimmed
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!company) return
@@ -93,8 +101,11 @@ export default function CompanyPage() {
     try {
       // 空の提供価値を除外
       const cleanedValues = company.provided_values.filter(v => v.trim() !== '')
+      // URLを正規化
+      const normalizedWebsiteUrl = normalizeUrl(company.website_url)
 
       console.log('[Company Save] Step 1: 保存開始', { companyId: company.id })
+      console.log('[Company Save] website_url:', company.website_url, '→', normalizedWebsiteUrl)
       console.log('[Company Save] provided_values:', JSON.stringify(cleanedValues))
       console.log('[Company Save] provided_values type:', typeof cleanedValues, Array.isArray(cleanedValues))
       console.log('[Company Save] brand_story:', company.brand_story ? `${company.brand_story.length}文字` : '未設定')
@@ -107,7 +118,7 @@ export default function CompanyPage() {
         mvv: company.mvv,
         brand_color_primary: company.brand_color_primary,
         brand_color_secondary: company.brand_color_secondary,
-        website_url: company.website_url,
+        website_url: normalizedWebsiteUrl,
         brand_story: company.brand_story || null,
         provided_values: cleanedValues.length > 0 ? cleanedValues : null,
       }
@@ -133,7 +144,7 @@ export default function CompanyPage() {
             mvv: company.mvv,
             brand_color_primary: company.brand_color_primary,
             brand_color_secondary: company.brand_color_secondary,
-            website_url: company.website_url,
+            website_url: normalizedWebsiteUrl,
           }
 
           const { error: basicError } = await supabase
@@ -165,6 +176,7 @@ export default function CompanyPage() {
         setMessageType('success')
         // クリーンな値でstateも更新
         handleChange('provided_values', cleanedValues)
+        handleChange('website_url', normalizedWebsiteUrl)
       }
     } catch (err) {
       console.error('[Company Save] 予期しないエラー:', err)
