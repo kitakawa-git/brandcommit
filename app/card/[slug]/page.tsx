@@ -116,24 +116,24 @@ export default async function CardPage({ params }: Props) {
   const brandValues = valuesRes.data || []
   const visuals = visualsRes.data
 
-  // ブランドカラー（brand_visuals → companies → デフォルト値の優先順位）
-  const primaryColor = visuals?.primary_color || company?.brand_color_primary || '#1a1a1a'
-  const secondaryColor = visuals?.secondary_color || company?.brand_color_secondary || '#666666'
+  // ブランドカラー（brand_visuals テーブルから取得）
+  const primaryColor = visuals?.primary_color || '#1a1a1a'
+  const secondaryColor = visuals?.secondary_color || '#666666'
   const headerTextColor = getContrastTextColor(primaryColor)
 
-  // スローガン・MVV・ブランドストーリー（brand_guidelines → companies のフォールバック）
-  const slogan = guidelines?.slogan || company?.slogan || ''
+  // スローガン・ミッション・バリュー・ブランドストーリー（brand_guidelines テーブルから取得）
+  const slogan = guidelines?.slogan || ''
   const mission = guidelines?.mission || ''
-  const vision = guidelines?.vision || ''
-  const brandStory = guidelines?.brand_story || company?.brand_story || ''
+  const values = guidelines?.values || ''
+  const brandStory = guidelines?.brand_story || ''
 
-  // MVV表示用テキスト（brand_guidelinesのmission/visionを結合、なければcompanies.mvvにフォールバック）
-  const mvvText = [mission, vision].filter(Boolean).join('\n\n') || company?.mvv || ''
+  // ミッション＋バリュー表示用テキスト
+  const mvvText = [mission, values].filter(Boolean).join('\n\n')
 
-  // 提供価値（brand_values → companies.provided_values のフォールバック）
-  const providedValues: string[] = brandValues.length > 0
-    ? brandValues.map((v: { title: string }) => v.title).filter(Boolean)
-    : (company?.provided_values || [])
+  // 提供価値（brand_values テーブルから取得）
+  const providedValues: string[] = brandValues
+    .map((v: { title: string }) => v.title)
+    .filter(Boolean)
 
   // QRコードをサーバーサイドで生成
   const cardUrl = `https://brandcommit.vercel.app/card/${slug}`
