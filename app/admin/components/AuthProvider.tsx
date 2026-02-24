@@ -39,16 +39,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
 
   // admin_usersテーブルからcompany_idとroleを取得
+  // select('*') を使用: is_superadminカラムが未追加でもエラーにならない
   const fetchAdminUser = async (authId: string) => {
     try {
-      console.log('[AuthProvider] admin_users検索中... authId:', authId)
+      console.log('[AuthProvider] ステップ1: admin_users検索中... authId:', authId)
       const { data, error } = await supabase
         .from('admin_users')
-        .select('company_id, role, is_superadmin')
+        .select('*')
         .eq('auth_id', authId)
         .single()
 
-      console.log('[AuthProvider] admin_users結果:', { data, error: error?.message })
+      console.log('[AuthProvider] ステップ2: admin_users結果:', {
+        data: data ? { company_id: data.company_id, role: data.role, is_superadmin: data.is_superadmin } : null,
+        error: error?.message,
+      })
 
       if (error || !data) {
         // admin_usersに未登録またはRLSでブロック
@@ -60,10 +64,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return false
       }
 
-      console.log('[AuthProvider] companyId:', data.company_id, 'role:', data.role, 'isSuperAdmin:', data.is_superadmin)
+      console.log('[AuthProvider] ステップ3: companyId=', data.company_id, 'role=', data.role, 'isSuperAdmin=', data.is_superadmin)
       setCompanyId(data.company_id)
       setRole(data.role)
-      setIsSuperAdmin(data.is_superadmin || false)
+      setIsSuperAdmin(data.is_superadmin === true)
       setAdminError(false)
       return true
     } catch (err) {

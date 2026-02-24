@@ -22,60 +22,69 @@ export default function LoginPage() {
     setError('')
 
     try {
-      // 1. Supabase Authでログイン
-      console.log('[Login] 認証開始:', email)
+      // ステップ1: Supabase Authでログイン
+      console.log('[Login] ステップ1: 認証開始 email=', email)
       const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
         email,
         password,
       })
 
       if (authError) {
-        console.error('[Login] 認証エラー:', authError.message)
+        console.error('[Login] ステップ1失敗: 認証エラー:', authError.message)
         setError('メールアドレスまたはパスワードが正しくありません')
-        setLoading(false)
         return
       }
 
-      console.log('[Login] 認証成功: userId =', authData.user.id)
+      console.log('[Login] ステップ1完了: 認証成功 userId=', authData.user.id)
 
-      // 2. admin_usersテーブルで管理者として登録されているか確認
-      console.log('[Login] admin_users検索中...')
+      // ステップ2: admin_usersテーブルで管理者か確認
+      // select('*') を使用: is_superadminカラムが未追加でもエラーにならない
+      console.log('[Login] ステップ2: admin_users検索中...')
       const { data: adminUser, error: adminError } = await supabase
         .from('admin_users')
-        .select('company_id, role, is_superadmin')
+        .select('*')
         .eq('auth_id', authData.user.id)
         .single()
 
-      console.log('[Login] admin_users結果:', { adminUser, adminError: adminError?.message })
+      console.log('[Login] ステップ2結果:', {
+        adminUser: adminUser ? { company_id: adminUser.company_id, role: adminUser.role, is_superadmin: adminUser.is_superadmin } : null,
+        adminError: adminError?.message,
+      })
 
       if (adminError || !adminUser) {
         // 管理者として未登録 → ログアウトしてエラー表示
         const errorMsg = adminError
-          ? `管理者データ取得エラー: ${adminError.message}（RLSが有効の可能性があります。sql/002_disable_rls.sql を実行してください）`
+          ? `管理者データ取得エラー: ${adminError.message}（RLSが有効の場合 sql/002_disable_rls.sql を実行してください）`
           : 'このアカウントは管理者として登録されていません。admin_usersテーブルにデータがあるか確認してください。'
-        console.error('[Login]', errorMsg)
+        console.error('[Login] ステップ2失敗:', errorMsg)
         setError(errorMsg)
         await supabase.auth.signOut()
-        setLoading(false)
         return
       }
 
-      // 3. スーパー管理者フラグを保存
-      if (adminUser.is_superadmin) {
+      // ステップ3: スーパー管理者かどうか判定
+      const superAdmin = adminUser.is_superadmin === true
+      console.log('[Login] ステップ3: is_superadmin=', superAdmin)
+
+      if (superAdmin) {
+        console.log('[Login] ステップ3: スーパー管理者 → 遷移先選択画面を表示')
         setIsSuperAdmin(true)
         setLoggedIn(true)
-        setLoading(false)
-        // スーパー管理者の場合は遷移先選択画面を表示
+        // ※ setLoading(false) は finally で実行
         return
       }
 
-      // 4. 通常管理者 → 社員一覧へリダイレクト
-      console.log('[Login] リダイレクト: /admin/members (companyId:', adminUser.company_id, ')')
+      // ステップ4: 通常管理者 → 社員一覧へリダイレクト
+      console.log('[Login] ステップ4: 通常管理者 → /admin/members にリダイレクト (companyId:', adminUser.company_id, ')')
       router.replace('/admin/members')
+      // ※ setLoading(false) は finally で実行
     } catch (err) {
       // 予期しないエラー
       console.error('[Login] 予期しないエラー:', err)
       setError(`ログイン処理中にエラーが発生しました: ${err instanceof Error ? err.message : String(err)}`)
+    } finally {
+      // どのパスを通っても必ず loading を解除
+      console.log('[Login] finally: setLoading(false)')
       setLoading(false)
     }
   }
