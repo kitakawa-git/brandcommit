@@ -14,6 +14,11 @@ const navItems = [
 
 const brandItems = [
   { href: '/admin/brand/guidelines', label: 'ブランド方針', icon: '📋' },
+  { href: '/admin/brand/values', label: '提供価値', icon: '💎' },
+  { href: '/admin/brand/visuals', label: 'ビジュアル', icon: '🎨' },
+  { href: '/admin/brand/personality', label: 'パーソナリティ', icon: '👤' },
+  { href: '/admin/brand/terms', label: '用語ルール', icon: '📝' },
+  { href: '/admin/brand/personas', label: '顧客ペルソナ', icon: '🎯' },
 ]
 
 export function Sidebar() {

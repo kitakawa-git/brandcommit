@@ -40,3 +40,36 @@ id (uuid), company_id (FK→companies), name, position, department, bio, photo_u
 - コミットメッセージは日本語
 - スタイルは現状inline style（後でTailwindに移行予定）
 - git pushまで自動で行うこと
+
+## 開発経緯・技術メモ
+
+### DB構成
+- companies: name, slogan, mvv, primary_color, secondary_color, website_url, logo_url, brand_story, provided_values(text[])
+- profiles: name, title, department, bio, email, phone, slug, photo_url, company_id, sns_x, sns_linkedin, sns_facebook, sns_instagram
+- admin_users: auth_id, company_id, role, is_superadmin
+- card_views: profile_id, viewed_at, ip_address, user_agent, referer, country, city
+
+### 認証
+- Supabase Auth（メール/パスワード）
+- admin_usersでcompany_idとroleを管理
+- is_superadmin=trueでスーパー管理画面アクセス可能
+- supabaseクライアントのauth設定にlock:false必須（LockManagerタイムアウト回避）
+
+### RLS
+- 全テーブルRLS無効（プロトタイプ段階。本番前に要設定）
+
+### Storage
+- avatars: プロフィール写真
+- logos: 企業ロゴ
+- ポリシー：認証ユーザーはavatars/logosにアップロード・更新可能、誰でも閲覧可能
+
+### 環境変数
+- NEXT_PUBLIC_SUPABASE_URL
+- NEXT_PUBLIC_SUPABASE_ANON_KEY
+- SUPABASE_SERVICE_ROLE_KEY（API Routeでのみ使用）
+
+### 既知の注意点
+- WebサイトURLはhttps://自動補完あり
+- provided_valuesはPostgreSQL配列型（text[]）
+- QRコードは1000x1000px高解像度対応
+- セルフサービス登録時のslugはランダム英数字8文字
