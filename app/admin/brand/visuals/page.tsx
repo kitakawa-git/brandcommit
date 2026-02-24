@@ -1,6 +1,6 @@
 'use client'
 
-// ブランドビジュアル 編集ページ（1企業1レコード、upsert方式）
+// ビジュアルアイデンティティ 編集ページ（1企業1レコード、upsert方式）
 import { useEffect, useState, useRef } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '../../components/AuthProvider'
@@ -349,7 +349,7 @@ export default function BrandVisualsPage() {
         color: colors.textPrimary,
         margin: '0 0 24px',
       }}>
-        ブランドビジュアル
+        ビジュアルアイデンティティ
       </h2>
 
       <div style={commonStyles.card}>

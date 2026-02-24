@@ -15,13 +15,13 @@ const cards = [
   {
     href: '/portal/visuals',
     icon: '🎨',
-    title: 'ビジュアル',
+    title: 'ビジュアルアイデンティティ',
     description: 'カラー・ロゴ・フォント規定',
   },
   {
     href: '/portal/verbal',
     icon: '👤',
-    title: 'バーバルアイデンティティ',
+    title: 'バーバル',
     description: 'トーン・コミュニケーション・用語ルール',
   },
   {
