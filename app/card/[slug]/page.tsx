@@ -1,6 +1,7 @@
 import { createClient } from '@supabase/supabase-js'
 import { notFound } from 'next/navigation'
 import QRCode from 'qrcode'
+import { generateHighResQRDataURL, getQRFilename } from '@/lib/qr-download'
 
 type Props = {
   params: Promise<{ slug: string }>
@@ -100,6 +101,10 @@ export default async function CardPage({ params }: Props) {
     width: 160,
     margin: 1,
   })
+
+  // 高解像度QRコード（ダウンロード用 1000x1000px）
+  const highResQrDataUrl = await generateHighResQRDataURL(slug)
+  const downloadFilename = getQRFilename(profile.name || slug)
 
   // SNSリンクの存在チェック
   const snsLinks = [
@@ -370,9 +375,21 @@ export default async function CardPage({ params }: Props) {
             height={160}
             style={{ display: 'block', margin: '0 auto' }}
           />
-          <p style={{ fontSize: 11, color: primaryColor, marginTop: 8 }}>
+          <p style={{ fontSize: 11, color: primaryColor, marginTop: 8, marginBottom: 4 }}>
             名刺に印刷用
           </p>
+          <a
+            href={highResQrDataUrl}
+            download={downloadFilename}
+            style={{
+              fontSize: 11,
+              color: primaryColor,
+              textDecoration: 'underline',
+              opacity: 0.7,
+            }}
+          >
+            高解像度ダウンロード（1000x1000px）
+          </a>
         </div>
 
         {/* 10. フッター */}

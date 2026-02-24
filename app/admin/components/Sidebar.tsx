@@ -8,6 +8,7 @@ import { colors, layout } from './AdminStyles'
 const navItems = [
   { href: '/admin/members', label: '社員一覧', icon: '👤' },
   { href: '/admin/company', label: '企業情報', icon: '🏢' },
+  { href: '/admin/card-template', label: '名刺テンプレート', icon: '🖨️' },
 ]
 
 export function Sidebar() {

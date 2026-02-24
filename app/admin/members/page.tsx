@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '../components/AuthProvider'
 import { colors, commonStyles } from '../components/AdminStyles'
+import { downloadQRCode } from '@/lib/qr-download'
 
 type Profile = {
   id: string
@@ -20,6 +21,18 @@ export default function MembersPage() {
   const { companyId } = useAuth()
   const [members, setMembers] = useState<Profile[]>([])
   const [loading, setLoading] = useState(true)
+  const [downloadingId, setDownloadingId] = useState<string | null>(null)
+
+  const handleQRDownload = async (slug: string, name: string, id: string) => {
+    setDownloadingId(id)
+    try {
+      await downloadQRCode(slug, name)
+    } catch (err) {
+      console.error('QRコード生成エラー:', err)
+      alert('QRコードの生成に失敗しました')
+    }
+    setDownloadingId(null)
+  }
 
   useEffect(() => {
     if (!companyId) return
@@ -131,17 +144,35 @@ export default function MembersPage() {
                     </code>
                   </td>
                   <td style={{ ...commonStyles.td, textAlign: 'center' as const }}>
-                    <Link
-                      href={`/admin/members/${member.id}/edit`}
-                      style={{
-                        color: colors.primary,
-                        textDecoration: 'none',
-                        fontSize: 14,
-                        fontWeight: '500',
-                      }}
-                    >
-                      編集
-                    </Link>
+                    <div style={{ display: 'flex', gap: 12, justifyContent: 'center' }}>
+                      <Link
+                        href={`/admin/members/${member.id}/edit`}
+                        style={{
+                          color: colors.primary,
+                          textDecoration: 'none',
+                          fontSize: 14,
+                          fontWeight: '500',
+                        }}
+                      >
+                        編集
+                      </Link>
+                      <button
+                        onClick={() => handleQRDownload(member.slug, member.name, member.id)}
+                        disabled={downloadingId === member.id}
+                        style={{
+                          color: colors.primary,
+                          background: 'none',
+                          border: 'none',
+                          fontSize: 14,
+                          fontWeight: '500',
+                          cursor: downloadingId === member.id ? 'default' : 'pointer',
+                          opacity: downloadingId === member.id ? 0.5 : 1,
+                          padding: 0,
+                        }}
+                      >
+                        {downloadingId === member.id ? '生成中...' : 'QR'}
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}

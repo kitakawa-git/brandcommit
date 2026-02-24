@@ -6,7 +6,8 @@ import { useParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '../../../components/AuthProvider'
 import { MemberForm } from '../../../components/MemberForm'
-import { colors } from '../../../components/AdminStyles'
+import { colors, commonStyles } from '../../../components/AdminStyles'
+import { downloadQRCode, generatePreviewQRDataURL, getCardUrl } from '@/lib/qr-download'
 
 export default function EditMemberPage() {
   const params = useParams()
@@ -15,6 +16,8 @@ export default function EditMemberPage() {
 
   const [profile, setProfile] = useState<Record<string, string> | null>(null)
   const [loading, setLoading] = useState(true)
+  const [qrPreview, setQrPreview] = useState<string>('')
+  const [downloading, setDownloading] = useState(false)
 
   useEffect(() => {
     if (!companyId) return
@@ -30,6 +33,10 @@ export default function EditMemberPage() {
 
       if (!error && data) {
         setProfile(data)
+        // QRプレビュー生成
+        if (data.slug) {
+          generatePreviewQRDataURL(data.slug).then(setQrPreview)
+        }
       }
       setLoading(false)
     }
@@ -81,6 +88,54 @@ export default function EditMemberPage() {
         }}
         companyId={profile.company_id || ''}
       />
+
+      {/* QRコードプレビュー */}
+      {profile.slug && (
+        <div style={{
+          ...commonStyles.card,
+          marginTop: 24,
+          textAlign: 'center' as const,
+        }}>
+          <h3 style={{
+            fontSize: 16,
+            fontWeight: 'bold',
+            color: colors.textPrimary,
+            margin: '0 0 16px',
+          }}>
+            QRコード
+          </h3>
+          {qrPreview && (
+            <img
+              src={qrPreview}
+              alt="QRコード"
+              width={160}
+              height={160}
+              style={{ display: 'block', margin: '0 auto 12px' }}
+            />
+          )}
+          <p style={{ fontSize: 12, color: colors.textSecondary, margin: '0 0 16px' }}>
+            {getCardUrl(profile.slug)}
+          </p>
+          <button
+            onClick={async () => {
+              setDownloading(true)
+              try {
+                await downloadQRCode(profile.slug, profile.name || 'member')
+              } catch (err) {
+                console.error('QRコード生成エラー:', err)
+              }
+              setDownloading(false)
+            }}
+            disabled={downloading}
+            style={{
+              ...commonStyles.button,
+              opacity: downloading ? 0.6 : 1,
+            }}
+          >
+            {downloading ? '生成中...' : 'QRコードをダウンロード（印刷用）'}
+          </button>
+        </div>
+      )}
     </div>
   )
 }
