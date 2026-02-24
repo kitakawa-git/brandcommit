@@ -1,6 +1,8 @@
 'use client'
 
 // 企業情報編集ページ（マルチテナント対応: 自社のレコードのみ表示・編集）
+// ブランド関連項目（スローガン、MVV、ブランドストーリー、提供価値、ブランドカラー）は
+// ブランド掲示の各ページで管理するため、ここでは企業名・ロゴ・WebサイトURLのみ管理
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '../components/AuthProvider'
@@ -11,76 +13,62 @@ type Company = {
   id: string
   name: string
   logo_url: string
-  slogan: string
-  mvv: string
-  brand_color_primary: string
-  brand_color_secondary: string
   website_url: string
-  brand_story: string
-  provided_values: string[]
 }
 
 export default function CompanyPage() {
   const { companyId } = useAuth()
   const [company, setCompany] = useState<Company | null>(null)
   const [loading, setLoading] = useState(true)
+  const [fetchError, setFetchError] = useState('')
   const [saving, setSaving] = useState(false)
   const [message, setMessage] = useState('')
   const [messageType, setMessageType] = useState<'success' | 'error'>('success')
 
-  useEffect(() => {
+  const fetchCompany = async () => {
     if (!companyId) return
+    setLoading(true)
+    setFetchError('')
 
-    // 自社の企業レコードを取得
-    const fetchCompany = async () => {
-      const { data } = await supabase
-        .from('companies')
-        .select('*')
-        .eq('id', companyId)
-        .single()
+    try {
+      const result = await Promise.race([
+        supabase
+          .from('companies')
+          .select('*')
+          .eq('id', companyId)
+          .single(),
+        new Promise<never>((_, reject) =>
+          setTimeout(() => reject(new Error('timeout')), 10000)
+        ),
+      ])
 
-      if (data) {
+      if (result.error) throw new Error(result.error.message)
+      if (result.data) {
         setCompany({
-          id: data.id,
-          name: data.name || '',
-          logo_url: data.logo_url || '',
-          slogan: data.slogan || '',
-          mvv: data.mvv || '',
-          brand_color_primary: data.brand_color_primary || '#1a1a1a',
-          brand_color_secondary: data.brand_color_secondary || '#666666',
-          website_url: data.website_url || '',
-          brand_story: data.brand_story || '',
-          provided_values: data.provided_values || [],
+          id: result.data.id,
+          name: result.data.name || '',
+          logo_url: result.data.logo_url || '',
+          website_url: result.data.website_url || '',
         })
       }
+    } catch (err) {
+      console.error('[Company] データ取得エラー:', err)
+      const msg = err instanceof Error && err.message === 'timeout'
+        ? 'データの取得がタイムアウトしました'
+        : 'データの取得に失敗しました'
+      setFetchError(msg)
+    } finally {
       setLoading(false)
     }
+  }
+
+  useEffect(() => {
+    if (!companyId) return
     fetchCompany()
   }, [companyId])
 
-  const handleChange = (field: keyof Company, value: string | string[]) => {
+  const handleChange = (field: keyof Company, value: string) => {
     setCompany(prev => prev ? { ...prev, [field]: value } : null)
-  }
-
-  // 提供価値の追加
-  const addProvidedValue = () => {
-    if (!company || company.provided_values.length >= 5) return
-    handleChange('provided_values', [...company.provided_values, ''])
-  }
-
-  // 提供価値の更新
-  const updateProvidedValue = (index: number, value: string) => {
-    if (!company) return
-    const updated = [...company.provided_values]
-    updated[index] = value
-    handleChange('provided_values', updated)
-  }
-
-  // 提供価値の削除
-  const removeProvidedValue = (index: number) => {
-    if (!company) return
-    const updated = company.provided_values.filter((_, i) => i !== index)
-    handleChange('provided_values', updated)
   }
 
   // URL正規化: http(s)://がなければhttps://を自動付与、空欄はそのまま
@@ -97,13 +85,17 @@ export default function CompanyPage() {
     const controller = new AbortController()
     const timeoutId = setTimeout(() => controller.abort(), 10000)
 
+    // セッショントークンを取得（RLSポリシー用）
+    const { data: { session } } = await supabase.auth.getSession()
+    const token = session?.access_token || ''
+
     try {
       const res = await fetch(url, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
           'apikey': process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '',
-          'Authorization': `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''}`,
+          'Authorization': `Bearer ${token}`,
           'Prefer': 'return=minimal',
         },
         body: JSON.stringify(data),
@@ -133,63 +125,23 @@ export default function CompanyPage() {
     setMessageType('error')
 
     try {
-      // 空の提供価値を除外
-      const cleanedValues = company.provided_values.filter(v => v.trim() !== '')
-      // URLを正規化
       const normalizedWebsiteUrl = normalizeUrl(company.website_url)
 
-      console.log('[Company Save] 保存開始（fetch直接方式）', { companyId: company.id })
-
-      // 全フィールドで保存を試みる
-      const fullUpdateData: Record<string, unknown> = {
+      const updateData: Record<string, unknown> = {
         name: company.name,
         logo_url: company.logo_url,
-        slogan: company.slogan,
-        mvv: company.mvv,
-        brand_color_primary: company.brand_color_primary,
-        brand_color_secondary: company.brand_color_secondary,
         website_url: normalizedWebsiteUrl,
-        brand_story: company.brand_story || null,
-        provided_values: cleanedValues.length > 0 ? cleanedValues : null,
       }
 
-      console.log('[Company Save] 送信データ:', JSON.stringify(fullUpdateData))
-
-      let result = await supabasePatch('companies', company.id, fullUpdateData)
-
-      // カラムが存在しないエラーの場合は基本フィールドのみで再試行
-      if (!result.ok && result.error && (result.error.includes('column') || result.error.includes('42703'))) {
-        console.warn('[Company Save] 新カラム未作成 → 基本フィールドのみで再試行')
-
-        const basicUpdateData: Record<string, unknown> = {
-          name: company.name,
-          logo_url: company.logo_url,
-          slogan: company.slogan,
-          mvv: company.mvv,
-          brand_color_primary: company.brand_color_primary,
-          brand_color_secondary: company.brand_color_secondary,
-          website_url: normalizedWebsiteUrl,
-        }
-
-        result = await supabasePatch('companies', company.id, basicUpdateData)
-
-        if (result.ok) {
-          const msg = '基本情報は保存しました。ブランドストーリー・提供価値を保存するには sql/004_card_enhancements.sql を実行してください。'
-          setMessage(msg)
-          setMessageType('success')
-          return
-        }
-      }
+      const result = await supabasePatch('companies', company.id, updateData)
 
       if (!result.ok) {
         console.error('[Company Save] エラー:', result.error)
         setMessage('保存に失敗しました: ' + result.error)
         setMessageType('error')
       } else {
-        console.log('[Company Save] 保存成功')
         setMessage('保存しました')
         setMessageType('success')
-        handleChange('provided_values', cleanedValues)
         handleChange('website_url', normalizedWebsiteUrl)
       }
     } catch (err) {
@@ -207,6 +159,17 @@ export default function CompanyPage() {
       <p style={{ color: colors.textSecondary, textAlign: 'center', padding: 40 }}>
         読み込み中...
       </p>
+    )
+  }
+
+  if (fetchError) {
+    return (
+      <div style={{ textAlign: 'center', padding: 40 }}>
+        <p style={{ color: '#dc2626', fontSize: 14, marginBottom: 12 }}>{fetchError}</p>
+        <button onClick={fetchCompany} style={{ ...commonStyles.buttonOutline, padding: '8px 16px', fontSize: 13 }}>
+          再読み込み
+        </button>
+      </div>
     )
   }
 
@@ -261,151 +224,6 @@ export default function CompanyPage() {
             />
           </div>
 
-          {/* スローガン */}
-          <div style={commonStyles.formGroup}>
-            <label style={commonStyles.label}>スローガン</label>
-            <input
-              type="text"
-              value={company.slogan}
-              onChange={(e) => handleChange('slogan', e.target.value)}
-              placeholder="企業のスローガン"
-              style={commonStyles.input}
-            />
-          </div>
-
-          {/* MVV（ミッション・ビジョン・バリュー） */}
-          <div style={commonStyles.formGroup}>
-            <label style={commonStyles.label}>ミッション・ビジョン・バリュー</label>
-            <textarea
-              value={company.mvv}
-              onChange={(e) => handleChange('mvv', e.target.value)}
-              placeholder="企業のミッション・ビジョン・バリューを入力"
-              style={{ ...commonStyles.textarea, minHeight: 150 }}
-            />
-          </div>
-
-          {/* ブランドストーリー */}
-          <div style={commonStyles.formGroup}>
-            <label style={commonStyles.label}>ブランドストーリー</label>
-            <textarea
-              value={company.brand_story}
-              onChange={(e) => handleChange('brand_story', e.target.value)}
-              placeholder="企業のブランドストーリーを入力（名刺ページに表示されます）"
-              style={{ ...commonStyles.textarea, minHeight: 150 }}
-            />
-          </div>
-
-          {/* 提供価値 */}
-          <div style={commonStyles.formGroup}>
-            <label style={commonStyles.label}>提供価値（最大5項目）</label>
-            <p style={{ fontSize: 12, color: colors.textSecondary, margin: '0 0 8px' }}>
-              名刺ページにカード形式で表示されます
-            </p>
-            {company.provided_values.map((value, index) => (
-              <div key={index} style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
-                <input
-                  type="text"
-                  value={value}
-                  onChange={(e) => updateProvidedValue(index, e.target.value)}
-                  placeholder={`提供価値 ${index + 1}`}
-                  style={{ ...commonStyles.input, flex: 1 }}
-                />
-                <button
-                  type="button"
-                  onClick={() => removeProvidedValue(index)}
-                  style={{
-                    ...commonStyles.dangerButton,
-                    padding: '8px 14px',
-                    fontSize: 13,
-                  }}
-                >
-                  削除
-                </button>
-              </div>
-            ))}
-            {company.provided_values.length < 5 && (
-              <button
-                type="button"
-                onClick={addProvidedValue}
-                style={{
-                  ...commonStyles.buttonOutline,
-                  padding: '8px 16px',
-                  fontSize: 13,
-                }}
-              >
-                ＋ 提供価値を追加
-              </button>
-            )}
-          </div>
-
-          {/* ブランドカラー（プライマリ） */}
-          <div style={commonStyles.formGroup}>
-            <label style={commonStyles.label}>ブランドカラー（プライマリ）</label>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-              <input
-                type="color"
-                value={company.brand_color_primary}
-                onChange={(e) => handleChange('brand_color_primary', e.target.value)}
-                style={{
-                  width: 48,
-                  height: 48,
-                  border: `1px solid ${colors.inputBorder}`,
-                  borderRadius: 8,
-                  cursor: 'pointer',
-                  padding: 2,
-                }}
-              />
-              <input
-                type="text"
-                value={company.brand_color_primary}
-                onChange={(e) => handleChange('brand_color_primary', e.target.value)}
-                placeholder="#1a1a1a"
-                style={{ ...commonStyles.input, width: 140 }}
-              />
-              <div style={{
-                width: 80,
-                height: 40,
-                backgroundColor: company.brand_color_primary,
-                borderRadius: 6,
-                border: `1px solid ${colors.border}`,
-              }} />
-            </div>
-          </div>
-
-          {/* ブランドカラー（セカンダリ） */}
-          <div style={commonStyles.formGroup}>
-            <label style={commonStyles.label}>ブランドカラー（セカンダリ）</label>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-              <input
-                type="color"
-                value={company.brand_color_secondary}
-                onChange={(e) => handleChange('brand_color_secondary', e.target.value)}
-                style={{
-                  width: 48,
-                  height: 48,
-                  border: `1px solid ${colors.inputBorder}`,
-                  borderRadius: 8,
-                  cursor: 'pointer',
-                  padding: 2,
-                }}
-              />
-              <input
-                type="text"
-                value={company.brand_color_secondary}
-                onChange={(e) => handleChange('brand_color_secondary', e.target.value)}
-                placeholder="#666666"
-                style={{ ...commonStyles.input, width: 140 }}
-              />
-              <div style={{
-                width: 80,
-                height: 40,
-                backgroundColor: company.brand_color_secondary,
-                borderRadius: 6,
-                border: `1px solid ${colors.border}`,
-              }} />
-            </div>
-          </div>
-
           {/* WebサイトURL */}
           <div style={commonStyles.formGroup}>
             <label style={commonStyles.label}>Webサイト URL</label>
@@ -417,6 +235,10 @@ export default function CompanyPage() {
               style={commonStyles.input}
             />
           </div>
+
+          <p style={{ fontSize: 12, color: colors.textSecondary, margin: '0 0 16px' }}>
+            スローガン、ミッション・ビジョン、ブランドストーリー、ブランドカラーなどは「ブランド掲示」メニューから設定できます。
+          </p>
 
           {/* 保存ボタン */}
           <button

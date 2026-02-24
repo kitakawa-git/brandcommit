@@ -91,11 +91,49 @@ export default async function CardPage({ params }: Props) {
   }
 
   const company = profile.companies
+  const companyId = profile.company_id
 
-  // ブランドカラー（デフォルト値付き）
-  const primaryColor = company?.brand_color_primary || '#1a1a1a'
-  const secondaryColor = company?.brand_color_secondary || '#666666'
+  // ブランドデータをブランドテーブルから取得
+  const [guidelinesRes, valuesRes, visualsRes] = await Promise.all([
+    supabase
+      .from('brand_guidelines')
+      .select('*')
+      .eq('company_id', companyId)
+      .single(),
+    supabase
+      .from('brand_values')
+      .select('*')
+      .eq('company_id', companyId)
+      .order('sort_order'),
+    supabase
+      .from('brand_visuals')
+      .select('*')
+      .eq('company_id', companyId)
+      .single(),
+  ])
+
+  const guidelines = guidelinesRes.data
+  const brandValues = valuesRes.data || []
+  const visuals = visualsRes.data
+
+  // ブランドカラー（brand_visuals → companies → デフォルト値の優先順位）
+  const primaryColor = visuals?.primary_color || company?.brand_color_primary || '#1a1a1a'
+  const secondaryColor = visuals?.secondary_color || company?.brand_color_secondary || '#666666'
   const headerTextColor = getContrastTextColor(primaryColor)
+
+  // スローガン・MVV・ブランドストーリー（brand_guidelines → companies のフォールバック）
+  const slogan = guidelines?.slogan || company?.slogan || ''
+  const mission = guidelines?.mission || ''
+  const vision = guidelines?.vision || ''
+  const brandStory = guidelines?.brand_story || company?.brand_story || ''
+
+  // MVV表示用テキスト（brand_guidelinesのmission/visionを結合、なければcompanies.mvvにフォールバック）
+  const mvvText = [mission, vision].filter(Boolean).join('\n\n') || company?.mvv || ''
+
+  // 提供価値（brand_values → companies.provided_values のフォールバック）
+  const providedValues: string[] = brandValues.length > 0
+    ? brandValues.map((v: { title: string }) => v.title).filter(Boolean)
+    : (company?.provided_values || [])
 
   // QRコードをサーバーサイドで生成
   const cardUrl = `https://brandcommit.vercel.app/card/${slug}`
@@ -115,9 +153,6 @@ export default async function CardPage({ params }: Props) {
     { url: profile.sns_facebook, icon: <FacebookIcon />, label: 'Facebook' },
     { url: profile.sns_instagram, icon: <InstagramIcon />, label: 'Instagram' },
   ].filter(s => s.url)
-
-  // 提供価値
-  const providedValues: string[] = company?.provided_values || []
 
   return (
     <div style={{
@@ -289,14 +324,14 @@ export default async function CardPage({ params }: Props) {
             }}>
               {company.name}
             </h2>
-            {company.slogan && (
+            {slogan && (
               <p style={{ fontSize: 14, color: '#666', margin: '0 0 16px', fontStyle: 'italic' }}>
-                {company.slogan}
+                {slogan}
               </p>
             )}
-            {company.mvv && (
-              <p style={{ fontSize: 13, color: '#333', lineHeight: 1.8, margin: 0 }}>
-                {company.mvv}
+            {mvvText && (
+              <p style={{ fontSize: 13, color: '#333', lineHeight: 1.8, margin: 0, whiteSpace: 'pre-wrap' }}>
+                {mvvText}
               </p>
             )}
           </div>
@@ -337,7 +372,7 @@ export default async function CardPage({ params }: Props) {
         )}
 
         {/* 7. ブランドストーリー */}
-        {company?.brand_story && (
+        {brandStory && (
           <div style={{
             backgroundColor: '#ffffff',
             borderRadius: 12,
@@ -354,7 +389,7 @@ export default async function CardPage({ params }: Props) {
               fontSize: 13, color: '#333', lineHeight: 1.8, margin: 0,
               whiteSpace: 'pre-wrap',
             }}>
-              {company.brand_story}
+              {brandStory}
             </p>
           </div>
         )}
