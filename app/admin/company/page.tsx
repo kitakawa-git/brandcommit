@@ -229,7 +229,7 @@ export default function CompanyPage() {
 
           {/* WebサイトURL */}
           <div style={commonStyles.formGroup}>
-            <label style={commonStyles.label}>Webサイト URL</label>
+            <label style={commonStyles.label}>ウェブサイトURL</label>
             <input
               type="text"
               value={company.website_url}
@@ -238,10 +238,6 @@ export default function CompanyPage() {
               style={commonStyles.input}
             />
           </div>
-
-          <p style={{ fontSize: 13, color: colors.textSecondary, margin: '6px 0 16px' }}>
-            スローガン、ミッション・ビジョン、ブランドストーリー、ブランドカラーなどは「ブランド掲示」メニューから設定できます。
-          </p>
 
           {/* 保存ボタン */}
           <button

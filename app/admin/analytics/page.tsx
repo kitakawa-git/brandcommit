@@ -158,7 +158,7 @@ export default function AnalyticsPage() {
         color: colors.textPrimary,
         margin: '0 0 24px',
       }}>
-        📊 アクセス解析
+        アクセス解析
       </h2>
 
       {/* === 全体サマリー === */}
