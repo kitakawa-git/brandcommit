@@ -4,26 +4,71 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { colors, layout } from './AdminStyles'
+import {
+  Users,
+  Building2,
+  BarChart3,
+  CreditCard,
+  UserPlus,
+  FileText,
+  Diamond,
+  Palette,
+  Heart,
+  BookOpen,
+  Target,
+} from 'lucide-react'
+import { type LucideIcon } from 'lucide-react'
 
-const navItems = [
-  { href: '/admin/members', label: 'アカウント一覧', icon: '👤' },
-  { href: '/admin/company', label: '企業情報', icon: '🏢' },
-  { href: '/admin/analytics', label: 'アクセス解析', icon: '📊' },
-  { href: '/admin/card-template', label: 'QRコード出力', icon: '🖨️' },
-  { href: '/admin/members-portal', label: 'アカウント作成', icon: '🔑' },
+type NavItem = {
+  href: string
+  label: string
+  icon: LucideIcon
+}
+
+const navItems: NavItem[] = [
+  { href: '/admin/members', label: 'アカウント一覧', icon: Users },
+  { href: '/admin/company', label: '企業情報', icon: Building2 },
+  { href: '/admin/analytics', label: 'アクセス解析', icon: BarChart3 },
+  { href: '/admin/card-template', label: 'QRコード出力', icon: CreditCard },
+  { href: '/admin/members-portal', label: 'アカウント作成', icon: UserPlus },
 ]
 
-const brandItems = [
-  { href: '/admin/brand/guidelines', label: 'ブランド方針', icon: '📋' },
-  { href: '/admin/brand/visuals', label: 'ビジュアル', icon: '🎨' },
-  { href: '/admin/brand/personality', label: 'パーソナリティ', icon: '👤' },
-  { href: '/admin/brand/terms', label: '用語ルール', icon: '📝' },
-  { href: '/admin/brand/personas', label: '顧客ペルソナ', icon: '🎯' },
-  { href: '/admin/brand/values', label: '提供価値', icon: '💎' },
+const brandItems: NavItem[] = [
+  { href: '/admin/brand/guidelines', label: 'ブランド方針', icon: FileText },
+  { href: '/admin/brand/visuals', label: 'ビジュアル', icon: Palette },
+  { href: '/admin/brand/personality', label: 'パーソナリティ', icon: Heart },
+  { href: '/admin/brand/terms', label: '用語ルール', icon: BookOpen },
+  { href: '/admin/brand/personas', label: '顧客ペルソナ', icon: Target },
+  { href: '/admin/brand/values', label: '提供価値', icon: Diamond },
 ]
 
 export function Sidebar() {
   const pathname = usePathname()
+
+  const renderNavLink = (item: NavItem) => {
+    const isActive = pathname.startsWith(item.href)
+    const Icon = item.icon
+    return (
+      <Link
+        key={item.href}
+        href={item.href}
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 10,
+          padding: '12px 20px',
+          color: isActive ? colors.sidebarActiveText : colors.sidebarText,
+          backgroundColor: isActive ? colors.sidebarActiveBg : 'transparent',
+          textDecoration: 'none',
+          fontSize: 14,
+          transition: 'background-color 0.15s',
+        }}
+      >
+        <Icon size={18} />
+        {item.label}
+      </Link>
+    )
+  }
 
   return (
     <aside style={{
@@ -58,26 +103,7 @@ export function Sidebar() {
 
       {/* ナビゲーションリンク */}
       <nav>
-        {navItems.map((item) => {
-          const isActive = pathname.startsWith(item.href)
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              style={{
-                display: 'block',
-                padding: '12px 20px',
-                color: isActive ? colors.sidebarActiveText : colors.sidebarText,
-                backgroundColor: isActive ? colors.sidebarActiveBg : 'transparent',
-                textDecoration: 'none',
-                fontSize: 14,
-                transition: 'background-color 0.15s',
-              }}
-            >
-              {item.icon}　{item.label}
-            </Link>
-          )
-        })}
+        {navItems.map(renderNavLink)}
 
         {/* 区切り線 + ブランド掲示セクション */}
         <div style={{
@@ -93,26 +119,7 @@ export function Sidebar() {
         }}>
           ブランド掲示
         </p>
-        {brandItems.map((item) => {
-          const isActive = pathname.startsWith(item.href)
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              style={{
-                display: 'block',
-                padding: '12px 20px',
-                color: isActive ? colors.sidebarActiveText : colors.sidebarText,
-                backgroundColor: isActive ? colors.sidebarActiveBg : 'transparent',
-                textDecoration: 'none',
-                fontSize: 14,
-                transition: 'background-color 0.15s',
-              }}
-            >
-              {item.icon}　{item.label}
-            </Link>
-          )
-        })}
+        {brandItems.map(renderNavLink)}
       </nav>
     </aside>
   )
