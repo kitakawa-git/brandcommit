@@ -239,7 +239,7 @@ export default function CompanyPage() {
             />
           </div>
 
-          <p style={{ fontSize: 12, color: colors.textSecondary, margin: '0 0 16px' }}>
+          <p style={{ fontSize: 13, color: colors.textSecondary, margin: '6px 0 16px' }}>
             スローガン、ミッション・ビジョン、ブランドストーリー、ブランドカラーなどは「ブランド掲示」メニューから設定できます。
           </p>
 
