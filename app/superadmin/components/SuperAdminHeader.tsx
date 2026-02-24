@@ -1,6 +1,7 @@
 'use client'
 
 // スーパー管理画面ヘッダー
+import Link from 'next/link'
 import { useSuperAdmin } from './SuperAdminProvider'
 import { colors, layout } from '../../admin/components/AdminStyles'
 
@@ -17,11 +18,11 @@ export function SuperAdminHeader() {
       justifyContent: 'space-between',
       padding: '0 24px',
     }}>
-      {/* スーパー管理バッジ */}
+      {/* 左側: バッジ + 通常管理画面リンク */}
       <div style={{
-        display: 'inline-flex',
+        display: 'flex',
         alignItems: 'center',
-        gap: 8,
+        gap: 12,
       }}>
         <span style={{
           padding: '4px 10px',
@@ -33,9 +34,23 @@ export function SuperAdminHeader() {
         }}>
           スーパー管理
         </span>
+        <Link
+          href="/admin/members"
+          style={{
+            padding: '6px 14px',
+            backgroundColor: colors.primary,
+            color: '#ffffff',
+            fontSize: 13,
+            fontWeight: 'bold',
+            borderRadius: 6,
+            textDecoration: 'none',
+          }}
+        >
+          通常管理画面へ →
+        </Link>
       </div>
 
-      {/* ユーザー情報+ログアウト */}
+      {/* 右側: ユーザー情報+ログアウト */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
         <span style={{
           fontSize: 14,
