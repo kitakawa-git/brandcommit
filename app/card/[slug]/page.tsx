@@ -121,14 +121,20 @@ export default async function CardPage({ params }: Props) {
   const secondaryColor = visuals?.secondary_color || '#666666'
   const headerTextColor = getContrastTextColor(primaryColor)
 
+  // アクセントカラー（brand_visuals テーブルから取得）
+  const accentColor = visuals?.accent_color || secondaryColor
+
   // スローガン・ミッション・バリュー・ブランドストーリー（brand_guidelines テーブルから取得）
   const slogan = guidelines?.slogan || ''
   const mission = guidelines?.mission || ''
-  const values = guidelines?.values || ''
   const brandStory = guidelines?.brand_story || ''
 
-  // ミッション＋バリュー表示用テキスト
-  const mvvText = [mission, values].filter(Boolean).join('\n\n')
+  // バリュー（JSONB配列 [{name, description}, ...] を安全にパース）
+  type BrandValue = { name: string; description?: string }
+  const guidelinesValues: BrandValue[] = Array.isArray(guidelines?.values) ? guidelines.values : []
+
+  // ミッション表示用テキスト
+  const missionText = mission || ''
 
   // 提供価値（brand_values テーブルから取得）
   const providedValues: string[] = brandValues
@@ -329,10 +335,30 @@ export default async function CardPage({ params }: Props) {
                 {slogan}
               </p>
             )}
-            {mvvText && (
-              <p style={{ fontSize: 13, color: '#333', lineHeight: 1.8, margin: 0, whiteSpace: 'pre-wrap' }}>
-                {mvvText}
+            {missionText && (
+              <p style={{ fontSize: 13, color: '#333', lineHeight: 1.8, margin: 0 }}>
+                {missionText}
               </p>
+            )}
+            {guidelinesValues.length > 0 && (
+              <div style={{ marginTop: missionText ? 16 : 0 }}>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                  {guidelinesValues.map((v, i) => (
+                    <span key={i} style={{
+                      display: 'inline-block',
+                      padding: '4px 12px',
+                      backgroundColor: `${primaryColor}10`,
+                      color: primaryColor,
+                      borderRadius: 20,
+                      fontSize: 12,
+                      fontWeight: '600',
+                      border: `1px solid ${primaryColor}30`,
+                    }}>
+                      {v.name}
+                    </span>
+                  ))}
+                </div>
+              </div>
             )}
           </div>
         )}
@@ -362,7 +388,7 @@ export default async function CardPage({ params }: Props) {
                   color: '#333',
                   fontWeight: '600',
                   textAlign: 'center',
-                  borderLeft: `3px solid ${secondaryColor}`,
+                  borderLeft: `3px solid ${accentColor}`,
                 }}>
                   {value}
                 </div>
