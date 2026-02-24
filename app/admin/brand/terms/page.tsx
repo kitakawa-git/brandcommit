@@ -65,10 +65,15 @@ export default function BrandTermsPage() {
 
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
     const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
+
+    // セッショントークンを取得（RLSポリシー用）
+    const { data: { session } } = await supabase.auth.getSession()
+    const token = session?.access_token || ''
+
     const headers = {
       'Content-Type': 'application/json',
       'apikey': anonKey,
-      'Authorization': `Bearer ${anonKey}`,
+      'Authorization': `Bearer ${token}`,
       'Prefer': 'return=minimal',
     }
 

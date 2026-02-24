@@ -98,7 +98,7 @@ export default function BrandGuidelinesPage() {
   }
 
   // Supabase REST APIに直接fetchで保存（JSクライアントの認証ハングを回避）
-  const supabasePatch = async (table: string, id: string, data: Record<string, unknown>): Promise<{ ok: boolean; error?: string }> => {
+  const supabasePatch = async (table: string, id: string, data: Record<string, unknown>, token: string): Promise<{ ok: boolean; error?: string }> => {
     const url = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/${table}?id=eq.${id}`
     const controller = new AbortController()
     const timeoutId = setTimeout(() => controller.abort(), 10000)
@@ -109,7 +109,7 @@ export default function BrandGuidelinesPage() {
         headers: {
           'Content-Type': 'application/json',
           'apikey': process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '',
-          'Authorization': `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''}`,
+          'Authorization': `Bearer ${token}`,
           'Prefer': 'return=minimal',
         },
         body: JSON.stringify(data),
@@ -132,7 +132,7 @@ export default function BrandGuidelinesPage() {
   }
 
   // Supabase REST APIに直接fetchでINSERT
-  const supabaseInsert = async (table: string, data: Record<string, unknown>): Promise<{ ok: boolean; error?: string; data?: Record<string, unknown> }> => {
+  const supabaseInsert = async (table: string, data: Record<string, unknown>, token: string): Promise<{ ok: boolean; error?: string; data?: Record<string, unknown> }> => {
     const url = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/${table}`
     const controller = new AbortController()
     const timeoutId = setTimeout(() => controller.abort(), 10000)
@@ -143,7 +143,7 @@ export default function BrandGuidelinesPage() {
         headers: {
           'Content-Type': 'application/json',
           'apikey': process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '',
-          'Authorization': `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''}`,
+          'Authorization': `Bearer ${token}`,
           'Prefer': 'return=representation',
         },
         body: JSON.stringify(data),
@@ -174,6 +174,10 @@ export default function BrandGuidelinesPage() {
     setMessageType('error')
 
     try {
+      // セッショントークンを取得（RLSポリシー用）
+      const { data: { session } } = await supabase.auth.getSession()
+      const token = session?.access_token || ''
+
       // 空のバリューを除外
       const cleanedValues = guidelines.values.filter(v => v.name.trim() !== '')
 
@@ -194,10 +198,10 @@ export default function BrandGuidelinesPage() {
 
       if (guidelinesId) {
         // 既存レコードの更新
-        result = await supabasePatch('brand_guidelines', guidelinesId, saveData)
+        result = await supabasePatch('brand_guidelines', guidelinesId, saveData, token)
       } else {
         // 新規作成
-        result = await supabaseInsert('brand_guidelines', saveData)
+        result = await supabaseInsert('brand_guidelines', saveData, token)
         if (result.ok && result.data) {
           setGuidelinesId(result.data.id as string)
         }

@@ -74,7 +74,7 @@ export default function BrandPersonalityPage() {
   }
 
   // Supabase REST API直接fetch
-  const supabasePatch = async (table: string, id: string, data: Record<string, unknown>): Promise<{ ok: boolean; error?: string }> => {
+  const supabasePatch = async (table: string, id: string, data: Record<string, unknown>, token: string): Promise<{ ok: boolean; error?: string }> => {
     const url = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/${table}?id=eq.${id}`
     const controller = new AbortController()
     const timeoutId = setTimeout(() => controller.abort(), 10000)
@@ -84,7 +84,7 @@ export default function BrandPersonalityPage() {
         headers: {
           'Content-Type': 'application/json',
           'apikey': process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '',
-          'Authorization': `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''}`,
+          'Authorization': `Bearer ${token}`,
           'Prefer': 'return=minimal',
         },
         body: JSON.stringify(data),
@@ -105,7 +105,7 @@ export default function BrandPersonalityPage() {
     }
   }
 
-  const supabaseInsert = async (table: string, data: Record<string, unknown>): Promise<{ ok: boolean; error?: string; data?: Record<string, unknown> }> => {
+  const supabaseInsert = async (table: string, data: Record<string, unknown>, token: string): Promise<{ ok: boolean; error?: string; data?: Record<string, unknown> }> => {
     const url = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/${table}`
     const controller = new AbortController()
     const timeoutId = setTimeout(() => controller.abort(), 10000)
@@ -115,7 +115,7 @@ export default function BrandPersonalityPage() {
         headers: {
           'Content-Type': 'application/json',
           'apikey': process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '',
-          'Authorization': `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''}`,
+          'Authorization': `Bearer ${token}`,
           'Prefer': 'return=representation',
         },
         body: JSON.stringify(data),
@@ -145,6 +145,10 @@ export default function BrandPersonalityPage() {
     setMessageType('error')
 
     try {
+      // セッショントークンを取得（RLSポリシー用）
+      const { data: { session } } = await supabase.auth.getSession()
+      const token = session?.access_token || ''
+
       const saveData: Record<string, unknown> = {
         company_id: companyId,
         traits: personality.traits,
@@ -154,9 +158,9 @@ export default function BrandPersonalityPage() {
 
       let result: { ok: boolean; error?: string; data?: Record<string, unknown> }
       if (personalityId) {
-        result = await supabasePatch('brand_personalities', personalityId, saveData)
+        result = await supabasePatch('brand_personalities', personalityId, saveData, token)
       } else {
-        result = await supabaseInsert('brand_personalities', saveData)
+        result = await supabaseInsert('brand_personalities', saveData, token)
         if (result.ok && result.data) {
           setPersonalityId(result.data.id as string)
         }
