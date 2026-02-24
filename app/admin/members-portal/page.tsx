@@ -308,7 +308,7 @@ export default function MembersPortalPage() {
           </div>
 
           <div style={commonStyles.formGroup}>
-            <label style={commonStyles.label}>表示名</label>
+            <label style={commonStyles.label}>名前</label>
             <input
               type="text"
               value={newDisplayName}
