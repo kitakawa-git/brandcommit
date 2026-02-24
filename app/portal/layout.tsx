@@ -10,7 +10,7 @@ const navLinks = [
   { href: '/portal/guidelines', label: 'ブランド方針' },
   { href: '/portal/visuals', label: 'ビジュアル' },
   { href: '/portal/verbal', label: 'バーバル' },
-  { href: '/portal/personas', label: '顧客ペルソナ' },
+  { href: '/portal/strategy', label: 'ブランド戦略' },
   { href: '/portal/values', label: '提供価値' },
 ]
 
