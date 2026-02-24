@@ -332,40 +332,14 @@ export default function BrandVisualsPage() {
     )
   }
 
-  // カラーピッカーUI
-  const ColorField = ({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) => (
-    <div style={commonStyles.formGroup}>
-      <label style={commonStyles.label}>{label}</label>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-        <input
-          type="color"
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          style={{
-            width: 48,
-            height: 48,
-            border: `1px solid ${colors.inputBorder}`,
-            borderRadius: 8,
-            cursor: 'pointer',
-            padding: 2,
-          }}
-        />
-        <input
-          type="text"
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          style={{ ...commonStyles.input, width: 140 }}
-        />
-        <div style={{
-          width: 80,
-          height: 40,
-          backgroundColor: value,
-          borderRadius: 6,
-          border: `1px solid ${colors.border}`,
-        }} />
-      </div>
-    </div>
-  )
+  const colorPickerStyle: React.CSSProperties = {
+    width: 48,
+    height: 48,
+    border: `1px solid ${colors.inputBorder}`,
+    borderRadius: 8,
+    cursor: 'pointer',
+    padding: 2,
+  }
 
   return (
     <div>
@@ -540,9 +514,30 @@ export default function BrandVisualsPage() {
           </div>
 
           {/* カラー */}
-          <ColorField label="プライマリカラー" value={visuals.primary_color} onChange={(v) => handleChange('primary_color', v)} />
-          <ColorField label="セカンダリカラー" value={visuals.secondary_color} onChange={(v) => handleChange('secondary_color', v)} />
-          <ColorField label="アクセントカラー" value={visuals.accent_color} onChange={(v) => handleChange('accent_color', v)} />
+          <div style={commonStyles.formGroup}>
+            <label style={commonStyles.label}>プライマリカラー</label>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <input type="color" value={visuals.primary_color} onChange={(e) => handleChange('primary_color', e.target.value)} style={colorPickerStyle} />
+              <input type="text" value={visuals.primary_color} onChange={(e) => handleChange('primary_color', e.target.value)} style={{ ...commonStyles.input, width: 140 }} />
+              <div style={{ width: 80, height: 40, backgroundColor: visuals.primary_color, borderRadius: 6, border: `1px solid ${colors.border}` }} />
+            </div>
+          </div>
+          <div style={commonStyles.formGroup}>
+            <label style={commonStyles.label}>セカンダリカラー</label>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <input type="color" value={visuals.secondary_color} onChange={(e) => handleChange('secondary_color', e.target.value)} style={colorPickerStyle} />
+              <input type="text" value={visuals.secondary_color} onChange={(e) => handleChange('secondary_color', e.target.value)} style={{ ...commonStyles.input, width: 140 }} />
+              <div style={{ width: 80, height: 40, backgroundColor: visuals.secondary_color, borderRadius: 6, border: `1px solid ${colors.border}` }} />
+            </div>
+          </div>
+          <div style={commonStyles.formGroup}>
+            <label style={commonStyles.label}>アクセントカラー</label>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <input type="color" value={visuals.accent_color} onChange={(e) => handleChange('accent_color', e.target.value)} style={colorPickerStyle} />
+              <input type="text" value={visuals.accent_color} onChange={(e) => handleChange('accent_color', e.target.value)} style={{ ...commonStyles.input, width: 140 }} />
+              <div style={{ width: 80, height: 40, backgroundColor: visuals.accent_color, borderRadius: 6, border: `1px solid ${colors.border}` }} />
+            </div>
+          </div>
 
           {/* フォント設定 */}
           <div style={{
