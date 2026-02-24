@@ -8,9 +8,9 @@ import { portalColors } from './components/PortalStyles'
 
 const navLinks = [
   { href: '/portal/guidelines', label: 'ブランド方針' },
+  { href: '/portal/strategy', label: 'ブランド戦略' },
   { href: '/portal/visuals', label: 'ビジュアル' },
   { href: '/portal/verbal', label: 'バーバル' },
-  { href: '/portal/strategy', label: 'ブランド戦略' },
   { href: '/portal/values', label: '提供価値' },
 ]
 

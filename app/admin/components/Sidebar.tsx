@@ -13,9 +13,8 @@ import {
   FileText,
   Diamond,
   Palette,
-  Heart,
-
-  Target,
+  MessageSquare,
+  Compass,
 } from 'lucide-react'
 import { type LucideIcon } from 'lucide-react'
 
@@ -35,9 +34,9 @@ const navItems: NavItem[] = [
 
 const brandItems: NavItem[] = [
   { href: '/admin/brand/guidelines', label: 'ブランド方針', icon: FileText },
+  { href: '/admin/brand/strategy', label: 'ブランド戦略', icon: Compass },
   { href: '/admin/brand/visuals', label: 'ビジュアル', icon: Palette },
-  { href: '/admin/brand/verbal', label: 'バーバル', icon: Heart },
-  { href: '/admin/brand/strategy', label: 'ブランド戦略', icon: Target },
+  { href: '/admin/brand/verbal', label: 'バーバル', icon: MessageSquare },
   { href: '/admin/brand/values', label: '提供価値', icon: Diamond },
 ]
 
