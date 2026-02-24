@@ -80,20 +80,16 @@ export default function PortalVisualsPage() {
 
           {validSections.map((section, sIdx) => (
             <div key={sIdx} style={{ marginBottom: sIdx < validSections.length - 1 ? 24 : 0 }}>
-              {/* セクションタイトルタグ */}
+              {/* セクションタイトル */}
               {section.title && (
-                <div style={{
-                  display: 'inline-block',
-                  backgroundColor: '#374151',
-                  color: '#ffffff',
-                  fontSize: 12,
+                <h3 style={{
+                  fontSize: 15,
                   fontWeight: 'bold',
-                  padding: '4px 12px',
-                  borderRadius: 4,
-                  marginBottom: 12,
+                  color: '#6b7280',
+                  margin: '0 0 12px 0',
                 }}>
                   {section.title}
-                </div>
+                </h3>
               )}
 
               {/* 画像グリッド */}
