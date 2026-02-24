@@ -6,7 +6,7 @@ import { usePathname } from 'next/navigation'
 import { colors, layout } from './AdminStyles'
 import {
   Users,
-  Building2,
+  Sparkles,
   BarChart3,
   CreditCard,
   UserPlus,
@@ -27,7 +27,7 @@ type NavItem = {
 
 const navItems: NavItem[] = [
   { href: '/admin/members', label: 'アカウント一覧', icon: Users },
-  { href: '/admin/company', label: 'ブランド基本情報', icon: Building2 },
+  { href: '/admin/company', label: 'ブランド基本情報', icon: Sparkles },
   { href: '/admin/analytics', label: 'アクセス解析', icon: BarChart3 },
   { href: '/admin/card-template', label: 'QRコード出力', icon: CreditCard },
   { href: '/admin/members-portal', label: 'アカウント作成', icon: UserPlus },

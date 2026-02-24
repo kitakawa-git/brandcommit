@@ -222,6 +222,9 @@ export default function CompanyPage() {
               placeholder="株式会社○○"
               style={commonStyles.input}
             />
+            <p style={{ fontSize: 13, color: colors.textSecondary, margin: '6px 0 0' }}>
+              企業名・サービス名・個人名など、ブランディングの対象となる名称を入力してください
+            </p>
           </div>
 
           {/* WebサイトURL */}
