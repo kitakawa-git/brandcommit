@@ -30,27 +30,45 @@ export default function MembersPage() {
   const { companyId } = useAuth()
   const [members, setMembers] = useState<MemberWithProfile[]>([])
   const [loading, setLoading] = useState(true)
+  const [fetchError, setFetchError] = useState('')
   const [togglingId, setTogglingId] = useState<string | null>(null)
+
+  const fetchMembers = async () => {
+    if (!companyId) return
+    setLoading(true)
+    setFetchError('')
+
+    try {
+      const result = await Promise.race([
+        supabase
+          .from('members')
+          .select('*, profile:profiles(*)')
+          .eq('company_id', companyId)
+          .order('created_at', { ascending: false }),
+        new Promise<never>((_, reject) =>
+          setTimeout(() => reject(new Error('timeout')), 10000)
+        ),
+      ])
+
+      if (result.error) throw new Error(result.error.message)
+      if (result.data) {
+        setMembers(result.data as unknown as MemberWithProfile[])
+      }
+    } catch (err) {
+      console.error('[Members] データ取得エラー:', err)
+      const msg = err instanceof Error && err.message === 'timeout'
+        ? 'データの取得がタイムアウトしました'
+        : 'データの取得に失敗しました'
+      setFetchError(msg)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   useEffect(() => {
     if (!companyId) return
     fetchMembers()
   }, [companyId])
-
-  const fetchMembers = async () => {
-    if (!companyId) return
-
-    const { data, error } = await supabase
-      .from('members')
-      .select('*, profile:profiles(*)')
-      .eq('company_id', companyId)
-      .order('created_at', { ascending: false })
-
-    if (!error && data) {
-      setMembers(data as unknown as MemberWithProfile[])
-    }
-    setLoading(false)
-  }
 
   // 名刺 ON/OFF トグル
   const toggleCard = async (profileId: string, currentValue: boolean) => {
@@ -149,6 +167,13 @@ export default function MembersPage() {
           <p style={{ color: colors.textSecondary, textAlign: 'center', padding: 40 }}>
             読み込み中...
           </p>
+        ) : fetchError ? (
+          <div style={{ textAlign: 'center', padding: 40 }}>
+            <p style={{ color: '#dc2626', fontSize: 14, marginBottom: 12 }}>{fetchError}</p>
+            <button onClick={fetchMembers} style={{ ...commonStyles.buttonOutline, padding: '8px 16px', fontSize: 13 }}>
+              再読み込み
+            </button>
+          </div>
         ) : members.length === 0 ? (
           <p style={{ color: colors.textSecondary, textAlign: 'center', padding: 40 }}>
             アカウントが登録されていません

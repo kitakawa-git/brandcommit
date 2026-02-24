@@ -33,33 +33,52 @@ export default function BrandPersonalityPage() {
     communication_style: '',
   })
   const [loading, setLoading] = useState(true)
+  const [fetchError, setFetchError] = useState('')
   const [saving, setSaving] = useState(false)
   const [message, setMessage] = useState('')
   const [messageType, setMessageType] = useState<'success' | 'error'>('success')
 
-  useEffect(() => {
+  const fetchPersonality = async () => {
     if (!companyId) return
+    setLoading(true)
+    setFetchError('')
 
-    const fetchPersonality = async () => {
-      const { data } = await supabase
-        .from('brand_personalities')
-        .select('*')
-        .eq('company_id', companyId)
-        .single()
+    try {
+      const result = await Promise.race([
+        supabase
+          .from('brand_personalities')
+          .select('*')
+          .eq('company_id', companyId)
+          .single(),
+        new Promise<never>((_, reject) =>
+          setTimeout(() => reject(new Error('timeout')), 10000)
+        ),
+      ])
 
-      if (data) {
-        setPersonalityId(data.id)
-        const traits = data.traits && Array.isArray(data.traits) && data.traits.length === 5
-          ? data.traits
+      if (result.data) {
+        setPersonalityId(result.data.id)
+        const traits = result.data.traits && Array.isArray(result.data.traits) && result.data.traits.length === 5
+          ? result.data.traits
           : [...defaultTraits]
         setPersonality({
           traits,
-          tone_of_voice: data.tone_of_voice || '',
-          communication_style: data.communication_style || '',
+          tone_of_voice: result.data.tone_of_voice || '',
+          communication_style: result.data.communication_style || '',
         })
       }
+    } catch (err) {
+      console.error('[BrandPersonality] データ取得エラー:', err)
+      const msg = err instanceof Error && err.message === 'timeout'
+        ? 'データの取得がタイムアウトしました'
+        : 'データの取得に失敗しました'
+      setFetchError(msg)
+    } finally {
       setLoading(false)
     }
+  }
+
+  useEffect(() => {
+    if (!companyId) return
     fetchPersonality()
   }, [companyId])
 
@@ -186,6 +205,17 @@ export default function BrandPersonalityPage() {
       <p style={{ color: colors.textSecondary, textAlign: 'center', padding: 40 }}>
         読み込み中...
       </p>
+    )
+  }
+
+  if (fetchError) {
+    return (
+      <div style={{ textAlign: 'center', padding: 40 }}>
+        <p style={{ color: '#dc2626', fontSize: 14, marginBottom: 12 }}>{fetchError}</p>
+        <button onClick={fetchPersonality} style={{ ...commonStyles.buttonOutline, padding: '8px 16px', fontSize: 13 }}>
+          再読み込み
+        </button>
+      </div>
     )
   }
 

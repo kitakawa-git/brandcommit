@@ -15,28 +15,48 @@ export default function BrandValuesPage() {
   const { companyId } = useAuth()
   const [values, setValues] = useState<ValueItem[]>([])
   const [loading, setLoading] = useState(true)
+  const [fetchError, setFetchError] = useState('')
   const [saving, setSaving] = useState(false)
   const [message, setMessage] = useState('')
   const [messageType, setMessageType] = useState<'success' | 'error'>('success')
 
-  useEffect(() => {
+  const fetchValues = async () => {
     if (!companyId) return
+    setLoading(true)
+    setFetchError('')
 
-    const fetchValues = async () => {
-      const { data } = await supabase
-        .from('brand_values')
-        .select('*')
-        .eq('company_id', companyId)
-        .order('sort_order')
+    try {
+      const result = await Promise.race([
+        supabase
+          .from('brand_values')
+          .select('*')
+          .eq('company_id', companyId)
+          .order('sort_order'),
+        new Promise<never>((_, reject) =>
+          setTimeout(() => reject(new Error('timeout')), 10000)
+        ),
+      ])
 
-      if (data && data.length > 0) {
-        setValues(data.map((d: Record<string, unknown>) => ({
+      if (result.error) throw new Error(result.error.message)
+      if (result.data && result.data.length > 0) {
+        setValues(result.data.map((d: Record<string, unknown>) => ({
           title: (d.title as string) || '',
           description: (d.description as string) || '',
         })))
       }
+    } catch (err) {
+      console.error('[BrandValues] データ取得エラー:', err)
+      const msg = err instanceof Error && err.message === 'timeout'
+        ? 'データの取得がタイムアウトしました'
+        : 'データの取得に失敗しました'
+      setFetchError(msg)
+    } finally {
       setLoading(false)
     }
+  }
+
+  useEffect(() => {
+    if (!companyId) return
     fetchValues()
   }, [companyId])
 
@@ -124,6 +144,17 @@ export default function BrandValuesPage() {
       <p style={{ color: colors.textSecondary, textAlign: 'center', padding: 40 }}>
         読み込み中...
       </p>
+    )
+  }
+
+  if (fetchError) {
+    return (
+      <div style={{ textAlign: 'center', padding: 40 }}>
+        <p style={{ color: '#dc2626', fontSize: 14, marginBottom: 12 }}>{fetchError}</p>
+        <button onClick={fetchValues} style={{ ...commonStyles.buttonOutline, padding: '8px 16px', fontSize: 13 }}>
+          再読み込み
+        </button>
+      </div>
     )
   }
 

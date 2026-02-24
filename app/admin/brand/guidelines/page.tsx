@@ -35,34 +35,53 @@ export default function BrandGuidelinesPage() {
     brand_video_url: '',
   })
   const [loading, setLoading] = useState(true)
+  const [fetchError, setFetchError] = useState('')
   const [saving, setSaving] = useState(false)
   const [message, setMessage] = useState('')
   const [messageType, setMessageType] = useState<'success' | 'error'>('success')
 
-  useEffect(() => {
+  const fetchGuidelines = async () => {
     if (!companyId) return
+    setLoading(true)
+    setFetchError('')
 
-    const fetchGuidelines = async () => {
-      const { data } = await supabase
-        .from('brand_guidelines')
-        .select('*')
-        .eq('company_id', companyId)
-        .single()
+    try {
+      const result = await Promise.race([
+        supabase
+          .from('brand_guidelines')
+          .select('*')
+          .eq('company_id', companyId)
+          .single(),
+        new Promise<never>((_, reject) =>
+          setTimeout(() => reject(new Error('timeout')), 10000)
+        ),
+      ])
 
-      if (data) {
-        setGuidelinesId(data.id)
+      if (result.data) {
+        setGuidelinesId(result.data.id)
         setGuidelines({
-          mission: data.mission || '',
-          vision: data.vision || '',
-          values: data.values || [],
-          slogan: data.slogan || '',
-          brand_statement: data.brand_statement || '',
-          brand_story: data.brand_story || '',
-          brand_video_url: data.brand_video_url || '',
+          mission: result.data.mission || '',
+          vision: result.data.vision || '',
+          values: result.data.values || [],
+          slogan: result.data.slogan || '',
+          brand_statement: result.data.brand_statement || '',
+          brand_story: result.data.brand_story || '',
+          brand_video_url: result.data.brand_video_url || '',
         })
       }
+    } catch (err) {
+      console.error('[BrandGuidelines] データ取得エラー:', err)
+      const msg = err instanceof Error && err.message === 'timeout'
+        ? 'データの取得がタイムアウトしました'
+        : 'データの取得に失敗しました'
+      setFetchError(msg)
+    } finally {
       setLoading(false)
     }
+  }
+
+  useEffect(() => {
+    if (!companyId) return
     fetchGuidelines()
   }, [companyId])
 
@@ -235,6 +254,17 @@ export default function BrandGuidelinesPage() {
       <p style={{ color: colors.textSecondary, textAlign: 'center', padding: 40 }}>
         読み込み中...
       </p>
+    )
+  }
+
+  if (fetchError) {
+    return (
+      <div style={{ textAlign: 'center', padding: 40 }}>
+        <p style={{ color: '#dc2626', fontSize: 14, marginBottom: 12 }}>{fetchError}</p>
+        <button onClick={fetchGuidelines} style={{ ...commonStyles.buttonOutline, padding: '8px 16px', fontSize: 13 }}>
+          再読み込み
+        </button>
+      </div>
     )
   }
 

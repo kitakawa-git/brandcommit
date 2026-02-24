@@ -39,36 +39,55 @@ export default function BrandVisualsPage() {
     visual_guidelines: '',
   })
   const [loading, setLoading] = useState(true)
+  const [fetchError, setFetchError] = useState('')
   const [saving, setSaving] = useState(false)
   const [message, setMessage] = useState('')
   const [messageType, setMessageType] = useState<'success' | 'error'>('success')
 
-  useEffect(() => {
+  const fetchVisuals = async () => {
     if (!companyId) return
+    setLoading(true)
+    setFetchError('')
 
-    const fetchVisuals = async () => {
-      const { data } = await supabase
-        .from('brand_visuals')
-        .select('*')
-        .eq('company_id', companyId)
-        .single()
+    try {
+      const result = await Promise.race([
+        supabase
+          .from('brand_visuals')
+          .select('*')
+          .eq('company_id', companyId)
+          .single(),
+        new Promise<never>((_, reject) =>
+          setTimeout(() => reject(new Error('timeout')), 10000)
+        ),
+      ])
 
-      if (data) {
-        setVisualsId(data.id)
+      if (result.data) {
+        setVisualsId(result.data.id)
         setVisuals({
-          primary_color: data.primary_color || '#1a1a1a',
-          secondary_color: data.secondary_color || '#666666',
-          accent_color: data.accent_color || '#2563eb',
-          logo_url: data.logo_url || '',
-          logo_white_url: data.logo_white_url || '',
-          logo_dark_url: data.logo_dark_url || '',
-          logo_usage_rules: data.logo_usage_rules || '',
-          fonts: data.fonts || { primary: '', secondary: '' },
-          visual_guidelines: data.visual_guidelines || '',
+          primary_color: result.data.primary_color || '#1a1a1a',
+          secondary_color: result.data.secondary_color || '#666666',
+          accent_color: result.data.accent_color || '#2563eb',
+          logo_url: result.data.logo_url || '',
+          logo_white_url: result.data.logo_white_url || '',
+          logo_dark_url: result.data.logo_dark_url || '',
+          logo_usage_rules: result.data.logo_usage_rules || '',
+          fonts: result.data.fonts || { primary: '', secondary: '' },
+          visual_guidelines: result.data.visual_guidelines || '',
         })
       }
+    } catch (err) {
+      console.error('[BrandVisuals] データ取得エラー:', err)
+      const msg = err instanceof Error && err.message === 'timeout'
+        ? 'データの取得がタイムアウトしました'
+        : 'データの取得に失敗しました'
+      setFetchError(msg)
+    } finally {
       setLoading(false)
     }
+  }
+
+  useEffect(() => {
+    if (!companyId) return
     fetchVisuals()
   }, [companyId])
 
@@ -202,6 +221,17 @@ export default function BrandVisualsPage() {
       <p style={{ color: colors.textSecondary, textAlign: 'center', padding: 40 }}>
         読み込み中...
       </p>
+    )
+  }
+
+  if (fetchError) {
+    return (
+      <div style={{ textAlign: 'center', padding: 40 }}>
+        <p style={{ color: '#dc2626', fontSize: 14, marginBottom: 12 }}>{fetchError}</p>
+        <button onClick={fetchVisuals} style={{ ...commonStyles.buttonOutline, padding: '8px 16px', fontSize: 13 }}>
+          再読み込み
+        </button>
+      </div>
     )
   }
 

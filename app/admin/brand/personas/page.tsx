@@ -28,22 +28,31 @@ export default function BrandPersonasPage() {
   const { companyId } = useAuth()
   const [personas, setPersonas] = useState<PersonaItem[]>([])
   const [loading, setLoading] = useState(true)
+  const [fetchError, setFetchError] = useState('')
   const [saving, setSaving] = useState(false)
   const [message, setMessage] = useState('')
   const [messageType, setMessageType] = useState<'success' | 'error'>('success')
 
-  useEffect(() => {
+  const fetchPersonas = async () => {
     if (!companyId) return
+    setLoading(true)
+    setFetchError('')
 
-    const fetchPersonas = async () => {
-      const { data } = await supabase
-        .from('brand_personas')
-        .select('*')
-        .eq('company_id', companyId)
-        .order('sort_order')
+    try {
+      const result = await Promise.race([
+        supabase
+          .from('brand_personas')
+          .select('*')
+          .eq('company_id', companyId)
+          .order('sort_order'),
+        new Promise<never>((_, reject) =>
+          setTimeout(() => reject(new Error('timeout')), 10000)
+        ),
+      ])
 
-      if (data && data.length > 0) {
-        setPersonas(data.map((d: Record<string, unknown>) => ({
+      if (result.error) throw new Error(result.error.message)
+      if (result.data && result.data.length > 0) {
+        setPersonas(result.data.map((d: Record<string, unknown>) => ({
           name: (d.name as string) || '',
           age_range: (d.age_range as string) || '',
           occupation: (d.occupation as string) || '',
@@ -52,8 +61,19 @@ export default function BrandPersonasPage() {
           pain_points: (d.pain_points as string[]) || [],
         })))
       }
+    } catch (err) {
+      console.error('[BrandPersonas] データ取得エラー:', err)
+      const msg = err instanceof Error && err.message === 'timeout'
+        ? 'データの取得がタイムアウトしました'
+        : 'データの取得に失敗しました'
+      setFetchError(msg)
+    } finally {
       setLoading(false)
     }
+  }
+
+  useEffect(() => {
+    if (!companyId) return
     fetchPersonas()
   }, [companyId])
 
@@ -200,6 +220,17 @@ export default function BrandPersonasPage() {
       <p style={{ color: colors.textSecondary, textAlign: 'center', padding: 40 }}>
         読み込み中...
       </p>
+    )
+  }
+
+  if (fetchError) {
+    return (
+      <div style={{ textAlign: 'center', padding: 40 }}>
+        <p style={{ color: '#dc2626', fontSize: 14, marginBottom: 12 }}>{fetchError}</p>
+        <button onClick={fetchPersonas} style={{ ...commonStyles.buttonOutline, padding: '8px 16px', fontSize: 13 }}>
+          再読み込み
+        </button>
+      </div>
     )
   }
 
