@@ -53,20 +53,49 @@ export default function PortalVisualsPage() {
   // 画像があるセクションのみ表示
   const validSections = data.logo_sections.filter(s => s.items && s.items.length > 0)
 
-  const colorSwatch = (color: string, label: string) => (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
-      <div style={{
-        width: 48, height: 48, borderRadius: 8,
-        backgroundColor: color,
-        border: `1px solid ${portalColors.border}`,
-        flexShrink: 0,
-      }} />
-      <div>
-        <div style={{ fontSize: 14, fontWeight: 'bold', color: portalColors.textPrimary }}>{label}</div>
-        <div style={{ fontSize: 13, color: portalColors.textSecondary, fontFamily: 'monospace' }}>{color}</div>
+  const hexToRgb = (hex: string) => {
+    const h = hex.replace('#', '')
+    const r = parseInt(h.substring(0, 2), 16)
+    const g = parseInt(h.substring(2, 4), 16)
+    const b = parseInt(h.substring(4, 6), 16)
+    return { r, g, b }
+  }
+
+  const rgbToHsl = (r: number, g: number, b: number) => {
+    const rn = r / 255, gn = g / 255, bn = b / 255
+    const max = Math.max(rn, gn, bn), min = Math.min(rn, gn, bn)
+    const l = (max + min) / 2
+    if (max === min) return { h: 0, s: 0, l: Math.round(l * 100) }
+    const d = max - min
+    const s = l > 0.5 ? d / (2 - max - min) : d / (max + min)
+    let h = 0
+    if (max === rn) h = ((gn - bn) / d + (gn < bn ? 6 : 0)) / 6
+    else if (max === gn) h = ((bn - rn) / d + 2) / 6
+    else h = ((rn - gn) / d + 4) / 6
+    return { h: Math.round(h * 360), s: Math.round(s * 100), l: Math.round(l * 100) }
+  }
+
+  const colorSwatch = (color: string, label: string) => {
+    const { r, g, b } = hexToRgb(color)
+    const { h, s, l } = rgbToHsl(r, g, b)
+    const monoStyle: React.CSSProperties = { fontSize: 13, color: portalColors.textSecondary, fontFamily: 'monospace' }
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
+        <div style={{
+          width: 48, height: 48, borderRadius: 8,
+          backgroundColor: color,
+          border: `1px solid ${portalColors.border}`,
+          flexShrink: 0,
+        }} />
+        <div>
+          <div style={{ fontSize: 14, fontWeight: 'bold', color: portalColors.textPrimary, marginBottom: 2 }}>{label}</div>
+          <div style={monoStyle}>HEX: {color.toUpperCase()}</div>
+          <div style={monoStyle}>RGB: {r}, {g}, {b}</div>
+          <div style={monoStyle}>HSL: {h}°, {s}%, {l}%</div>
+        </div>
       </div>
-    </div>
-  )
+    )
+  }
 
   return (
     <div style={portalStyles.pageContainer}>
