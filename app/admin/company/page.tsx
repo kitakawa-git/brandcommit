@@ -88,16 +88,19 @@ export default function CompanyPage() {
     if (!company) return
     setSaving(true)
     setMessage('')
+    setMessageType('error')
 
     try {
       // 空の提供価値を除外
       const cleanedValues = company.provided_values.filter(v => v.trim() !== '')
 
-      console.log('[Company Save] Step 1: 保存開始')
-      console.log('[Company Save] provided_values:', cleanedValues)
+      console.log('[Company Save] Step 1: 保存開始', { companyId: company.id })
+      console.log('[Company Save] provided_values:', JSON.stringify(cleanedValues))
+      console.log('[Company Save] provided_values type:', typeof cleanedValues, Array.isArray(cleanedValues))
       console.log('[Company Save] brand_story:', company.brand_story ? `${company.brand_story.length}文字` : '未設定')
 
-      const updateData = {
+      // まず全フィールドで保存を試みる
+      const fullUpdateData = {
         name: company.name,
         logo_url: company.logo_url,
         slogan: company.slogan,
@@ -109,17 +112,53 @@ export default function CompanyPage() {
         provided_values: cleanedValues.length > 0 ? cleanedValues : null,
       }
 
-      console.log('[Company Save] Step 2: 送信データ:', JSON.stringify(updateData, null, 2))
+      console.log('[Company Save] Step 2: 全フィールドで保存試行')
 
       const { error } = await supabase
         .from('companies')
-        .update(updateData)
+        .update(fullUpdateData)
         .eq('id', company.id)
 
       if (error) {
-        console.error('[Company Save] Step 3: Supabaseエラー:', error)
-        setMessage('保存に失敗しました: ' + error.message)
-        setMessageType('error')
+        console.error('[Company Save] Step 3: 全フィールド保存エラー:', error.message, error.code, error.details)
+
+        // カラムが存在しない場合は基本フィールドのみで再試行
+        if (error.message.includes('column') || error.code === 'PGRST204' || error.code === '42703') {
+          console.log('[Company Save] Step 4: 新カラム未作成の可能性 → 基本フィールドのみで再試行')
+
+          const basicUpdateData = {
+            name: company.name,
+            logo_url: company.logo_url,
+            slogan: company.slogan,
+            mvv: company.mvv,
+            brand_color_primary: company.brand_color_primary,
+            brand_color_secondary: company.brand_color_secondary,
+            website_url: company.website_url,
+          }
+
+          const { error: basicError } = await supabase
+            .from('companies')
+            .update(basicUpdateData)
+            .eq('id', company.id)
+
+          if (basicError) {
+            console.error('[Company Save] Step 5: 基本フィールド保存もエラー:', basicError.message)
+            const msg = '保存に失敗しました: ' + basicError.message
+            setMessage(msg)
+            window.alert(msg)
+          } else {
+            console.log('[Company Save] Step 5: 基本フィールドのみ保存成功')
+            const msg = '基本情報は保存しました。ブランドストーリー・提供価値を保存するには、Supabase SQL Editorで sql/004_card_enhancements.sql を実行してください。'
+            setMessage(msg)
+            setMessageType('success')
+            window.alert(msg)
+          }
+        } else {
+          const msg = '保存に失敗しました: ' + error.message
+          console.error('[Company Save] エラー詳細:', JSON.stringify(error))
+          setMessage(msg)
+          window.alert(msg)
+        }
       } else {
         console.log('[Company Save] Step 3: 保存成功')
         setMessage('保存しました')
@@ -130,9 +169,11 @@ export default function CompanyPage() {
     } catch (err) {
       console.error('[Company Save] 予期しないエラー:', err)
       const errorMessage = err instanceof Error ? err.message : '不明なエラーが発生しました'
-      setMessage('保存に失敗しました: ' + errorMessage)
-      setMessageType('error')
+      const msg = '保存に失敗しました: ' + errorMessage
+      setMessage(msg)
+      window.alert(msg)
     } finally {
+      console.log('[Company Save] finally: setSaving(false)')
       setSaving(false)
     }
   }
@@ -345,7 +386,7 @@ export default function CompanyPage() {
           <div style={commonStyles.formGroup}>
             <label style={commonStyles.label}>Webサイト URL</label>
             <input
-              type="url"
+              type="text"
               value={company.website_url}
               onChange={(e) => handleChange('website_url', e.target.value)}
               placeholder="https://example.com"
