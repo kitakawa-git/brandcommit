@@ -6,6 +6,16 @@ type Props = {
   params: Promise<{ slug: string }>
 }
 
+// 明暗判定: ブランドカラーに応じて読みやすい文字色（白or黒）を返す
+function getContrastTextColor(hex: string): '#ffffff' | '#000000' {
+  const r = parseInt(hex.slice(1, 3), 16)
+  const g = parseInt(hex.slice(3, 5), 16)
+  const b = parseInt(hex.slice(5, 7), 16)
+  // 相対輝度（W3C基準）
+  const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255
+  return luminance > 0.5 ? '#000000' : '#ffffff'
+}
+
 // SNSアイコンSVG
 function XIcon() {
   return (
@@ -79,6 +89,11 @@ export default async function CardPage({ params }: Props) {
 
   const company = profile.companies
 
+  // ブランドカラー（デフォルト値付き）
+  const primaryColor = company?.brand_color_primary || '#1a1a1a'
+  const secondaryColor = company?.brand_color_secondary || '#666666'
+  const headerTextColor = getContrastTextColor(primaryColor)
+
   // QRコードをサーバーサイドで生成
   const cardUrl = `https://brandcommit.vercel.app/card/${slug}`
   const qrDataUrl = await QRCode.toDataURL(cardUrl, {
@@ -103,12 +118,30 @@ export default async function CardPage({ params }: Props) {
       backgroundColor: '#f8f8f8',
       fontFamily: 'sans-serif',
     }}>
+      {/* SNSホバー用CSS（サーバーコンポーネントではインラインstyleでhover不可） */}
+      <style>{`
+        .sns-icon {
+          transition: transform 0.15s, background-color 0.15s, color 0.15s;
+        }
+        .sns-icon:hover {
+          transform: scale(1.1);
+          background-color: ${primaryColor} !important;
+          color: ${headerTextColor} !important;
+        }
+        .contact-btn {
+          transition: opacity 0.15s;
+        }
+        .contact-btn:hover {
+          opacity: 0.85;
+        }
+      `}</style>
+
       {/* 1. ヘッダー（写真・名前・役職） */}
       <div style={{
-        backgroundColor: company?.brand_color_primary || '#1a1a1a',
+        backgroundColor: primaryColor,
         padding: '40px 20px',
         textAlign: 'center',
-        color: '#ffffff',
+        color: headerTextColor,
       }}>
         {profile.photo_url ? (
           <img
@@ -121,7 +154,7 @@ export default async function CardPage({ params }: Props) {
               objectFit: 'cover',
               margin: '0 auto 16px',
               display: 'block',
-              border: '3px solid #ffffff',
+              border: `3px solid ${headerTextColor}`,
             }}
           />
         ) : (
@@ -129,13 +162,13 @@ export default async function CardPage({ params }: Props) {
             width: 100,
             height: 100,
             borderRadius: '50%',
-            backgroundColor: '#ffffff',
+            backgroundColor: headerTextColor,
             margin: '0 auto 16px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             fontSize: 36,
-            color: company?.brand_color_primary || '#1a1a1a',
+            color: primaryColor,
           }}>
             {profile.name?.charAt(0)}
           </div>
@@ -181,6 +214,7 @@ export default async function CardPage({ params }: Props) {
                 target="_blank"
                 rel="noopener noreferrer"
                 title={sns.label}
+                className="sns-icon"
                 style={{
                   width: 44,
                   height: 44,
@@ -189,10 +223,9 @@ export default async function CardPage({ params }: Props) {
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  color: company?.brand_color_primary || '#1a1a1a',
+                  color: primaryColor,
                   textDecoration: 'none',
                   boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-                  transition: 'transform 0.15s',
                 }}
               >
                 {sns.icon}
@@ -204,20 +237,20 @@ export default async function CardPage({ params }: Props) {
         {/* 4. 連絡先ボタン（メール・電話） */}
         <div style={{ display: 'flex', gap: 12, marginBottom: 24 }}>
           {profile.email && (
-            <a href={`mailto:${profile.email}`} style={{
+            <a href={`mailto:${profile.email}`} className="contact-btn" style={{
               flex: 1, display: 'block', textAlign: 'center', padding: '12px 0',
-              backgroundColor: '#ffffff', borderRadius: 12,
-              color: company?.brand_color_primary || '#1a1a1a',
+              backgroundColor: primaryColor, borderRadius: 12,
+              color: '#ffffff',
               textDecoration: 'none', fontSize: 14, fontWeight: 'bold',
             }}>
               ✉ メール
             </a>
           )}
           {profile.phone && (
-            <a href={`tel:${profile.phone}`} style={{
+            <a href={`tel:${profile.phone}`} className="contact-btn" style={{
               flex: 1, display: 'block', textAlign: 'center', padding: '12px 0',
-              backgroundColor: '#ffffff', borderRadius: 12,
-              color: company?.brand_color_primary || '#1a1a1a',
+              backgroundColor: primaryColor, borderRadius: 12,
+              color: '#ffffff',
               textDecoration: 'none', fontSize: 14, fontWeight: 'bold',
             }}>
               📞 電話
@@ -242,7 +275,7 @@ export default async function CardPage({ params }: Props) {
             )}
             <h2 style={{
               fontSize: 18, margin: '0 0 8px',
-              color: company.brand_color_primary || '#1a1a1a',
+              color: primaryColor,
             }}>
               {company.name}
             </h2>
@@ -264,7 +297,7 @@ export default async function CardPage({ params }: Props) {
           <div style={{ marginBottom: 16 }}>
             <h3 style={{
               fontSize: 15, fontWeight: 'bold', margin: '0 0 12px',
-              color: company?.brand_color_primary || '#1a1a1a',
+              color: primaryColor,
             }}>
               提供価値
             </h3>
@@ -284,7 +317,7 @@ export default async function CardPage({ params }: Props) {
                   color: '#333',
                   fontWeight: '600',
                   textAlign: 'center',
-                  borderLeft: `3px solid ${company?.brand_color_primary || '#1a1a1a'}`,
+                  borderLeft: `3px solid ${secondaryColor}`,
                 }}>
                   {value}
                 </div>
@@ -303,7 +336,7 @@ export default async function CardPage({ params }: Props) {
           }}>
             <h3 style={{
               fontSize: 15, fontWeight: 'bold', margin: '0 0 12px',
-              color: company.brand_color_primary || '#1a1a1a',
+              color: primaryColor,
             }}>
               ブランドストーリー
             </h3>
@@ -318,9 +351,9 @@ export default async function CardPage({ params }: Props) {
 
         {/* 8. コーポレートサイトリンク */}
         {company?.website_url && (
-          <a href={company.website_url} target="_blank" style={{
+          <a href={company.website_url} target="_blank" className="contact-btn" style={{
             display: 'block', textAlign: 'center', padding: '14px 0',
-            backgroundColor: company.brand_color_primary || '#1a1a1a',
+            backgroundColor: primaryColor,
             borderRadius: 10, color: '#ffffff', textDecoration: 'none', fontSize: 14,
             fontWeight: 'bold', marginBottom: 16,
           }}>
@@ -337,7 +370,7 @@ export default async function CardPage({ params }: Props) {
             height={160}
             style={{ display: 'block', margin: '0 auto' }}
           />
-          <p style={{ fontSize: 11, color: '#999', marginTop: 8 }}>
+          <p style={{ fontSize: 11, color: primaryColor, marginTop: 8 }}>
             名刺に印刷用
           </p>
         </div>
