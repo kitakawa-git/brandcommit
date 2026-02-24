@@ -1,21 +1,21 @@
 'use client'
 
-// ブランドビジュアル 閲覧ページ
+// ブランドビジュアル 閲覧ページ（ロゴセクション＋カラー＋フォント＋ガイドライン）
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { usePortalAuth } from '../components/PortalAuthProvider'
 import { portalColors, portalStyles } from '../components/PortalStyles'
 
+type LogoItem = { url: string; caption: string }
+type LogoSection = { title: string; items: LogoItem[] }
+
 type Visuals = {
   primary_color: string
   secondary_color: string
   accent_color: string
-  logo_url: string | null
-  logo_white_url: string | null
-  logo_dark_url: string | null
-  logo_usage_rules: string | null
   fonts: { primary: string; secondary: string }
   visual_guidelines: string | null
+  logo_sections: LogoSection[]
 }
 
 export default function PortalVisualsPage() {
@@ -36,12 +36,9 @@ export default function PortalVisualsPage() {
             primary_color: d.primary_color || '#2563eb',
             secondary_color: d.secondary_color || '#64748b',
             accent_color: d.accent_color || '#f59e0b',
-            logo_url: d.logo_url,
-            logo_white_url: d.logo_white_url,
-            logo_dark_url: d.logo_dark_url,
-            logo_usage_rules: d.logo_usage_rules,
             fonts: (d.fonts as { primary: string; secondary: string }) || { primary: '', secondary: '' },
             visual_guidelines: d.visual_guidelines,
+            logo_sections: (d.logo_sections as LogoSection[]) || [],
           })
         }
         setLoading(false)
@@ -51,12 +48,13 @@ export default function PortalVisualsPage() {
   if (loading) return <div style={portalStyles.empty}>読み込み中...</div>
   if (!data) return <div style={portalStyles.empty}>まだ登録されていません</div>
 
+  // 画像があるセクションのみ表示
+  const validSections = data.logo_sections.filter(s => s.items && s.items.length > 0)
+
   const colorSwatch = (color: string, label: string) => (
     <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
       <div style={{
-        width: 48,
-        height: 48,
-        borderRadius: 8,
+        width: 48, height: 48, borderRadius: 8,
         backgroundColor: color,
         border: `1px solid ${portalColors.border}`,
         flexShrink: 0,
@@ -72,10 +70,72 @@ export default function PortalVisualsPage() {
     <div style={portalStyles.pageContainer}>
       <h1 style={portalStyles.pageTitle}>ブランドビジュアル</h1>
       <p style={portalStyles.pageDescription}>
-        ブランドカラー・ロゴ・フォント規定
+        ロゴガイドライン・ブランドカラー・フォント規定
       </p>
 
-      {/* カラー */}
+      {/* ロゴガイドライン */}
+      {validSections.length > 0 && (
+        <div style={portalStyles.section}>
+          <h2 style={portalStyles.sectionTitle}>ロゴガイドライン</h2>
+
+          {validSections.map((section, sIdx) => (
+            <div key={sIdx} style={{ marginBottom: sIdx < validSections.length - 1 ? 24 : 0 }}>
+              {/* セクションタイトル */}
+              {section.title && (
+                <h3 style={{
+                  fontSize: 15,
+                  fontWeight: 'bold',
+                  color: '#6b7280',
+                  margin: '0 0 12px 0',
+                }}>
+                  {section.title}
+                </h3>
+              )}
+
+              {/* 画像グリッド */}
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(3, 1fr)',
+                gap: 16,
+              }}>
+                {section.items.map((item, iIdx) => (
+                  <div key={iIdx} style={{
+                    backgroundColor: '#f5f5f5',
+                    borderRadius: 12,
+                    overflow: 'hidden',
+                  }}>
+                    <div style={{
+                      padding: 16,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      minHeight: 120,
+                    }}>
+                      <img
+                        src={item.url}
+                        alt={item.caption || ''}
+                        style={{ maxWidth: '100%', maxHeight: 140, objectFit: 'contain' }}
+                      />
+                    </div>
+                    {item.caption && (
+                      <div style={{
+                        padding: '8px 16px 12px',
+                        fontSize: 14,
+                        color: portalColors.textSecondary,
+                        textAlign: 'center',
+                      }}>
+                        {item.caption}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* ブランドカラー */}
       <div style={portalStyles.section}>
         <h2 style={portalStyles.sectionTitle}>ブランドカラー</h2>
         <div style={portalStyles.card}>
@@ -84,43 +144,6 @@ export default function PortalVisualsPage() {
           {colorSwatch(data.accent_color, 'アクセントカラー')}
         </div>
       </div>
-
-      {/* ロゴ */}
-      {(data.logo_url || data.logo_white_url || data.logo_dark_url) && (
-        <div style={portalStyles.section}>
-          <h2 style={portalStyles.sectionTitle}>ロゴ</h2>
-          <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
-            {data.logo_url && (
-              <div style={{ ...portalStyles.card, flex: '1 1 200px', textAlign: 'center' }}>
-                <div style={portalStyles.label}>標準ロゴ</div>
-                <img src={data.logo_url} alt="標準ロゴ" style={{ maxWidth: '100%', maxHeight: 120, marginTop: 8 }} />
-              </div>
-            )}
-            {data.logo_white_url && (
-              <div style={{ ...portalStyles.card, flex: '1 1 200px', textAlign: 'center', backgroundColor: '#374151' }}>
-                <div style={{ ...portalStyles.label, color: '#d1d5db' }}>白ロゴ</div>
-                <img src={data.logo_white_url} alt="白ロゴ" style={{ maxWidth: '100%', maxHeight: 120, marginTop: 8 }} />
-              </div>
-            )}
-            {data.logo_dark_url && (
-              <div style={{ ...portalStyles.card, flex: '1 1 200px', textAlign: 'center' }}>
-                <div style={portalStyles.label}>ダークロゴ</div>
-                <img src={data.logo_dark_url} alt="ダークロゴ" style={{ maxWidth: '100%', maxHeight: 120, marginTop: 8 }} />
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* ロゴ使用ルール */}
-      {data.logo_usage_rules && (
-        <div style={portalStyles.section}>
-          <h2 style={portalStyles.sectionTitle}>ロゴ使用ルール</h2>
-          <div style={portalStyles.card}>
-            <div style={portalStyles.value}>{data.logo_usage_rules}</div>
-          </div>
-        </div>
-      )}
 
       {/* フォント */}
       {(data.fonts.primary || data.fonts.secondary) && (

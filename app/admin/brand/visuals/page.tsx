@@ -1,10 +1,9 @@
 'use client'
 
 // ブランドビジュアル 編集ページ（1企業1レコード、upsert方式）
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '../../components/AuthProvider'
-import { ImageUpload } from '../../components/ImageUpload'
 import { colors, commonStyles } from '../../components/AdminStyles'
 
 type Fonts = {
@@ -12,16 +11,16 @@ type Fonts = {
   secondary: string
 }
 
+type LogoItem = { url: string; caption: string }
+type LogoSection = { title: string; items: LogoItem[] }
+
 type Visuals = {
   primary_color: string
   secondary_color: string
   accent_color: string
-  logo_url: string
-  logo_white_url: string
-  logo_dark_url: string
-  logo_usage_rules: string
   fonts: Fonts
   visual_guidelines: string
+  logo_sections: LogoSection[]
 }
 
 export default function BrandVisualsPage() {
@@ -31,18 +30,17 @@ export default function BrandVisualsPage() {
     primary_color: '#1a1a1a',
     secondary_color: '#666666',
     accent_color: '#2563eb',
-    logo_url: '',
-    logo_white_url: '',
-    logo_dark_url: '',
-    logo_usage_rules: '',
     fonts: { primary: '', secondary: '' },
     visual_guidelines: '',
+    logo_sections: [],
   })
   const [loading, setLoading] = useState(true)
   const [fetchError, setFetchError] = useState('')
   const [saving, setSaving] = useState(false)
   const [message, setMessage] = useState('')
   const [messageType, setMessageType] = useState<'success' | 'error'>('success')
+  const [uploadingMap, setUploadingMap] = useState<Record<string, boolean>>({})
+  const fileInputRefs = useRef<Record<string, HTMLInputElement | null>>({})
 
   const fetchVisuals = async () => {
     if (!companyId) return
@@ -67,12 +65,9 @@ export default function BrandVisualsPage() {
           primary_color: result.data.primary_color || '#1a1a1a',
           secondary_color: result.data.secondary_color || '#666666',
           accent_color: result.data.accent_color || '#2563eb',
-          logo_url: result.data.logo_url || '',
-          logo_white_url: result.data.logo_white_url || '',
-          logo_dark_url: result.data.logo_dark_url || '',
-          logo_usage_rules: result.data.logo_usage_rules || '',
           fonts: result.data.fonts || { primary: '', secondary: '' },
           visual_guidelines: result.data.visual_guidelines || '',
+          logo_sections: (result.data.logo_sections as LogoSection[]) || [],
         })
       }
     } catch (err) {
@@ -91,7 +86,7 @@ export default function BrandVisualsPage() {
     fetchVisuals()
   }, [companyId])
 
-  const handleChange = (field: keyof Visuals, value: string | Fonts) => {
+  const handleChange = (field: keyof Visuals, value: string) => {
     setVisuals(prev => ({ ...prev, [field]: value }))
   }
 
@@ -100,6 +95,100 @@ export default function BrandVisualsPage() {
       ...prev,
       fonts: { ...prev.fonts, [field]: value },
     }))
+  }
+
+  // --- ロゴセクション操作 ---
+  const addSection = () => {
+    if (visuals.logo_sections.length >= 10) return
+    setVisuals(prev => ({
+      ...prev,
+      logo_sections: [...prev.logo_sections, { title: '', items: [] }],
+    }))
+  }
+
+  const removeSection = (sIdx: number) => {
+    setVisuals(prev => ({
+      ...prev,
+      logo_sections: prev.logo_sections.filter((_, i) => i !== sIdx),
+    }))
+  }
+
+  const updateSectionTitle = (sIdx: number, title: string) => {
+    setVisuals(prev => {
+      const sections = [...prev.logo_sections]
+      sections[sIdx] = { ...sections[sIdx], title }
+      return { ...prev, logo_sections: sections }
+    })
+  }
+
+  const handleImageUpload = async (sIdx: number, file: File) => {
+    if (!companyId) return
+    if (file.size > 5 * 1024 * 1024) {
+      alert('ファイルサイズは5MB以下にしてください')
+      return
+    }
+
+    const key = `${sIdx}`
+    setUploadingMap(prev => ({ ...prev, [key]: true }))
+
+    try {
+      const ext = file.name.split('.').pop()
+      const fileName = `${companyId}/logos/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
+
+      const { error } = await supabase.storage
+        .from('brand-assets')
+        .upload(fileName, file, { upsert: true })
+
+      if (error) {
+        alert('アップロードに失敗しました: ' + error.message)
+        return
+      }
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('brand-assets')
+        .getPublicUrl(fileName)
+
+      setVisuals(prev => {
+        const sections = [...prev.logo_sections]
+        const items = [...sections[sIdx].items, { url: publicUrl, caption: '' }]
+        sections[sIdx] = { ...sections[sIdx], items }
+        return { ...prev, logo_sections: sections }
+      })
+    } catch {
+      alert('アップロード中にエラーが発生しました')
+    } finally {
+      setUploadingMap(prev => ({ ...prev, [key]: false }))
+    }
+  }
+
+  const removeImage = async (sIdx: number, iIdx: number) => {
+    const url = visuals.logo_sections[sIdx].items[iIdx].url
+    // Storage から削除
+    try {
+      const pathMatch = url.match(/brand-assets\/(.+)$/)
+      if (pathMatch) {
+        await supabase.storage.from('brand-assets').remove([pathMatch[1]])
+      }
+    } catch {
+      // Storage削除失敗は無視（UIからは消す）
+    }
+
+    setVisuals(prev => {
+      const sections = [...prev.logo_sections]
+      const items = sections[sIdx].items.filter((_, i) => i !== iIdx)
+      sections[sIdx] = { ...sections[sIdx], items }
+      return { ...prev, logo_sections: sections }
+    })
+  }
+
+  const updateCaption = (sIdx: number, iIdx: number, caption: string) => {
+    setVisuals(prev => {
+      const sections = [...prev.logo_sections]
+      const items = [...sections[sIdx].items]
+      items[iIdx] = { ...items[iIdx], caption }
+      sections[sIdx] = { ...sections[sIdx], items }
+      return { ...prev, logo_sections: sections }
+    })
   }
 
   // Supabase REST APIに直接fetchで保存
@@ -174,21 +263,25 @@ export default function BrandVisualsPage() {
     setMessageType('error')
 
     try {
-      // セッショントークンを取得（RLSポリシー用）
       const { data: { session } } = await supabase.auth.getSession()
       const token = session?.access_token || ''
+
+      // 空タイトル・空アイテムのセクションをクリーンアップ
+      const cleanedSections = visuals.logo_sections
+        .filter(s => s.title.trim() || s.items.length > 0)
+        .map(s => ({
+          title: s.title.trim(),
+          items: s.items.map(item => ({ url: item.url, caption: item.caption.trim() })),
+        }))
 
       const saveData: Record<string, unknown> = {
         company_id: companyId,
         primary_color: visuals.primary_color,
         secondary_color: visuals.secondary_color,
         accent_color: visuals.accent_color,
-        logo_url: visuals.logo_url || null,
-        logo_white_url: visuals.logo_white_url || null,
-        logo_dark_url: visuals.logo_dark_url || null,
-        logo_usage_rules: visuals.logo_usage_rules || null,
         fonts: visuals.fonts,
         visual_guidelines: visuals.visual_guidelines || null,
+        logo_sections: cleanedSections,
       }
 
       let result: { ok: boolean; error?: string; data?: Record<string, unknown> }
@@ -235,7 +328,7 @@ export default function BrandVisualsPage() {
     )
   }
 
-  // カラーピッカーUI（company/page.tsxと同パターン）
+  // カラーピッカーUI
   const ColorField = ({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) => (
     <div style={commonStyles.formGroup}>
       <label style={commonStyles.label}>{label}</label>
@@ -289,52 +382,152 @@ export default function BrandVisualsPage() {
         )}
 
         <form onSubmit={handleSubmit}>
+          {/* ロゴガイドライン */}
+          <div style={{ marginBottom: 20, paddingBottom: 20, borderBottom: `1px solid ${colors.border}` }}>
+            <h3 style={{ fontSize: 15, fontWeight: 'bold', color: colors.textPrimary, margin: '0 0 16px' }}>
+              ロゴガイドライン
+            </h3>
+
+            {visuals.logo_sections.map((section, sIdx) => (
+              <div key={sIdx} style={{
+                border: `1px solid ${colors.border}`,
+                borderRadius: 8,
+                padding: 16,
+                marginBottom: 12,
+              }}>
+                {/* セクションヘッダー */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+                  <input
+                    type="text"
+                    value={section.title}
+                    onChange={(e) => updateSectionTitle(sIdx, e.target.value)}
+                    placeholder="セクションタイトル（例: ロゴ、余白の指定、禁止事項）"
+                    style={{ ...commonStyles.input, flex: 1 }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => removeSection(sIdx)}
+                    style={{
+                      padding: '8px 12px',
+                      backgroundColor: 'transparent',
+                      color: colors.danger,
+                      border: `1px solid ${colors.danger}`,
+                      borderRadius: 6,
+                      fontSize: 13,
+                      cursor: 'pointer',
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    削除
+                  </button>
+                </div>
+
+                {/* 画像一覧 */}
+                {section.items.length > 0 && (
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: 12, marginBottom: 12 }}>
+                    {section.items.map((item, iIdx) => (
+                      <div key={iIdx} style={{
+                        border: `1px solid ${colors.border}`,
+                        borderRadius: 8,
+                        overflow: 'hidden',
+                        backgroundColor: '#f9fafb',
+                      }}>
+                        <div style={{ padding: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 100, backgroundColor: '#f3f4f6' }}>
+                          <img
+                            src={item.url}
+                            alt={item.caption || ''}
+                            style={{ maxWidth: '100%', maxHeight: 100, objectFit: 'contain' }}
+                          />
+                        </div>
+                        <div style={{ padding: 8 }}>
+                          <input
+                            type="text"
+                            value={item.caption}
+                            onChange={(e) => updateCaption(sIdx, iIdx, e.target.value)}
+                            placeholder="キャプション"
+                            style={{ ...commonStyles.input, fontSize: 12, padding: '6px 8px' }}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => removeImage(sIdx, iIdx)}
+                            style={{
+                              marginTop: 6,
+                              padding: '4px 8px',
+                              backgroundColor: 'transparent',
+                              color: colors.danger,
+                              border: 'none',
+                              fontSize: 12,
+                              cursor: 'pointer',
+                              width: '100%',
+                              textAlign: 'center',
+                            }}
+                          >
+                            画像を削除
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* 画像追加 */}
+                {section.items.length < 10 && (
+                  <div>
+                    <input
+                      ref={(el) => { fileInputRefs.current[`file-${sIdx}`] = el }}
+                      type="file"
+                      accept="image/png,image/jpeg,image/svg+xml"
+                      style={{ display: 'none' }}
+                      onChange={(e) => {
+                        const file = e.target.files?.[0]
+                        if (file) handleImageUpload(sIdx, file)
+                        e.target.value = ''
+                      }}
+                    />
+                    <button
+                      type="button"
+                      disabled={uploadingMap[`${sIdx}`]}
+                      onClick={() => fileInputRefs.current[`file-${sIdx}`]?.click()}
+                      style={{
+                        padding: '6px 14px',
+                        backgroundColor: 'transparent',
+                        color: colors.textSecondary,
+                        border: `1px dashed ${colors.inputBorder}`,
+                        borderRadius: 6,
+                        fontSize: 13,
+                        cursor: 'pointer',
+                      }}
+                    >
+                      {uploadingMap[`${sIdx}`] ? 'アップロード中...' : '+ 画像を追加'}
+                    </button>
+                  </div>
+                )}
+              </div>
+            ))}
+
+            {visuals.logo_sections.length < 10 && (
+              <button
+                type="button"
+                onClick={addSection}
+                style={{
+                  padding: '8px 16px',
+                  backgroundColor: 'transparent',
+                  color: colors.primary,
+                  border: `1px solid ${colors.primary}`,
+                  borderRadius: 6,
+                  fontSize: 13,
+                  cursor: 'pointer',
+                }}
+              >
+                + セクションを追加
+              </button>
+            )}
+          </div>
+
           {/* カラー */}
           <ColorField label="プライマリカラー" value={visuals.primary_color} onChange={(v) => handleChange('primary_color', v)} />
           <ColorField label="セカンダリカラー" value={visuals.secondary_color} onChange={(v) => handleChange('secondary_color', v)} />
           <ColorField label="アクセントカラー" value={visuals.accent_color} onChange={(v) => handleChange('accent_color', v)} />
-
-          {/* ロゴ */}
-          <div style={commonStyles.formGroup}>
-            <label style={commonStyles.label}>ロゴ</label>
-            <ImageUpload
-              bucket="avatars"
-              folder="logos"
-              currentUrl={visuals.logo_url}
-              onUpload={(url) => handleChange('logo_url', url)}
-            />
-          </div>
-
-          <div style={commonStyles.formGroup}>
-            <label style={commonStyles.label}>白背景用ロゴ</label>
-            <ImageUpload
-              bucket="avatars"
-              folder="logos"
-              currentUrl={visuals.logo_white_url}
-              onUpload={(url) => handleChange('logo_white_url', url)}
-            />
-          </div>
-
-          <div style={commonStyles.formGroup}>
-            <label style={commonStyles.label}>暗背景用ロゴ</label>
-            <ImageUpload
-              bucket="avatars"
-              folder="logos"
-              currentUrl={visuals.logo_dark_url}
-              onUpload={(url) => handleChange('logo_dark_url', url)}
-            />
-          </div>
-
-          {/* ロゴ使用ルール */}
-          <div style={commonStyles.formGroup}>
-            <label style={commonStyles.label}>ロゴ使用ルール</label>
-            <textarea
-              value={visuals.logo_usage_rules}
-              onChange={(e) => handleChange('logo_usage_rules', e.target.value)}
-              placeholder="ロゴの最小サイズ、余白ルールなど"
-              style={{ ...commonStyles.textarea, minHeight: 100 }}
-            />
-          </div>
 
           {/* フォント設定 */}
           <div style={{
