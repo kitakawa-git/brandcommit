@@ -71,44 +71,68 @@ export function PortalAuthProvider({ children }: { children: React.ReactNode }) 
     }
   }
 
+  // 初回マウント時: getSession() で直接セッション確認 + 10秒タイムアウト
   useEffect(() => {
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      const currentUser = session?.user ?? null
-      setUser(currentUser)
+    // 公開パスではセッション確認のみ行い、リダイレクトしない
+    let timeoutId: NodeJS.Timeout
 
-      if (currentUser) {
-        await fetchMember(currentUser.id)
-      }
+    const init = async () => {
+      // 10秒経っても完了しなければ強制リダイレクト（公開パス以外）
+      timeoutId = setTimeout(() => {
+        console.warn('[PortalAuth] 10秒タイムアウト')
+        setLoading(false)
+        if (!isPublicPath) {
+          router.replace('/portal/login')
+        }
+      }, 10000)
 
-      setLoading(false)
-
-      if (!currentUser && !isPublicPath) {
-        router.push('/portal/login')
-      }
-    }).catch(() => {
-      setLoading(false)
-    })
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (_event, session) => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession()
         const currentUser = session?.user ?? null
-        setUser(currentUser)
 
-        if (currentUser) {
-          await fetchMember(currentUser.id)
-        } else {
-          setCompanyId(null)
-          setMember(null)
+        if (!currentUser) {
+          clearTimeout(timeoutId)
+          setUser(null)
+          setLoading(false)
+          if (!isPublicPath) {
+            router.replace('/portal/login')
+          }
+          return
         }
 
-        if (!currentUser && !isPublicPath) {
-          router.push('/portal/login')
+        setUser(currentUser)
+        await fetchMember(currentUser.id)
+        clearTimeout(timeoutId)
+        setLoading(false)
+      } catch {
+        clearTimeout(timeoutId)
+        setLoading(false)
+        if (!isPublicPath) {
+          router.replace('/portal/login')
+        }
+      }
+    }
+
+    init()
+
+    // onAuthStateChange は SIGNED_OUT 監視用のみ
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event) => {
+        if (event === 'SIGNED_OUT') {
+          setUser(null)
+          setCompanyId(null)
+          setMember(null)
+          router.replace('/portal/login')
         }
       }
     )
 
-    return () => subscription.unsubscribe()
-  }, [pathname, router, isPublicPath])
+    return () => {
+      clearTimeout(timeoutId)
+      subscription.unsubscribe()
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const signOut = async () => {
     await supabase.auth.signOut()

@@ -80,56 +80,69 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
-  // 初回マウント時のみセッション確認 + リスナー登録
+  // 初回マウント時: getSession() で直接セッション確認 + 10秒タイムアウト
   useEffect(() => {
-    console.log('[AuthProvider] 初回セッション確認中...')
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      const currentUser = session?.user ?? null
-      console.log('[AuthProvider] セッション結果:', currentUser ? `user=${currentUser.email}` : 'なし')
-      setUser(currentUser)
+    let timeoutId: NodeJS.Timeout
 
-      if (currentUser) {
-        await fetchAdminUser(currentUser.id)
-      }
+    const init = async () => {
+      // 10秒経っても完了しなければ強制リダイレクト
+      timeoutId = setTimeout(() => {
+        console.warn('[AuthProvider] 10秒タイムアウト: ログインページへリダイレクト')
+        setLoading(false)
+        router.replace('/admin/login')
+      }, 10000)
 
-      setLoading(false)
-    }).catch((err) => {
-      console.error('[AuthProvider] getSession例外:', err)
-      setLoading(false)
-    })
-
-    // 認証状態変更の監視（マウント時に1回だけ登録）
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        console.log('[AuthProvider] onAuthStateChange:', event)
+      try {
+        console.log('[AuthProvider] 初回セッション確認中...')
+        const { data: { session } } = await supabase.auth.getSession()
         const currentUser = session?.user ?? null
-        setUser(currentUser)
+        console.log('[AuthProvider] セッション結果:', currentUser ? `user=${currentUser.email}` : 'なし')
 
+        if (!currentUser) {
+          clearTimeout(timeoutId)
+          setUser(null)
+          setLoading(false)
+          if (pathname !== '/admin/login') {
+            router.replace('/admin/login')
+          }
+          return
+        }
+
+        setUser(currentUser)
+        await fetchAdminUser(currentUser.id)
+        clearTimeout(timeoutId)
+        setLoading(false)
+      } catch (err) {
+        console.error('[AuthProvider] getSession例外:', err)
+        clearTimeout(timeoutId)
+        setLoading(false)
+        router.replace('/admin/login')
+      }
+    }
+
+    init()
+
+    // onAuthStateChange は SIGNED_OUT 監視用のみ
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event) => {
+        console.log('[AuthProvider] onAuthStateChange:', event)
         if (event === 'SIGNED_OUT') {
-          // 明示的ログアウト時のみ状態クリア
+          setUser(null)
           setCompanyId(null)
           setRole(null)
           setIsSuperAdmin(false)
           setAdminError(false)
-          return
-        }
-
-        if (currentUser) {
-          await fetchAdminUser(currentUser.id)
+          router.replace('/admin/login')
         }
       }
     )
 
-    return () => subscription.unsubscribe()
+    return () => {
+      clearTimeout(timeoutId)
+      subscription.unsubscribe()
+    }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
-
-  // パス変更時のリダイレクト（セッション確認とは分離）
-  useEffect(() => {
-    if (!loading && !user && pathname !== '/admin/login') {
-      router.push('/admin/login')
-    }
-  }, [loading, user, pathname, router])
 
   const signOut = async () => {
     await supabase.auth.signOut()
