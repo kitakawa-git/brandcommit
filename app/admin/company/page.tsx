@@ -89,12 +89,15 @@ export default function CompanyPage() {
     setSaving(true)
     setMessage('')
 
-    // 空の提供価値を除外
-    const cleanedValues = company.provided_values.filter(v => v.trim() !== '')
+    try {
+      // 空の提供価値を除外
+      const cleanedValues = company.provided_values.filter(v => v.trim() !== '')
 
-    const { error } = await supabase
-      .from('companies')
-      .update({
+      console.log('[Company Save] Step 1: 保存開始')
+      console.log('[Company Save] provided_values:', cleanedValues)
+      console.log('[Company Save] brand_story:', company.brand_story ? `${company.brand_story.length}文字` : '未設定')
+
+      const updateData = {
         name: company.name,
         logo_url: company.logo_url,
         slogan: company.slogan,
@@ -102,21 +105,36 @@ export default function CompanyPage() {
         brand_color_primary: company.brand_color_primary,
         brand_color_secondary: company.brand_color_secondary,
         website_url: company.website_url,
-        brand_story: company.brand_story,
-        provided_values: cleanedValues,
-      })
-      .eq('id', company.id)
+        brand_story: company.brand_story || null,
+        provided_values: cleanedValues.length > 0 ? cleanedValues : null,
+      }
 
-    if (error) {
-      setMessage('保存に失敗しました: ' + error.message)
+      console.log('[Company Save] Step 2: 送信データ:', JSON.stringify(updateData, null, 2))
+
+      const { error } = await supabase
+        .from('companies')
+        .update(updateData)
+        .eq('id', company.id)
+
+      if (error) {
+        console.error('[Company Save] Step 3: Supabaseエラー:', error)
+        setMessage('保存に失敗しました: ' + error.message)
+        setMessageType('error')
+      } else {
+        console.log('[Company Save] Step 3: 保存成功')
+        setMessage('保存しました')
+        setMessageType('success')
+        // クリーンな値でstateも更新
+        handleChange('provided_values', cleanedValues)
+      }
+    } catch (err) {
+      console.error('[Company Save] 予期しないエラー:', err)
+      const errorMessage = err instanceof Error ? err.message : '不明なエラーが発生しました'
+      setMessage('保存に失敗しました: ' + errorMessage)
       setMessageType('error')
-    } else {
-      setMessage('保存しました')
-      setMessageType('success')
-      // クリーンな値でstateも更新
-      handleChange('provided_values', cleanedValues)
+    } finally {
+      setSaving(false)
     }
-    setSaving(false)
   }
 
   if (loading) {
