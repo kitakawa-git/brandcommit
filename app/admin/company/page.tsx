@@ -91,14 +91,38 @@ export default function CompanyPage() {
     return 'https://' + trimmed
   }
 
-  // タイムアウト付きPromise: ハング防止（10秒で強制エラー）
-  const withTimeout = <T,>(promise: PromiseLike<T>, ms: number): Promise<T> => {
-    return Promise.race([
-      Promise.resolve(promise),
-      new Promise<T>((_, reject) =>
-        setTimeout(() => reject(new Error(`タイムアウト（${ms / 1000}秒）: サーバーからの応答がありません。ページをリロードして再度お試しください。`)), ms)
-      ),
-    ])
+  // Supabase REST APIに直接fetchで保存（JSクライアントの認証ハングを回避）
+  const supabasePatch = async (table: string, id: string, data: Record<string, unknown>): Promise<{ ok: boolean; error?: string }> => {
+    const url = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/${table}?id=eq.${id}`
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), 10000)
+
+    try {
+      const res = await fetch(url, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '',
+          'Authorization': `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''}`,
+          'Prefer': 'return=minimal',
+        },
+        body: JSON.stringify(data),
+        signal: controller.signal,
+      })
+      clearTimeout(timeoutId)
+
+      if (!res.ok) {
+        const body = await res.text()
+        return { ok: false, error: `HTTP ${res.status}: ${body}` }
+      }
+      return { ok: true }
+    } catch (err) {
+      clearTimeout(timeoutId)
+      if (err instanceof DOMException && err.name === 'AbortError') {
+        return { ok: false, error: 'タイムアウト（10秒）: サーバーからの応答がありません。' }
+      }
+      return { ok: false, error: err instanceof Error ? err.message : '不明なエラー' }
+    }
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -114,26 +138,10 @@ export default function CompanyPage() {
       // URLを正規化
       const normalizedWebsiteUrl = normalizeUrl(company.website_url)
 
-      console.log('[Company Save] Step 1: 保存開始', { companyId: company.id })
+      console.log('[Company Save] 保存開始（fetch直接方式）', { companyId: company.id })
 
-      // Step 1.5: セッション確認（トークンリフレッシュを事前に実行）
-      console.log('[Company Save] Step 1.5: セッション確認中...')
-      try {
-        const { data: sessionData, error: sessionError } = await withTimeout(
-          supabase.auth.getSession(),
-          5000
-        )
-        if (sessionError) {
-          console.error('[Company Save] セッションエラー:', sessionError.message)
-        } else {
-          console.log('[Company Save] セッションOK:', sessionData.session ? 'あり' : 'なし')
-        }
-      } catch (sessionErr) {
-        console.warn('[Company Save] セッション確認タイムアウト、保存を続行します')
-      }
-
-      // まず全フィールドで保存を試みる
-      const fullUpdateData = {
+      // 全フィールドで保存を試みる
+      const fullUpdateData: Record<string, unknown> = {
         name: company.name,
         logo_url: company.logo_url,
         slogan: company.slogan,
@@ -145,77 +153,51 @@ export default function CompanyPage() {
         provided_values: cleanedValues.length > 0 ? cleanedValues : null,
       }
 
-      console.log('[Company Save] Step 2: 全フィールドで保存試行', JSON.stringify(fullUpdateData))
+      console.log('[Company Save] 送信データ:', JSON.stringify(fullUpdateData))
 
-      const { error } = await withTimeout(
-        supabase
-          .from('companies')
-          .update(fullUpdateData)
-          .eq('id', company.id),
-        10000
-      )
+      let result = await supabasePatch('companies', company.id, fullUpdateData)
 
-      if (error) {
-        console.error('[Company Save] Step 3: 保存エラー:', error.message, error.code, error.details)
+      // カラムが存在しないエラーの場合は基本フィールドのみで再試行
+      if (!result.ok && result.error && (result.error.includes('column') || result.error.includes('42703'))) {
+        console.warn('[Company Save] 新カラム未作成 → 基本フィールドのみで再試行')
 
-        // カラムが存在しない場合は基本フィールドのみで再試行
-        if (error.message.includes('column') || error.code === 'PGRST204' || error.code === '42703') {
-          console.log('[Company Save] Step 4: 新カラム未作成 → 基本フィールドのみで再試行')
-
-          const basicUpdateData = {
-            name: company.name,
-            logo_url: company.logo_url,
-            slogan: company.slogan,
-            mvv: company.mvv,
-            brand_color_primary: company.brand_color_primary,
-            brand_color_secondary: company.brand_color_secondary,
-            website_url: normalizedWebsiteUrl,
-          }
-
-          const { error: basicError } = await withTimeout(
-            supabase
-              .from('companies')
-              .update(basicUpdateData)
-              .eq('id', company.id)
-              .then(r => r),
-            10000
-          )
-
-          if (basicError) {
-            console.error('[Company Save] Step 5: 基本フィールド保存もエラー:', basicError.message)
-            const msg = '保存に失敗しました: ' + basicError.message
-            setMessage(msg)
-            window.alert(msg)
-          } else {
-            console.log('[Company Save] Step 5: 基本フィールドのみ保存成功')
-            const msg = '基本情報は保存しました。ブランドストーリー・提供価値を保存するには、Supabase SQL Editorで sql/004_card_enhancements.sql を実行してください。'
-            setMessage(msg)
-            setMessageType('success')
-            window.alert(msg)
-          }
-        } else {
-          const msg = '保存に失敗しました: ' + error.message
-          console.error('[Company Save] エラー詳細:', JSON.stringify(error))
-          setMessage(msg)
-          window.alert(msg)
+        const basicUpdateData: Record<string, unknown> = {
+          name: company.name,
+          logo_url: company.logo_url,
+          slogan: company.slogan,
+          mvv: company.mvv,
+          brand_color_primary: company.brand_color_primary,
+          brand_color_secondary: company.brand_color_secondary,
+          website_url: normalizedWebsiteUrl,
         }
+
+        result = await supabasePatch('companies', company.id, basicUpdateData)
+
+        if (result.ok) {
+          const msg = '基本情報は保存しました。ブランドストーリー・提供価値を保存するには sql/004_card_enhancements.sql を実行してください。'
+          setMessage(msg)
+          setMessageType('success')
+          return
+        }
+      }
+
+      if (!result.ok) {
+        console.error('[Company Save] エラー:', result.error)
+        setMessage('保存に失敗しました: ' + result.error)
+        setMessageType('error')
       } else {
-        console.log('[Company Save] Step 3: 保存成功')
+        console.log('[Company Save] 保存成功')
         setMessage('保存しました')
         setMessageType('success')
-        // クリーンな値でstateも更新
         handleChange('provided_values', cleanedValues)
         handleChange('website_url', normalizedWebsiteUrl)
       }
     } catch (err) {
       console.error('[Company Save] 予期しないエラー:', err)
       const errorMessage = err instanceof Error ? err.message : '不明なエラーが発生しました'
-      const msg = '保存に失敗しました: ' + errorMessage
-      setMessage(msg)
+      setMessage('保存に失敗しました: ' + errorMessage)
       setMessageType('error')
-      window.alert(msg)
     } finally {
-      console.log('[Company Save] finally: setSaving(false)')
       setSaving(false)
     }
   }
