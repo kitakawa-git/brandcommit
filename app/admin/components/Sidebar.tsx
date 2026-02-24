@@ -14,7 +14,7 @@ import {
   Diamond,
   Palette,
   Heart,
-  BookOpen,
+
   Target,
 } from 'lucide-react'
 import { type LucideIcon } from 'lucide-react'
@@ -36,8 +36,7 @@ const navItems: NavItem[] = [
 const brandItems: NavItem[] = [
   { href: '/admin/brand/guidelines', label: 'ブランド方針', icon: FileText },
   { href: '/admin/brand/visuals', label: 'ビジュアル', icon: Palette },
-  { href: '/admin/brand/personality', label: 'パーソナリティ', icon: Heart },
-  { href: '/admin/brand/terms', label: '用語ルール', icon: BookOpen },
+  { href: '/admin/brand/personality', label: 'バーバルアイデンティティ', icon: Heart },
   { href: '/admin/brand/personas', label: '顧客ペルソナ', icon: Target },
   { href: '/admin/brand/values', label: '提供価値', icon: Diamond },
 ]

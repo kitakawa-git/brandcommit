@@ -1,7 +1,6 @@
 'use client'
 
-// ブランドパーソナリティ 編集ページ（トーンオブボイス・コミュニケーションスタイルのみ）
-// 特性（traits）はブランド方針ページに移動済み
+// バーバルアイデンティティ 編集ページ（トーンオブボイス・コミュニケーションスタイル・用語ルール統合）
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '../../components/AuthProvider'
@@ -12,45 +11,60 @@ type Personality = {
   communication_style: string
 }
 
-export default function BrandPersonalityPage() {
+type TermItem = {
+  preferred_term: string
+  avoided_term: string
+  context: string
+}
+
+export default function VerbalIdentityPage() {
   const { companyId } = useAuth()
   const [personalityId, setPersonalityId] = useState<string | null>(null)
   const [personality, setPersonality] = useState<Personality>({
     tone_of_voice: '',
     communication_style: '',
   })
+  const [terms, setTerms] = useState<TermItem[]>([])
   const [loading, setLoading] = useState(true)
   const [fetchError, setFetchError] = useState('')
   const [saving, setSaving] = useState(false)
   const [message, setMessage] = useState('')
   const [messageType, setMessageType] = useState<'success' | 'error'>('success')
 
-  const fetchPersonality = async () => {
+  const fetchData = async () => {
     if (!companyId) return
     setLoading(true)
     setFetchError('')
 
     try {
-      const result = await Promise.race([
-        supabase
-          .from('brand_personalities')
-          .select('*')
-          .eq('company_id', companyId)
-          .single(),
-        new Promise<never>((_, reject) =>
-          setTimeout(() => reject(new Error('timeout')), 10000)
-        ),
+      const [personalityResult, termsResult] = await Promise.all([
+        Promise.race([
+          supabase.from('brand_personalities').select('*').eq('company_id', companyId).single(),
+          new Promise<never>((_, reject) => setTimeout(() => reject(new Error('timeout')), 10000)),
+        ]),
+        Promise.race([
+          supabase.from('brand_terms').select('*').eq('company_id', companyId).order('sort_order'),
+          new Promise<never>((_, reject) => setTimeout(() => reject(new Error('timeout')), 10000)),
+        ]),
       ])
 
-      if (result.data) {
-        setPersonalityId(result.data.id)
+      if (personalityResult.data) {
+        setPersonalityId(personalityResult.data.id)
         setPersonality({
-          tone_of_voice: result.data.tone_of_voice || '',
-          communication_style: result.data.communication_style || '',
+          tone_of_voice: personalityResult.data.tone_of_voice || '',
+          communication_style: personalityResult.data.communication_style || '',
         })
       }
+
+      if (termsResult.data && termsResult.data.length > 0) {
+        setTerms(termsResult.data.map((d: Record<string, unknown>) => ({
+          preferred_term: (d.preferred_term as string) || '',
+          avoided_term: (d.avoided_term as string) || '',
+          context: (d.context as string) || '',
+        })))
+      }
     } catch (err) {
-      console.error('[BrandPersonality] データ取得エラー:', err)
+      console.error('[VerbalIdentity] データ取得エラー:', err)
       const msg = err instanceof Error && err.message === 'timeout'
         ? 'データの取得がタイムアウトしました'
         : 'データの取得に失敗しました'
@@ -62,11 +76,26 @@ export default function BrandPersonalityPage() {
 
   useEffect(() => {
     if (!companyId) return
-    fetchPersonality()
+    fetchData()
   }, [companyId])
 
   const handleChange = (field: keyof Personality, value: string) => {
     setPersonality(prev => ({ ...prev, [field]: value }))
+  }
+
+  // --- 用語ルール操作 ---
+  const addTerm = () => {
+    setTerms([...terms, { preferred_term: '', avoided_term: '', context: '' }])
+  }
+
+  const updateTerm = (index: number, field: keyof TermItem, value: string) => {
+    const updated = [...terms]
+    updated[index] = { ...updated[index], [field]: value }
+    setTerms(updated)
+  }
+
+  const removeTerm = (index: number) => {
+    setTerms(terms.filter((_, i) => i !== index))
   }
 
   // Supabase REST API直接fetch
@@ -143,31 +172,73 @@ export default function BrandPersonalityPage() {
     try {
       const { data: { session } } = await supabase.auth.getSession()
       const token = session?.access_token || ''
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+      const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
 
-      const saveData: Record<string, unknown> = {
+      // --- 1. パーソナリティ保存 ---
+      const personalityData: Record<string, unknown> = {
         company_id: companyId,
         tone_of_voice: personality.tone_of_voice || null,
         communication_style: personality.communication_style || null,
       }
 
-      let result: { ok: boolean; error?: string; data?: Record<string, unknown> }
+      let pResult: { ok: boolean; error?: string; data?: Record<string, unknown> }
       if (personalityId) {
-        result = await supabasePatch('brand_personalities', personalityId, saveData, token)
+        pResult = await supabasePatch('brand_personalities', personalityId, personalityData, token)
       } else {
-        result = await supabaseInsert('brand_personalities', saveData, token)
-        if (result.ok && result.data) {
-          setPersonalityId(result.data.id as string)
+        pResult = await supabaseInsert('brand_personalities', personalityData, token)
+        if (pResult.ok && pResult.data) {
+          setPersonalityId(pResult.data.id as string)
         }
       }
 
-      if (result.ok) {
-        setMessage('保存しました')
-        setMessageType('success')
-      } else {
-        setMessage('保存に失敗しました: ' + result.error)
-        setMessageType('error')
+      if (!pResult.ok) {
+        throw new Error('パーソナリティ保存エラー: ' + pResult.error)
       }
+
+      // --- 2. 用語ルール保存（全削除→全INSERT） ---
+      const headers = {
+        'Content-Type': 'application/json',
+        'apikey': anonKey,
+        'Authorization': `Bearer ${token}`,
+        'Prefer': 'return=minimal',
+      }
+
+      const delRes = await fetch(`${supabaseUrl}/rest/v1/brand_terms?company_id=eq.${companyId}`, {
+        method: 'DELETE',
+        headers,
+      })
+      if (!delRes.ok) {
+        const body = await delRes.text()
+        throw new Error(`用語削除エラー: HTTP ${delRes.status}: ${body}`)
+      }
+
+      const cleanedTerms = terms.filter(t => t.preferred_term.trim() !== '')
+      if (cleanedTerms.length > 0) {
+        const insertData = cleanedTerms.map((t, i) => ({
+          company_id: companyId,
+          preferred_term: t.preferred_term,
+          avoided_term: t.avoided_term || null,
+          context: t.context || null,
+          sort_order: i,
+        }))
+
+        const insRes = await fetch(`${supabaseUrl}/rest/v1/brand_terms`, {
+          method: 'POST',
+          headers,
+          body: JSON.stringify(insertData),
+        })
+        if (!insRes.ok) {
+          const body = await insRes.text()
+          throw new Error(`用語挿入エラー: HTTP ${insRes.status}: ${body}`)
+        }
+      }
+      setTerms(cleanedTerms)
+
+      setMessage('保存しました')
+      setMessageType('success')
     } catch (err) {
+      console.error('[VerbalIdentity Save] エラー:', err)
       setMessage('保存に失敗しました: ' + (err instanceof Error ? err.message : '不明なエラー'))
       setMessageType('error')
     } finally {
@@ -183,7 +254,7 @@ export default function BrandPersonalityPage() {
     return (
       <div style={{ textAlign: 'center', padding: 40 }}>
         <p style={{ color: '#dc2626', fontSize: 14, marginBottom: 12 }}>{fetchError}</p>
-        <button onClick={fetchPersonality} style={{ ...commonStyles.buttonOutline, padding: '8px 16px', fontSize: 13 }}>再読み込み</button>
+        <button onClick={fetchData} style={{ ...commonStyles.buttonOutline, padding: '8px 16px', fontSize: 13 }}>再読み込み</button>
       </div>
     )
   }
@@ -191,7 +262,7 @@ export default function BrandPersonalityPage() {
   return (
     <div>
       <h2 style={{ fontSize: 20, fontWeight: 'bold', color: colors.textPrimary, margin: '0 0 24px' }}>
-        ブランドパーソナリティ
+        バーバルアイデンティティ
       </h2>
 
       <div style={commonStyles.card}>
@@ -222,6 +293,77 @@ export default function BrandPersonalityPage() {
               placeholder="結論から伝える、データで裏付ける..."
               style={{ ...commonStyles.textarea, minHeight: 100 }}
             />
+          </div>
+
+          {/* 用語ルール */}
+          <div style={{ marginTop: 8, paddingTop: 20, borderTop: `1px solid ${colors.border}` }}>
+            <h3 style={{ fontSize: 15, fontWeight: 'bold', color: colors.textPrimary, margin: '0 0 8px' }}>
+              用語ルール
+            </h3>
+            <p style={{ fontSize: 12, color: colors.textSecondary, margin: '0 0 16px' }}>
+              ブランドで使用する推奨用語と避けるべき用語を設定します
+            </p>
+
+            {/* ヘッダー行 */}
+            {terms.length > 0 && (
+              <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
+                <span style={{ flex: 1, fontSize: 12, fontWeight: 'bold', color: colors.textSecondary }}>推奨用語</span>
+                <span style={{ flex: 1, fontSize: 12, fontWeight: 'bold', color: colors.textSecondary }}>非推奨用語</span>
+                <span style={{ flex: 1, fontSize: 12, fontWeight: 'bold', color: colors.textSecondary }}>使い分け説明</span>
+                <span style={{ width: 56 }} />
+              </div>
+            )}
+
+            {terms.map((term, index) => (
+              <div key={index} style={{ display: 'flex', gap: 8, marginBottom: 8, alignItems: 'flex-start' }}>
+                <input
+                  type="text"
+                  value={term.preferred_term}
+                  onChange={(e) => updateTerm(index, 'preferred_term', e.target.value)}
+                  placeholder="推奨用語"
+                  style={{ ...commonStyles.input, flex: 1 }}
+                />
+                <input
+                  type="text"
+                  value={term.avoided_term}
+                  onChange={(e) => updateTerm(index, 'avoided_term', e.target.value)}
+                  placeholder="非推奨用語"
+                  style={{ ...commonStyles.input, flex: 1 }}
+                />
+                <input
+                  type="text"
+                  value={term.context}
+                  onChange={(e) => updateTerm(index, 'context', e.target.value)}
+                  placeholder="使い分け説明"
+                  style={{ ...commonStyles.input, flex: 1 }}
+                />
+                <button
+                  type="button"
+                  onClick={() => removeTerm(index)}
+                  style={{
+                    ...commonStyles.dangerButton,
+                    padding: '8px 14px',
+                    fontSize: 13,
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  削除
+                </button>
+              </div>
+            ))}
+
+            <button
+              type="button"
+              onClick={addTerm}
+              style={{
+                ...commonStyles.buttonOutline,
+                padding: '8px 16px',
+                fontSize: 13,
+                marginBottom: 20,
+              }}
+            >
+              + 用語ルールを追加
+            </button>
           </div>
 
           <button

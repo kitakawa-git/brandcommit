@@ -9,8 +9,7 @@ import { portalColors } from './components/PortalStyles'
 const navLinks = [
   { href: '/portal/guidelines', label: 'ブランド方針' },
   { href: '/portal/visuals', label: 'ビジュアル' },
-  { href: '/portal/personality', label: 'パーソナリティ' },
-  { href: '/portal/terms', label: '用語ルール' },
+  { href: '/portal/personality', label: 'バーバルアイデンティティ' },
   { href: '/portal/personas', label: '顧客ペルソナ' },
   { href: '/portal/values', label: '提供価値' },
 ]
