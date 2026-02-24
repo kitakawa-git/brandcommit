@@ -244,7 +244,7 @@ export default function AnalyticsPage() {
             color: colors.textPrimary,
             margin: '0 0 16px',
           }}>
-            社員別ランキング
+            従業員別ランキング
           </h3>
           {ranking.length === 0 ? (
             <p style={{ color: colors.textSecondary, fontSize: 14 }}>
@@ -322,7 +322,7 @@ export default function AnalyticsPage() {
               <thead>
                 <tr>
                   <th style={{ ...commonStyles.th, fontSize: 12 }}>日時</th>
-                  <th style={{ ...commonStyles.th, fontSize: 12 }}>社員名</th>
+                  <th style={{ ...commonStyles.th, fontSize: 12 }}>従業員名</th>
                   <th style={{ ...commonStyles.th, fontSize: 12 }}>地域</th>
                 </tr>
               </thead>

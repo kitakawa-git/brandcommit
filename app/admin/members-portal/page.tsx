@@ -191,7 +191,7 @@ export default function MembersPortalPage() {
           招待リンク
         </h3>
         <p style={{ fontSize: 12, color: colors.textSecondary, margin: '0 0 12px' }}>
-          社員に共有すると、セルフ登録でアカウントを作成できます
+          従業員に共有すると、セルフ登録でアカウントを作成できます
         </p>
 
         <button

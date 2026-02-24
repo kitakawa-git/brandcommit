@@ -373,12 +373,12 @@ export default function CompanyDetailPage() {
           color: colors.textPrimary,
           margin: '0 0 16px',
         }}>
-          社員一覧（{profiles.length}名）
+          従業員一覧（{profiles.length}名）
         </h3>
 
         {profiles.length === 0 ? (
           <p style={{ color: colors.textSecondary, fontSize: 14 }}>
-            社員が登録されていません
+            従業員が登録されていません
           </p>
         ) : (
           <table style={commonStyles.table}>

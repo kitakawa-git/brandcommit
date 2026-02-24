@@ -120,7 +120,7 @@ export default function CompaniesPage() {
               <tr>
                 <th style={commonStyles.th}>企業名</th>
                 <th style={commonStyles.th}>スローガン</th>
-                <th style={{ ...commonStyles.th, textAlign: 'center' }}>社員数</th>
+                <th style={{ ...commonStyles.th, textAlign: 'center' }}>従業員数</th>
                 <th style={{ ...commonStyles.th, textAlign: 'center' }}>管理者</th>
                 <th style={commonStyles.th}>作成日</th>
                 <th style={commonStyles.th}></th>

@@ -161,7 +161,7 @@ export default function CardTemplatePage() {
           color: colors.textPrimary,
           margin: '0 0 16px',
         }}>
-          社員QRコード一覧
+          従業員QRコード一覧
         </h3>
 
         {loading ? (
@@ -170,7 +170,7 @@ export default function CardTemplatePage() {
           </p>
         ) : members.length === 0 ? (
           <p style={{ color: colors.textSecondary, textAlign: 'center', padding: 40 }}>
-            社員が登録されていません
+            従業員が登録されていません
           </p>
         ) : (
           <div style={{
