@@ -9,7 +9,7 @@ const navItems = [
   { href: '/admin/members', label: 'アカウント一覧', icon: '👤' },
   { href: '/admin/company', label: '企業情報', icon: '🏢' },
   { href: '/admin/analytics', label: 'アクセス解析', icon: '📊' },
-  { href: '/admin/card-template', label: '名刺テンプレート', icon: '🖨️' },
+  { href: '/admin/card-template', label: 'QRコード出力', icon: '🖨️' },
   { href: '/admin/members-portal', label: 'アカウント作成', icon: '🔑' },
 ]
 

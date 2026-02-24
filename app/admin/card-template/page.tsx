@@ -108,7 +108,7 @@ export default function CardTemplatePage() {
           color: colors.textPrimary,
           margin: 0,
         }}>
-          名刺テンプレート
+          QRコード出力
         </h2>
         <button
           onClick={handleBulkDownload}
@@ -135,7 +135,7 @@ export default function CardTemplatePage() {
           color: colors.textPrimary,
           margin: '0 0 12px',
         }}>
-          QRコード印刷ガイド
+          印刷ガイド
         </h3>
         <ul style={{
           margin: 0,
