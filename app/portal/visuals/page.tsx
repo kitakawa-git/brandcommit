@@ -79,14 +79,16 @@ export default function PortalVisualsPage() {
           <h2 style={portalStyles.sectionTitle}>ロゴガイドライン</h2>
 
           {validSections.map((section, sIdx) => (
-            <div key={sIdx} style={{ marginBottom: sIdx < validSections.length - 1 ? 24 : 0 }}>
+            <div key={sIdx} style={portalStyles.card}>
               {/* セクションタイトル */}
               {section.title && (
                 <h3 style={{
                   fontSize: 15,
                   fontWeight: 'bold',
-                  color: '#6b7280',
-                  margin: '0 0 12px 0',
+                  color: portalColors.textPrimary,
+                  margin: '0 0 12px',
+                  paddingBottom: 8,
+                  borderBottom: `1px solid ${portalColors.border}`,
                 }}>
                   {section.title}
                 </h3>
@@ -99,11 +101,7 @@ export default function PortalVisualsPage() {
                 gap: 16,
               }}>
                 {section.items.map((item, iIdx) => (
-                  <div key={iIdx} style={{
-                    backgroundColor: '#f5f5f5',
-                    borderRadius: 12,
-                    overflow: 'hidden',
-                  }}>
+                  <div key={iIdx} style={{ textAlign: 'center' }}>
                     <div style={{
                       padding: 16,
                       display: 'flex',
@@ -119,10 +117,8 @@ export default function PortalVisualsPage() {
                     </div>
                     {item.caption && (
                       <div style={{
-                        padding: '8px 16px 12px',
-                        fontSize: 14,
+                        fontSize: 13,
                         color: portalColors.textSecondary,
-                        textAlign: 'center',
                       }}>
                         {item.caption}
                       </div>
