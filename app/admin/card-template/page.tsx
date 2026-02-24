@@ -161,7 +161,7 @@ export default function CardTemplatePage() {
           color: colors.textPrimary,
           margin: '0 0 16px',
         }}>
-          従業員QRコード一覧
+          QRコード一覧
         </h3>
 
         {loading ? (

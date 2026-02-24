@@ -157,7 +157,7 @@ export default function MembersPage() {
           <table style={commonStyles.table}>
             <thead>
               <tr>
-                <th style={commonStyles.th}>表示名</th>
+                <th style={commonStyles.th}>名前</th>
                 <th style={commonStyles.th}>メール</th>
                 <th style={{ ...commonStyles.th, textAlign: 'center' as const }}>名刺</th>
                 <th style={{ ...commonStyles.th, textAlign: 'center' as const }}>ステータス</th>
