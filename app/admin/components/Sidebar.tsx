@@ -6,11 +6,11 @@ import { usePathname } from 'next/navigation'
 import { colors, layout } from './AdminStyles'
 
 const navItems = [
-  { href: '/admin/members', label: '従業員一覧', icon: '👤' },
+  { href: '/admin/members', label: 'アカウント一覧', icon: '👤' },
   { href: '/admin/company', label: '企業情報', icon: '🏢' },
   { href: '/admin/analytics', label: 'アクセス解析', icon: '📊' },
   { href: '/admin/card-template', label: '名刺テンプレート', icon: '🖨️' },
-  { href: '/admin/members-portal', label: 'アカウント管理', icon: '🔑' },
+  { href: '/admin/members-portal', label: 'アカウント作成', icon: '🔑' },
 ]
 
 const brandItems = [

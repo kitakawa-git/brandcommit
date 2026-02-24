@@ -1,6 +1,6 @@
 'use client'
 
-// アカウント管理（ポータル） — 招待リンク管理 + アカウント手動作成 + 一覧
+// アカウント作成（ポータル） — 招待リンク管理 + アカウント手動作成
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '../components/AuthProvider'
@@ -9,14 +9,6 @@ import { colors, commonStyles } from '../components/AdminStyles'
 type InviteLink = {
   id: string
   token: string
-  is_active: boolean
-  created_at: string
-}
-
-type Member = {
-  id: string
-  display_name: string
-  email: string
   is_active: boolean
   created_at: string
 }
@@ -33,7 +25,6 @@ function generatePassword(): string {
 export default function MembersPortalPage() {
   const { companyId } = useAuth()
   const [inviteLinks, setInviteLinks] = useState<InviteLink[]>([])
-  const [members, setMembers] = useState<Member[]>([])
   const [loading, setLoading] = useState(true)
   const [message, setMessage] = useState('')
   const [messageType, setMessageType] = useState<'success' | 'error'>('success')
@@ -53,21 +44,13 @@ export default function MembersPortalPage() {
   const fetchData = async () => {
     if (!companyId) return
 
-    const [linksRes, membersRes] = await Promise.all([
-      supabase
-        .from('invite_links')
-        .select('*')
-        .eq('company_id', companyId)
-        .order('created_at', { ascending: false }),
-      supabase
-        .from('members')
-        .select('*')
-        .eq('company_id', companyId)
-        .order('created_at', { ascending: false }),
-    ])
+    const { data } = await supabase
+      .from('invite_links')
+      .select('*')
+      .eq('company_id', companyId)
+      .order('created_at', { ascending: false })
 
-    if (linksRes.data) setInviteLinks(linksRes.data)
-    if (membersRes.data) setMembers(membersRes.data)
+    if (data) setInviteLinks(data)
     setLoading(false)
   }
 
@@ -181,35 +164,6 @@ export default function MembersPortalPage() {
     }
   }
 
-  // ── アカウント無効化 ──
-  const handleDeactivateMember = async (memberId: string) => {
-    try {
-      const { data: { session } } = await supabase.auth.getSession()
-      const token = session?.access_token || ''
-      const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
-
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/members?id=eq.${memberId}`,
-        {
-          method: 'PATCH',
-          headers: {
-            'Content-Type': 'application/json',
-            'apikey': anonKey,
-            'Authorization': `Bearer ${token}`,
-            'Prefer': 'return=minimal',
-          },
-          body: JSON.stringify({ is_active: false }),
-        }
-      )
-
-      if (!res.ok) throw new Error(`HTTP ${res.status}`)
-
-      showMessage('アカウントを無効化しました', 'success')
-      await fetchData()
-    } catch (err) {
-      showMessage('無効化に失敗: ' + (err instanceof Error ? err.message : '不明'), 'error')
-    }
-  }
 
   if (loading) {
     return (
@@ -222,7 +176,7 @@ export default function MembersPortalPage() {
   return (
     <div>
       <h2 style={{ fontSize: 20, fontWeight: 'bold', color: colors.textPrimary, margin: '0 0 24px' }}>
-        アカウント管理
+        アカウント作成
       </h2>
 
       {message && (
@@ -371,63 +325,6 @@ export default function MembersPortalPage() {
         </form>
       </div>
 
-      {/* ── セクション3: アカウント一覧 ── */}
-      <div style={commonStyles.card}>
-        <h3 style={{ fontSize: 16, fontWeight: 'bold', color: colors.textPrimary, margin: '0 0 16px' }}>
-          アカウント一覧
-        </h3>
-
-        {members.length === 0 ? (
-          <p style={{ fontSize: 14, color: colors.textSecondary }}>
-            まだアカウントがありません
-          </p>
-        ) : (
-          <table style={commonStyles.table}>
-            <thead>
-              <tr>
-                <th style={commonStyles.th}>表示名</th>
-                <th style={commonStyles.th}>メール</th>
-                <th style={commonStyles.th}>ステータス</th>
-                <th style={commonStyles.th}>登録日</th>
-                <th style={commonStyles.th}>操作</th>
-              </tr>
-            </thead>
-            <tbody>
-              {members.map((m) => (
-                <tr key={m.id}>
-                  <td style={commonStyles.td}>{m.display_name}</td>
-                  <td style={{ ...commonStyles.td, fontSize: 12 }}>{m.email}</td>
-                  <td style={commonStyles.td}>
-                    <span style={{
-                      padding: '2px 8px',
-                      borderRadius: 4,
-                      fontSize: 12,
-                      fontWeight: 'bold',
-                      backgroundColor: m.is_active ? '#dcfce7' : '#fef2f2',
-                      color: m.is_active ? colors.success : colors.danger,
-                    }}>
-                      {m.is_active ? '有効' : '無効'}
-                    </span>
-                  </td>
-                  <td style={{ ...commonStyles.td, fontSize: 12 }}>
-                    {new Date(m.created_at).toLocaleDateString('ja-JP')}
-                  </td>
-                  <td style={commonStyles.td}>
-                    {m.is_active && (
-                      <button
-                        onClick={() => handleDeactivateMember(m.id)}
-                        style={{ ...commonStyles.dangerButton, padding: '4px 10px', fontSize: 12 }}
-                      >
-                        無効化
-                      </button>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-      </div>
     </div>
   )
 }
