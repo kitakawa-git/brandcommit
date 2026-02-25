@@ -1,11 +1,16 @@
 'use client'
 
 // ブランド戦略 閲覧ページ
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { usePortalAuth } from '../components/PortalAuthProvider'
-import { portalStyles } from '../components/PortalStyles'
-import { cn } from '@/lib/utils'
+import { Card, CardContent } from '@/components/ui/card'
+import { Separator } from '@/components/ui/separator'
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+} from '@/components/ui/dialog'
 
 type Persona = {
   name: string
@@ -28,16 +33,7 @@ export default function PortalStrategyPage() {
   const [positioningMapUrl, setPositioningMapUrl] = useState('')
   const [actionGuidelines, setActionGuidelines] = useState<ActionGuideline[]>([])
   const [loading, setLoading] = useState(true)
-  const [modalImage, setModalImage] = useState<string | null>(null)
-
-  const closeModal = useCallback(() => setModalImage(null), [])
-
-  useEffect(() => {
-    if (!modalImage) return
-    const handleKey = (e: KeyboardEvent) => { if (e.key === 'Escape') closeModal() }
-    window.addEventListener('keydown', handleKey)
-    return () => window.removeEventListener('keydown', handleKey)
-  }, [modalImage, closeModal])
+  const [modalOpen, setModalOpen] = useState(false)
 
   useEffect(() => {
     if (!companyId) return
@@ -66,134 +62,142 @@ export default function PortalStrategyPage() {
       })
   }, [companyId])
 
-  if (loading) return <div className={portalStyles.empty}>読み込み中...</div>
+  if (loading) return <div className="text-center py-16 text-muted-foreground text-[15px]">読み込み中...</div>
 
   const hasContent = target || personas.some(p => p.name) || positioningMapUrl || actionGuidelines.length > 0
-  if (!hasContent) return <div className={portalStyles.empty}>まだ登録されていません</div>
+  if (!hasContent) return <div className="text-center py-16 text-muted-foreground text-[15px]">まだ登録されていません</div>
 
-  // ペルソナは名前があるものだけ表示
   const validPersonas = personas.filter(p => p.name)
 
   return (
-    <div className={portalStyles.pageContainer}>
-      <h1 className={portalStyles.pageTitle}>ブランド戦略</h1>
-      <p className={portalStyles.pageDescription}>
-        ターゲット・ペルソナ・ポジショニング・行動指針
-      </p>
+    <div className="max-w-3xl mx-auto px-5 py-8 space-y-8">
+      <div>
+        <h1 className="text-2xl font-bold text-foreground mb-1">ブランド戦略</h1>
+        <p className="text-sm text-muted-foreground">
+          ターゲット・ペルソナ・ポジショニング・行動指針
+        </p>
+      </div>
 
-      {/* ===== ターゲット ===== */}
+      {/* 1. ターゲット */}
       {target && (
-        <div className={portalStyles.section}>
-          <h2 className={portalStyles.sectionTitle}>ターゲット</h2>
-          <div className={portalStyles.card}>
-            <div className={cn(portalStyles.value, 'whitespace-pre-wrap')}>{target}</div>
-          </div>
-        </div>
+        <section>
+          <h2 className="text-sm font-bold text-foreground mb-3 tracking-wide">ターゲット</h2>
+          <Card className="bg-muted/50 border shadow-none">
+            <CardContent className="p-5">
+              <p className="text-sm text-foreground/80 leading-[1.8] whitespace-pre-wrap m-0">{target}</p>
+            </CardContent>
+          </Card>
+        </section>
       )}
 
-      {/* ===== ペルソナ ===== */}
+      {/* 2. ペルソナ */}
       {validPersonas.length > 0 && (
-        <div className={portalStyles.section}>
-          <h2 className={portalStyles.sectionTitle}>ペルソナ</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <section>
+          <h2 className="text-sm font-bold text-foreground mb-3 tracking-wide">ペルソナ</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {validPersonas.map((persona, i) => (
-              <div key={i} className={portalStyles.card}>
-                <div className="mb-3">
-                  <div className="text-base font-bold text-gray-900 mb-1">
-                    {persona.name}
-                  </div>
-                  <div className="text-[13px] text-gray-500">
-                    {[persona.age_range, persona.occupation].filter(Boolean).join(' / ')}
-                  </div>
-                </div>
-
-                {persona.description && (
-                  <div className="text-sm text-gray-500 leading-relaxed mb-4">
-                    {persona.description}
-                  </div>
-                )}
-
-                {persona.needs.length > 0 && (
+              <Card key={i} className="bg-muted/50 border shadow-none">
+                <CardContent className="p-5">
                   <div className="mb-3">
-                    <div className={cn(portalStyles.label, 'mb-2')}>ニーズ</div>
-                    {persona.needs.map((need, ni) => (
-                      <span key={ni} className={portalStyles.tag}>
-                        {need}
-                      </span>
-                    ))}
+                    <p className="text-base font-bold text-foreground mb-0.5 m-0">
+                      {persona.name}
+                    </p>
+                    <p className="text-xs text-muted-foreground m-0">
+                      {[persona.age_range, persona.occupation].filter(Boolean).join(' / ')}
+                    </p>
                   </div>
-                )}
 
-                {persona.pain_points.length > 0 && (
-                  <div>
-                    <div className={cn(portalStyles.label, 'mb-2')}>課題</div>
-                    {persona.pain_points.map((point, pi) => (
-                      <span key={pi} className="inline-block px-3 py-1 bg-red-50 border border-red-200 rounded-full text-[13px] text-red-600 mr-2 mb-2">
-                        {point}
-                      </span>
-                    ))}
-                  </div>
-                )}
-              </div>
+                  {persona.description && (
+                    <p className="text-sm text-muted-foreground leading-relaxed mb-4 m-0">
+                      {persona.description}
+                    </p>
+                  )}
+
+                  {persona.needs.length > 0 && (
+                    <div className="mb-3">
+                      <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-2 m-0">ニーズ</p>
+                      <div className="flex flex-wrap gap-1.5">
+                        {persona.needs.map((need, ni) => (
+                          <span key={ni} className="inline-block px-2.5 py-1 bg-blue-50 border border-blue-200 rounded-full text-xs text-blue-700">
+                            {need}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {persona.pain_points.length > 0 && (
+                    <div>
+                      <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-2 m-0">課題</p>
+                      <div className="flex flex-wrap gap-1.5">
+                        {persona.pain_points.map((point, pi) => (
+                          <span key={pi} className="inline-block px-2.5 py-1 bg-red-50 border border-red-200 rounded-full text-xs text-red-600">
+                            {point}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
             ))}
           </div>
-        </div>
+        </section>
       )}
 
-      {/* ===== ポジショニングマップ ===== */}
+      {/* 3. ポジショニングマップ */}
       {positioningMapUrl && (
-        <div className={portalStyles.section}>
-          <h2 className={portalStyles.sectionTitle}>ポジショニングマップ</h2>
-          <div className={portalStyles.card}>
-            <img
-              src={positioningMapUrl}
-              alt="ポジショニングマップ"
-              onClick={() => setModalImage(positioningMapUrl)}
-              className="max-w-full max-h-[400px] rounded-lg border border-gray-200 cursor-pointer"
-            />
-          </div>
-        </div>
+        <section>
+          <h2 className="text-sm font-bold text-foreground mb-3 tracking-wide">ポジショニングマップ</h2>
+          <Card className="bg-muted/50 border shadow-none overflow-hidden">
+            <CardContent className="p-4">
+              <img
+                src={positioningMapUrl}
+                alt="ポジショニングマップ"
+                onClick={() => setModalOpen(true)}
+                className="w-full max-h-[400px] object-contain rounded-lg cursor-pointer hover:opacity-80 transition-opacity"
+              />
+            </CardContent>
+          </Card>
+
+          {/* 画像拡大ダイアログ */}
+          <Dialog open={modalOpen} onOpenChange={setModalOpen}>
+            <DialogContent className="max-w-[90vw] max-h-[90vh] p-2 bg-transparent border-none shadow-none">
+              <DialogTitle className="sr-only">ポジショニングマップ拡大表示</DialogTitle>
+              <img
+                src={positioningMapUrl}
+                alt="ポジショニングマップ 拡大表示"
+                className="max-w-full max-h-[85vh] object-contain rounded-lg mx-auto"
+              />
+            </DialogContent>
+          </Dialog>
+        </section>
       )}
 
-      {/* ===== 行動指針 ===== */}
+      {/* 4. 行動指針 */}
       {actionGuidelines.length > 0 && (
-        <div className={portalStyles.section}>
-          <h2 className={portalStyles.sectionTitle}>行動指針</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <section>
+          <h2 className="text-sm font-bold text-foreground mb-3 tracking-wide">行動指針</h2>
+          <div className="space-y-2">
             {actionGuidelines.map((g, i) => (
-              <div key={i} className={portalStyles.card}>
-                <div className="text-base font-bold text-gray-900 mb-2">
-                  {g.title}
-                </div>
-                <div className="text-sm text-gray-500 leading-relaxed">
-                  {g.description}
-                </div>
-              </div>
+              <Card key={i} className="bg-muted/50 border shadow-none border-l-2 border-l-blue-600 rounded-lg">
+                <CardContent className="p-4 flex gap-3">
+                  <span className="text-xs font-mono text-muted-foreground tabular-nums pt-0.5">
+                    {String(i + 1).padStart(2, '0')}
+                  </span>
+                  <div className="flex-1 min-w-0">
+                    <span className="text-sm font-semibold text-foreground">{g.title}</span>
+                    {g.description && (
+                      <p className="text-xs text-muted-foreground leading-relaxed mt-1 m-0">
+                        {g.description}
+                      </p>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
             ))}
           </div>
-        </div>
-      )}
-
-      {/* ===== 画像モーダル ===== */}
-      {modalImage && (
-        <div
-          onClick={closeModal}
-          className="fixed inset-0 bg-black/70 flex items-center justify-center z-[9999] cursor-pointer"
-        >
-          <div className="relative" onClick={(e) => e.stopPropagation()}>
-            <img
-              src={modalImage}
-              alt="拡大表示"
-              className="max-w-[90vw] max-h-[90vh] rounded-lg"
-            />
-            <button
-              onClick={closeModal}
-              className="absolute -top-3 -right-3 w-8 h-8 rounded-full bg-white border border-gray-300 text-lg cursor-pointer flex items-center justify-center leading-none"
-            >
-              ×
-            </button>
-          </div>
-        </div>
+        </section>
       )}
     </div>
   )
