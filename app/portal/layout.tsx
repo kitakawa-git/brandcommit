@@ -4,6 +4,8 @@
 import { usePathname } from 'next/navigation'
 import Link from 'next/link'
 import { PortalAuthProvider, usePortalAuth } from './components/PortalAuthProvider'
+import { Button } from '@/components/ui/button'
+import { Separator } from '@/components/ui/separator'
 import { cn } from '@/lib/utils'
 
 const navLinks = [
@@ -25,16 +27,18 @@ function PortalHeader() {
         brandcommit
       </Link>
       {member && (
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
           <span className="text-[13px] text-gray-300">
             {member.display_name}
           </span>
-          <button
+          <Button
+            variant="outline"
+            size="sm"
             onClick={signOut}
-            className="px-3.5 py-1.5 bg-transparent text-gray-300 border border-gray-600 rounded-md text-xs cursor-pointer hover:bg-gray-700 transition-colors"
+            className="text-gray-300 border-gray-600 bg-transparent hover:bg-gray-700 hover:text-white h-8 text-xs"
           >
             ログアウト
-          </button>
+          </Button>
         </div>
       )}
     </header>
@@ -45,7 +49,7 @@ function PortalNav() {
   const pathname = usePathname()
 
   return (
-    <nav className="bg-gray-50 border-b border-gray-200 px-6 flex overflow-x-auto">
+    <nav className="bg-white border-b border-border px-6 flex overflow-x-auto">
       {navLinks.map((link) => {
         const isActive = pathname === link.href
         return (
@@ -56,7 +60,7 @@ function PortalNav() {
               'px-4 py-3 text-[13px] no-underline whitespace-nowrap border-b-2',
               isActive
                 ? 'font-bold text-blue-600 border-blue-600'
-                : 'font-normal text-gray-700 border-transparent hover:text-blue-600'
+                : 'font-normal text-muted-foreground border-transparent hover:text-blue-600'
             )}
           >
             {link.label}
@@ -69,8 +73,11 @@ function PortalNav() {
 
 function PortalFooter() {
   return (
-    <footer className="bg-gray-50 border-t border-gray-200 px-6 py-4 text-center text-xs text-gray-400">
-      Powered by brandcommit
+    <footer className="px-6 py-4 text-center">
+      <Separator className="mb-4" />
+      <p className="text-xs text-muted-foreground m-0">
+        Powered by brandcommit
+      </p>
     </footer>
   )
 }
@@ -85,10 +92,10 @@ function PortalLayoutInner({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className="flex flex-col min-h-screen font-sans">
+    <div className="flex flex-col min-h-screen font-sans bg-white">
       <PortalHeader />
       <PortalNav />
-      <main className="flex-1 bg-white">
+      <main className="flex-1">
         {children}
       </main>
       <PortalFooter />

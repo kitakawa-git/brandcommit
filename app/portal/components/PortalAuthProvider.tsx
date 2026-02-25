@@ -5,6 +5,9 @@ import { createContext, useContext, useEffect, useState } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import type { User } from '@supabase/supabase-js'
+import { Card, CardContent } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { ShieldAlert } from 'lucide-react'
 
 type MemberInfo = {
   id: string
@@ -172,21 +175,22 @@ export function PortalAuthProvider({ children }: { children: React.ReactNode }) 
     return (
       <PortalAuthContext.Provider value={contextValue}>
         <div className="flex items-center justify-center min-h-screen bg-white font-sans">
-          <div className="bg-white rounded-xl p-10 text-center max-w-[400px] shadow-sm">
-            <div className="text-5xl mb-4">🚫</div>
-            <h2 className="text-xl font-bold text-gray-900 mb-3">
-              アクセス権限がありません
-            </h2>
-            <p className="text-sm text-gray-500 mb-6 leading-relaxed">
-              このアカウントはメンバーとして登録されていません。管理者に連絡してください。
-            </p>
-            <button
-              onClick={signOut}
-              className="px-6 py-2.5 bg-blue-600 text-white border-none rounded-lg text-sm font-bold cursor-pointer hover:bg-blue-700 transition-colors"
-            >
-              ログアウト
-            </button>
-          </div>
+          <Card className="bg-muted/50 border shadow-none max-w-[400px] w-full mx-5">
+            <CardContent className="p-10 text-center">
+              <div className="mb-4 flex justify-center text-muted-foreground">
+                <ShieldAlert size={48} />
+              </div>
+              <h2 className="text-xl font-bold text-foreground mb-3">
+                アクセス権限がありません
+              </h2>
+              <p className="text-sm text-muted-foreground mb-6 leading-relaxed">
+                このアカウントはメンバーとして登録されていません。管理者に連絡してください。
+              </p>
+              <Button onClick={signOut} className="rounded-lg">
+                ログアウト
+              </Button>
+            </CardContent>
+          </Card>
         </div>
       </PortalAuthContext.Provider>
     )

@@ -3,7 +3,7 @@
 // ポータルトップ: ブランド要素へのナビゲーションカード
 import Link from 'next/link'
 import { usePortalAuth } from './components/PortalAuthProvider'
-import { portalStyles } from './components/PortalStyles'
+import { Card, CardContent } from '@/components/ui/card'
 import { ClipboardList, Palette, MessageSquare, Target, type LucideIcon } from 'lucide-react'
 
 const cards: { href: string; icon: LucideIcon; title: string; description: string }[] = [
@@ -37,38 +37,43 @@ export default function PortalTopPage() {
   const { member } = usePortalAuth()
 
   return (
-    <div className={portalStyles.pageContainer}>
+    <div className="max-w-3xl mx-auto px-5 py-10">
       <div className="text-center mb-10">
-        <h1 className="text-[28px] font-bold text-gray-900 mb-2">
+        <h1 className="text-2xl font-bold text-foreground mb-2">
           ブランドポータル
         </h1>
         {member && (
-          <p className="text-sm text-gray-500 m-0">
+          <p className="text-sm text-muted-foreground m-0">
             ようこそ、{member.display_name} さん
           </p>
         )}
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {cards.map((card) => {
           const Icon = card.icon
           return (
-          <Link
-            key={card.href}
-            href={card.href}
-            className="block bg-white border border-gray-200 rounded-xl p-6 no-underline text-center hover:shadow-lg hover:-translate-y-0.5 transition-all"
-          >
-            <div className="mb-3 flex justify-center text-blue-600">
-              <Icon size={36} strokeWidth={1.5} />
-            </div>
-            <h3 className="text-base font-bold text-gray-900 mb-2">
-              {card.title}
-            </h3>
-            <p className="text-[13px] text-gray-500 m-0 leading-normal">
-              {card.description}
-            </p>
-          </Link>
-        )})}
+            <Link
+              key={card.href}
+              href={card.href}
+              className="no-underline group"
+            >
+              <Card className="bg-muted/50 border shadow-none hover:shadow-md hover:-translate-y-0.5 transition-all h-full">
+                <CardContent className="p-6 text-center">
+                  <div className="mb-3 flex justify-center text-blue-600">
+                    <Icon size={32} strokeWidth={1.5} />
+                  </div>
+                  <h3 className="text-base font-bold text-foreground mb-1.5">
+                    {card.title}
+                  </h3>
+                  <p className="text-[13px] text-muted-foreground m-0 leading-relaxed">
+                    {card.description}
+                  </p>
+                </CardContent>
+              </Card>
+            </Link>
+          )
+        })}
       </div>
     </div>
   )
