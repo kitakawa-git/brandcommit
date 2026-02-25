@@ -4,6 +4,7 @@ import QRCode from 'qrcode'
 import { generateHighResQRDataURL, getQRFilename } from '@/lib/qr-download'
 import { CardViewTracker } from './CardViewTracker'
 import { VCardButton } from './VCardButton'
+import { Card, CardContent } from '@/components/ui/card'
 
 type Props = {
   params: Promise<{ slug: string }>
@@ -60,7 +61,7 @@ export default async function CardPage({ params }: Props) {
 
   if (!supabaseUrl || !supabaseKey) {
     return (
-      <div style={{ padding: 40 }}>
+      <div className="p-10">
         <h1>環境変数エラー</h1>
         <p>URL: {supabaseUrl ? '設定済み' : '未設定'}</p>
         <p>KEY: {supabaseKey ? '設定済み' : '未設定'}</p>
@@ -79,7 +80,7 @@ export default async function CardPage({ params }: Props) {
 
   if (error) {
     return (
-      <div style={{ padding: 40 }}>
+      <div className="p-10">
         <h1>データ取得エラー</h1>
         <p>slug: {slug}</p>
         <p>エラー: {error.message}</p>
@@ -156,103 +157,64 @@ export default async function CardPage({ params }: Props) {
   ].filter(s => s.url)
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      backgroundColor: '#f8f8f8',
-      fontFamily: 'sans-serif',
-    }}>
+    <div
+      className="min-h-screen bg-[#f8f8f8] font-sans"
+      style={{
+        '--brand-primary': primaryColor,
+        '--brand-text': headerTextColor,
+        '--brand-accent': accentColor,
+      } as React.CSSProperties}
+    >
       {/* アクセス記録（クライアントコンポーネント） */}
       <CardViewTracker profileId={profile.id} />
 
-      {/* SNSホバー用CSS（サーバーコンポーネントではインラインstyleでhover不可） */}
+      {/* SNSホバー用CSS（サーバーコンポーネントではTailwindのhoverでCSS変数を使えないため） */}
       <style>{`
         .sns-icon {
           transition: transform 0.15s, background-color 0.15s, color 0.15s;
         }
         .sns-icon:hover {
           transform: scale(1.1);
-          background-color: ${primaryColor} !important;
-          color: ${headerTextColor} !important;
-        }
-        .contact-btn {
-          transition: opacity 0.15s;
-        }
-        .contact-btn:hover {
-          opacity: 0.85;
+          background-color: var(--brand-primary) !important;
+          color: var(--brand-text) !important;
         }
       `}</style>
 
       {/* 1. ヘッダー（写真・名前・役職） */}
-      <div style={{
-        backgroundColor: primaryColor,
-        padding: '40px 20px',
-        textAlign: 'center',
-        color: headerTextColor,
-      }}>
+      <div className="bg-[var(--brand-primary)] px-5 py-10 text-center text-[var(--brand-text)]">
         {profile.photo_url ? (
           <img
             src={profile.photo_url}
             alt={profile.name}
-            style={{
-              width: 100,
-              height: 100,
-              borderRadius: '50%',
-              objectFit: 'cover',
-              margin: '0 auto 16px',
-              display: 'block',
-              border: `3px solid ${headerTextColor}`,
-            }}
+            className="w-[100px] h-[100px] rounded-full object-cover mx-auto mb-4 block border-[3px] border-[var(--brand-text)]"
           />
         ) : (
-          <div style={{
-            width: 100,
-            height: 100,
-            borderRadius: '50%',
-            backgroundColor: headerTextColor,
-            margin: '0 auto 16px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: 36,
-            color: primaryColor,
-          }}>
+          <div className="w-[100px] h-[100px] rounded-full bg-[var(--brand-text)] mx-auto mb-4 flex items-center justify-center text-4xl text-[var(--brand-primary)]">
             {profile.name?.charAt(0)}
           </div>
         )}
-        <h1 style={{ fontSize: 24, margin: '0 0 4px' }}>{profile.name}</h1>
-        <p style={{ fontSize: 14, margin: 0, opacity: 0.8 }}>
+        <h1 className="text-2xl mb-1">{profile.name}</h1>
+        <p className="text-sm opacity-80 m-0">
           {profile.position} / {profile.department}
         </p>
       </div>
 
       {/* コンテンツ */}
-      <div style={{
-        maxWidth: 480,
-        margin: '0 auto',
-        padding: '24px 20px',
-      }}>
+      <div className="max-w-[480px] mx-auto px-5 py-6">
         {/* 2. 自己紹介 */}
         {profile.bio && (
-          <div style={{
-            backgroundColor: '#ffffff',
-            borderRadius: 12,
-            padding: 20,
-            marginBottom: 16,
-          }}>
-            <p style={{ fontSize: 14, lineHeight: 1.8, margin: 0, color: '#333' }}>
-              {profile.bio}
-            </p>
-          </div>
+          <Card className="mb-4 border-0">
+            <CardContent className="p-5">
+              <p className="text-sm leading-[1.8] text-[#333] m-0">
+                {profile.bio}
+              </p>
+            </CardContent>
+          </Card>
         )}
 
         {/* 3. SNSリンク（アイコン横並び） */}
         {snsLinks.length > 0 && (
-          <div style={{
-            display: 'flex',
-            justifyContent: 'center',
-            gap: 16,
-            marginBottom: 16,
-          }}>
+          <div className="flex justify-center gap-4 mb-4">
             {snsLinks.map((sns) => (
               <a
                 key={sns.label}
@@ -260,19 +222,7 @@ export default async function CardPage({ params }: Props) {
                 target="_blank"
                 rel="noopener noreferrer"
                 title={sns.label}
-                className="sns-icon"
-                style={{
-                  width: 44,
-                  height: 44,
-                  borderRadius: '50%',
-                  backgroundColor: '#ffffff',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: primaryColor,
-                  textDecoration: 'none',
-                  boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-                }}
+                className="sns-icon w-11 h-11 rounded-full bg-white flex items-center justify-center no-underline shadow-sm text-[var(--brand-primary)]"
               >
                 {sns.icon}
               </a>
@@ -281,31 +231,27 @@ export default async function CardPage({ params }: Props) {
         )}
 
         {/* 4. 連絡先ボタン（メール・電話） */}
-        <div style={{ display: 'flex', gap: 12, marginBottom: 12 }}>
+        <div className="flex gap-3 mb-3">
           {profile.email && (
-            <a href={`mailto:${profile.email}`} className="contact-btn" style={{
-              flex: 1, display: 'block', textAlign: 'center', padding: '12px 0',
-              backgroundColor: primaryColor, borderRadius: 12,
-              color: '#ffffff',
-              textDecoration: 'none', fontSize: 14, fontWeight: 'bold',
-            }}>
+            <a
+              href={`mailto:${profile.email}`}
+              className="flex-1 block text-center py-3 bg-[var(--brand-primary)] rounded-xl text-white no-underline text-sm font-bold hover:opacity-85 transition-opacity"
+            >
               ✉ メール
             </a>
           )}
           {profile.phone && (
-            <a href={`tel:${profile.phone}`} className="contact-btn" style={{
-              flex: 1, display: 'block', textAlign: 'center', padding: '12px 0',
-              backgroundColor: primaryColor, borderRadius: 12,
-              color: '#ffffff',
-              textDecoration: 'none', fontSize: 14, fontWeight: 'bold',
-            }}>
+            <a
+              href={`tel:${profile.phone}`}
+              className="flex-1 block text-center py-3 bg-[var(--brand-primary)] rounded-xl text-white no-underline text-sm font-bold hover:opacity-85 transition-opacity"
+            >
               📞 電話
             </a>
           )}
         </div>
 
         {/* 4.5 アドレス帳に保存 */}
-        <div style={{ marginBottom: 24 }}>
+        <div className="mb-6">
           <VCardButton
             name={profile.name || ''}
             position={profile.position || undefined}
@@ -321,85 +267,63 @@ export default async function CardPage({ params }: Props) {
 
         {/* 5. 企業情報（ロゴ・企業名・スローガン・MVV） */}
         {company && (
-          <div style={{ backgroundColor: '#ffffff', borderRadius: 12, padding: 20, marginBottom: 16 }}>
-            {company.logo_url && (
-              <img
-                src={company.logo_url}
-                alt={company.name}
-                style={{
-                  maxWidth: 120,
-                  maxHeight: 48,
-                  objectFit: 'contain',
-                  marginBottom: 12,
-                }}
-              />
-            )}
-            <h2 style={{
-              fontSize: 18, margin: '0 0 8px',
-              color: primaryColor,
-            }}>
-              {company.name}
-            </h2>
-            {slogan && (
-              <p style={{ fontSize: 14, color: '#666', margin: '0 0 16px', fontStyle: 'italic' }}>
-                {slogan}
-              </p>
-            )}
-            {missionText && (
-              <p style={{ fontSize: 13, color: '#333', lineHeight: 1.8, margin: 0 }}>
-                {missionText}
-              </p>
-            )}
-            {guidelinesValues.length > 0 && (
-              <div style={{ marginTop: missionText ? 16 : 0 }}>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                  {guidelinesValues.map((v, i) => (
-                    <span key={i} style={{
-                      display: 'inline-block',
-                      padding: '4px 12px',
-                      backgroundColor: `${primaryColor}10`,
-                      color: primaryColor,
-                      borderRadius: 20,
-                      fontSize: 12,
-                      fontWeight: '600',
-                      border: `1px solid ${primaryColor}30`,
-                    }}>
-                      {v.name}
-                    </span>
-                  ))}
+          <Card className="mb-4 border-0">
+            <CardContent className="p-5">
+              {company.logo_url && (
+                <img
+                  src={company.logo_url}
+                  alt={company.name}
+                  className="max-w-[120px] max-h-[48px] object-contain mb-3"
+                />
+              )}
+              <h2 className="text-lg mb-2 text-[var(--brand-primary)] m-0">
+                {company.name}
+              </h2>
+              {slogan && (
+                <p className="text-sm text-[#666] mb-4 italic m-0">
+                  {slogan}
+                </p>
+              )}
+              {missionText && (
+                <p className="text-[13px] text-[#333] leading-[1.8] m-0">
+                  {missionText}
+                </p>
+              )}
+              {guidelinesValues.length > 0 && (
+                <div className={missionText ? 'mt-4' : ''}>
+                  <div className="flex flex-wrap gap-2">
+                    {guidelinesValues.map((v, i) => (
+                      <span
+                        key={i}
+                        className="inline-block px-3 py-1 rounded-full text-xs font-semibold"
+                        style={{
+                          backgroundColor: `${primaryColor}10`,
+                          color: primaryColor,
+                          border: `1px solid ${primaryColor}30`,
+                        }}
+                      >
+                        {v.name}
+                      </span>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            )}
-          </div>
+              )}
+            </CardContent>
+          </Card>
         )}
 
         {/* 6. バリュー（カード形式） */}
         {valueNames.length > 0 && (
-          <div style={{ marginBottom: 16 }}>
-            <h3 style={{
-              fontSize: 15, fontWeight: 'bold', margin: '0 0 12px',
-              color: primaryColor,
-            }}>
+          <div className="mb-4">
+            <h3 className="text-[15px] font-bold mb-3 text-[var(--brand-primary)]">
               バリュー
             </h3>
-            <div style={{
-              display: 'flex',
-              flexWrap: 'wrap',
-              gap: 10,
-            }}>
+            <div className="flex flex-wrap gap-2.5">
               {valueNames.map((value, i) => (
-                <div key={i} style={{
-                  flex: '1 1 calc(50% - 5px)',
-                  minWidth: 130,
-                  backgroundColor: '#ffffff',
-                  borderRadius: 10,
-                  padding: '14px 16px',
-                  fontSize: 13,
-                  color: '#333',
-                  fontWeight: '600',
-                  textAlign: 'center',
-                  borderLeft: `3px solid ${accentColor}`,
-                }}>
+                <div
+                  key={i}
+                  className="flex-[1_1_calc(50%-5px)] min-w-[130px] bg-white rounded-[10px] py-3.5 px-4 text-[13px] text-[#333] font-semibold text-center border-l-[3px] border-l-[var(--brand-accent)]"
+                >
                   {value}
                 </div>
               ))}
@@ -409,67 +333,52 @@ export default async function CardPage({ params }: Props) {
 
         {/* 7. ブランドストーリー */}
         {brandStory && (
-          <div style={{
-            backgroundColor: '#ffffff',
-            borderRadius: 12,
-            padding: 20,
-            marginBottom: 16,
-          }}>
-            <h3 style={{
-              fontSize: 15, fontWeight: 'bold', margin: '0 0 12px',
-              color: primaryColor,
-            }}>
-              ブランドストーリー
-            </h3>
-            <p style={{
-              fontSize: 13, color: '#333', lineHeight: 1.8, margin: 0,
-              whiteSpace: 'pre-wrap',
-            }}>
-              {brandStory}
-            </p>
-          </div>
+          <Card className="mb-4 border-0">
+            <CardContent className="p-5">
+              <h3 className="text-[15px] font-bold mb-3 text-[var(--brand-primary)] m-0">
+                ブランドストーリー
+              </h3>
+              <p className="text-[13px] text-[#333] leading-[1.8] whitespace-pre-wrap m-0">
+                {brandStory}
+              </p>
+            </CardContent>
+          </Card>
         )}
 
         {/* 8. コーポレートサイトリンク */}
         {company?.website_url && (
-          <a href={company.website_url} target="_blank" className="contact-btn" style={{
-            display: 'block', textAlign: 'center', padding: '14px 0',
-            backgroundColor: primaryColor,
-            borderRadius: 10, color: '#ffffff', textDecoration: 'none', fontSize: 14,
-            fontWeight: 'bold', marginBottom: 16,
-          }}>
+          <a
+            href={company.website_url}
+            target="_blank"
+            className="block text-center py-3.5 bg-[var(--brand-primary)] rounded-[10px] text-white no-underline text-sm font-bold mb-4 hover:opacity-85 transition-opacity"
+          >
             コーポレートサイトを見る →
           </a>
         )}
 
         {/* 9. QRコード */}
-        <div style={{ textAlign: 'center', marginTop: 16 }}>
+        <div className="text-center mt-4">
           <img
             src={qrDataUrl}
             alt="QRコード"
             width={160}
             height={160}
-            style={{ display: 'block', margin: '0 auto' }}
+            className="block mx-auto"
           />
-          <p style={{ fontSize: 11, color: primaryColor, marginTop: 8, marginBottom: 4 }}>
+          <p className="text-[11px] text-[var(--brand-primary)] mt-2 mb-1">
             名刺に印刷用
           </p>
           <a
             href={highResQrDataUrl}
             download={downloadFilename}
-            style={{
-              fontSize: 11,
-              color: primaryColor,
-              textDecoration: 'underline',
-              opacity: 0.7,
-            }}
+            className="text-[11px] text-[var(--brand-primary)] underline opacity-70"
           >
             高解像度ダウンロード（1000x1000px）
           </a>
         </div>
 
         {/* 10. フッター */}
-        <p style={{ textAlign: 'center', fontSize: 11, color: '#999', marginTop: 16 }}>
+        <p className="text-center text-[11px] text-[#999] mt-4">
           Powered by brandcommit
         </p>
       </div>
