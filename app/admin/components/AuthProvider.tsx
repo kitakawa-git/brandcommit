@@ -102,63 +102,49 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
+  // onAuthStateChange を唯一の認証ソースとして使用（Supabase推奨パターン）
   useEffect(() => {
-    let timeoutId: NodeJS.Timeout
+    const isLoginPage = pathname === '/admin/login'
 
-    const init = async () => {
-      timeoutId = setTimeout(() => {
-        console.warn('[AuthProvider] 10秒タイムアウト: ログインページへリダイレクト')
-        setLoading(false)
-        router.replace('/admin/login')
-      }, 10000)
-
-      try {
-        console.log('[AuthProvider] 初回セッション確認中...')
-        const { data: { session } } = await supabase.auth.getSession()
-        const currentUser = session?.user ?? null
-        console.log('[AuthProvider] セッション結果:', currentUser ? `user=${currentUser.email}` : 'なし')
-
-        if (!currentUser) {
-          clearTimeout(timeoutId)
-          setUser(null)
-          setLoading(false)
-          if (pathname !== '/admin/login') {
-            router.replace('/admin/login')
-          }
-          return
-        }
-
-        setUser(currentUser)
-        await fetchAdminUser(currentUser.id)
-        clearTimeout(timeoutId)
-        setLoading(false)
-      } catch (err) {
-        console.error('[AuthProvider] getSession例外:', err)
-        clearTimeout(timeoutId)
-        setLoading(false)
+    // 10秒経っても INITIAL_SESSION が来なければ強制リダイレクト
+    const timeoutId = setTimeout(() => {
+      console.warn('[AuthProvider] 10秒タイムアウト: ログインページへリダイレクト')
+      setLoading(false)
+      if (!isLoginPage) {
         router.replace('/admin/login')
       }
-    }
-
-    init()
+    }, 10000)
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        console.log('[AuthProvider] onAuthStateChange:', event)
-        if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+        console.log('[AuthProvider] onAuthStateChange:', event, session?.user?.email)
+
+        if (event === 'INITIAL_SESSION' || event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+          clearTimeout(timeoutId)
           const currentUser = session?.user ?? null
-          if (currentUser && currentUser.id !== user?.id) {
-            setUser(currentUser)
-            setLoading(true)
-            await fetchAdminUser(currentUser.id)
+
+          if (!currentUser) {
+            setUser(null)
             setLoading(false)
+            if (!isLoginPage) {
+              router.replace('/admin/login')
+            }
+            return
           }
+
+          setUser(currentUser)
+          await fetchAdminUser(currentUser.id)
+          setLoading(false)
         } else if (event === 'SIGNED_OUT') {
+          clearTimeout(timeoutId)
           setUser(null)
           setCompanyId(null)
           setRole(null)
           setIsSuperAdmin(false)
+          setProfileName(null)
+          setProfilePhotoUrl(null)
           setAdminError(false)
+          setLoading(false)
           router.replace('/admin/login')
         }
       }

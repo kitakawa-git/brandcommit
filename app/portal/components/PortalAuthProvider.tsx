@@ -73,57 +73,43 @@ export function PortalAuthProvider({ children }: { children: React.ReactNode }) 
     }
   }
 
-  // 初回マウント時: getSession() で直接セッション確認 + 10秒タイムアウト
+  // onAuthStateChange を唯一の認証ソースとして使用（Supabase推奨パターン）
   useEffect(() => {
-    // 公開パスではセッション確認のみ行い、リダイレクトしない
-    let timeoutId: NodeJS.Timeout
-
-    const init = async () => {
-      // 10秒経っても完了しなければ強制リダイレクト（公開パス以外）
-      timeoutId = setTimeout(() => {
-        console.warn('[PortalAuth] 10秒タイムアウト')
-        setLoading(false)
-        if (!isPublicPath) {
-          router.replace('/portal/login')
-        }
-      }, 10000)
-
-      try {
-        const { data: { session } } = await supabase.auth.getSession()
-        const currentUser = session?.user ?? null
-
-        if (!currentUser) {
-          clearTimeout(timeoutId)
-          setUser(null)
-          setLoading(false)
-          if (!isPublicPath) {
-            router.replace('/portal/login')
-          }
-          return
-        }
-
-        setUser(currentUser)
-        await fetchMember(currentUser.id)
-        clearTimeout(timeoutId)
-        setLoading(false)
-      } catch {
-        clearTimeout(timeoutId)
-        setLoading(false)
-        if (!isPublicPath) {
-          router.replace('/portal/login')
-        }
+    // 10秒経っても INITIAL_SESSION が来なければ強制リダイレクト
+    const timeoutId = setTimeout(() => {
+      console.warn('[PortalAuth] 10秒タイムアウト')
+      setLoading(false)
+      if (!isPublicPath) {
+        router.replace('/portal/login')
       }
-    }
+    }, 10000)
 
-    init()
-
-    // onAuthStateChange は SIGNED_OUT 監視用のみ
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event) => {
-        if (event === 'SIGNED_OUT') {
+      async (event, session) => {
+        console.log('[PortalAuth] onAuthStateChange:', event, session?.user?.email)
+
+        if (event === 'INITIAL_SESSION' || event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+          clearTimeout(timeoutId)
+          const currentUser = session?.user ?? null
+
+          if (!currentUser) {
+            setUser(null)
+            setLoading(false)
+            if (!isPublicPath) {
+              router.replace('/portal/login')
+            }
+            return
+          }
+
+          setUser(currentUser)
+          await fetchMember(currentUser.id)
+          setLoading(false)
+        } else if (event === 'SIGNED_OUT') {
+          clearTimeout(timeoutId)
           setUser(null)
           setCompanyId(null)
           setMember(null)
+          setLoading(false)
           router.replace('/portal/login')
         }
       }
