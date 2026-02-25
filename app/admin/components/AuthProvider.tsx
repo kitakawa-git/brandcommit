@@ -224,11 +224,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // 認証済み + admin_users登録済み: サイドバー + ヘッダー + コンテンツ
   return (
     <AuthContext.Provider value={contextValue}>
-      <SidebarProvider>
+      <SidebarProvider
+        style={{ '--sidebar-width': '19rem' } as React.CSSProperties}
+      >
         <AppSidebar />
         <SidebarInset>
           <AdminHeader />
-          <main className="p-6 bg-muted/30 min-h-[calc(100vh-60px)]">
+          <main className="p-6 bg-muted/30">
             {children}
           </main>
         </SidebarInset>

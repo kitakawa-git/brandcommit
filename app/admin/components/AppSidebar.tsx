@@ -1,6 +1,6 @@
 'use client'
 
-// shadcn/ui Sidebar ベースの管理画面サイドバー
+// shadcn/ui Sidebar ベースの管理画面サイドバー（floating）
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useAuth } from './AuthProvider'
@@ -38,6 +38,7 @@ import {
   LogOut,
   ShieldCheck,
   ChevronsUpDown,
+  Settings2,
   type LucideIcon,
 } from 'lucide-react'
 
@@ -66,23 +67,29 @@ export function AppSidebar() {
   const pathname = usePathname()
   const { user, isSuperAdmin, profileName, profilePhotoUrl, signOut } = useAuth()
 
-  // アバターのイニシャル（名前の頭文字）
   const initials = profileName
     ? profileName.slice(0, 1)
     : user?.email?.slice(0, 1)?.toUpperCase() || '?'
 
   return (
-    <Sidebar>
-      {/* ロゴ・タイトル */}
-      <SidebarHeader className="px-5 py-6">
-        <Link href="/admin" className="no-underline">
-          <h1 className="text-lg font-bold m-0" style={{ color: 'hsl(var(--sidebar-primary))' }}>
-            brandcommit
-          </h1>
-        </Link>
-        <p className="text-xs text-sidebar-foreground mt-1 m-0">
-          管理画面
-        </p>
+    <Sidebar variant="floating">
+      {/* ヘッダー: SidebarMenuButton size="lg" パターン */}
+      <SidebarHeader>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton size="lg" asChild>
+              <Link href="/admin">
+                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
+                  <Settings2 className="size-4" />
+                </div>
+                <div className="flex flex-col gap-0.5 leading-none">
+                  <span className="font-medium">brandcommit</span>
+                  <span className="text-xs">管理画面</span>
+                </div>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
       </SidebarHeader>
 
       <SidebarContent>
