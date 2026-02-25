@@ -141,6 +141,18 @@
     --sidebar-ring: 217.2 91.2% 59.8%}
 }
 
+/* ポータル用サイドバー: 明るい配色 */
+[data-portal] {
+  --sidebar-background: 0 0% 96%;
+  --sidebar-foreground: 0 0% 32%;
+  --sidebar-primary: 0 0% 9%;
+  --sidebar-primary-foreground: 0 0% 98%;
+  --sidebar-accent: 0 0% 90%;
+  --sidebar-accent-foreground: 0 0% 9%;
+  --sidebar-border: 0 0% 88%;
+  --sidebar-ring: 217.2 91.2% 59.8%;
+}
+
 body {
   background: hsl(var(--background));
   color: hsl(var(--foreground));

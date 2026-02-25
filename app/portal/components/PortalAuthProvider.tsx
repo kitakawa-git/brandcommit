@@ -18,7 +18,11 @@ type MemberInfo = {
 type PortalAuthContextType = {
   user: User | null
   companyId: string | null
+  companyName: string | null
+  companyLogoUrl: string | null
   member: MemberInfo | null
+  profileName: string | null
+  profilePhotoUrl: string | null
   loading: boolean
   signOut: () => Promise<void>
 }
@@ -26,7 +30,11 @@ type PortalAuthContextType = {
 const PortalAuthContext = createContext<PortalAuthContextType>({
   user: null,
   companyId: null,
+  companyName: null,
+  companyLogoUrl: null,
   member: null,
+  profileName: null,
+  profilePhotoUrl: null,
   loading: true,
   signOut: async () => {},
 })
@@ -37,7 +45,11 @@ const publicPaths = ['/portal/login', '/portal/register']
 export function PortalAuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [companyId, setCompanyId] = useState<string | null>(null)
+  const [companyName, setCompanyName] = useState<string | null>(null)
+  const [companyLogoUrl, setCompanyLogoUrl] = useState<string | null>(null)
   const [member, setMember] = useState<MemberInfo | null>(null)
+  const [profileName, setProfileName] = useState<string | null>(null)
+  const [profilePhotoUrl, setProfilePhotoUrl] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const router = useRouter()
   const pathname = usePathname()
@@ -65,6 +77,39 @@ export function PortalAuthProvider({ children }: { children: React.ReactNode }) 
         display_name: data.display_name,
         email: data.email,
       })
+
+      // 会社情報を取得
+      try {
+        const { data: companyData } = await supabase
+          .from('companies')
+          .select('name, logo_url')
+          .eq('id', data.company_id)
+          .single()
+        if (companyData) {
+          setCompanyName(companyData.name || null)
+          setCompanyLogoUrl(companyData.logo_url || null)
+        }
+      } catch {
+        // 会社情報取得失敗は無視
+      }
+
+      // プロフィール情報を取得（profiles テーブル）
+      try {
+        const { data: profileData } = await supabase
+          .from('profiles')
+          .select('name, photo_url')
+          .eq('member_id', data.id)
+          .single()
+        if (profileData) {
+          setProfileName(profileData.name || data.display_name || null)
+          setProfilePhotoUrl(profileData.photo_url || null)
+        } else {
+          setProfileName(data.display_name || null)
+        }
+      } catch {
+        setProfileName(data.display_name || null)
+      }
+
       return true
     } catch {
       setCompanyId(null)
@@ -125,11 +170,15 @@ export function PortalAuthProvider({ children }: { children: React.ReactNode }) 
   const signOut = async () => {
     await supabase.auth.signOut()
     setCompanyId(null)
+    setCompanyName(null)
+    setCompanyLogoUrl(null)
     setMember(null)
+    setProfileName(null)
+    setProfilePhotoUrl(null)
     router.push('/portal/login')
   }
 
-  const contextValue = { user, companyId, member, loading, signOut }
+  const contextValue = { user, companyId, companyName, companyLogoUrl, member, profileName, profilePhotoUrl, loading, signOut }
 
   // 公開パスではそのまま表示
   if (isPublicPath) {
