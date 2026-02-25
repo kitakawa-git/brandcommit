@@ -129,17 +129,14 @@ export default async function CardPage({ params }: Props) {
   const mission = guidelines?.mission || ''
   const brandStory = guidelines?.brand_story || ''
 
-  // バリュー（JSONB配列 [{name, description}, ...] を安全にパース）
-  type BrandValue = { name: string; description?: string }
-  const guidelinesValues: BrandValue[] = Array.isArray(guidelines?.values) ? guidelines.values : []
-
   // ミッション表示用テキスト
   const missionText = mission || ''
 
-  // バリュー（brand_guidelines.values から取得）
-  const valueNames: string[] = guidelinesValues
-    .map(v => v.name)
-    .filter(Boolean)
+  // 事業内容（JSONB配列 [{title, description}, ...] を安全にパース）
+  type BusinessContent = { title: string; description?: string }
+  const businessContents: BusinessContent[] = Array.isArray(guidelines?.business_content)
+    ? guidelines.business_content.filter((item: BusinessContent) => item.title)
+    : []
 
   // QRコードをサーバーサイドで生成
   const cardUrl = `https://brandcommit.vercel.app/card/${slug}`
@@ -308,29 +305,36 @@ export default async function CardPage({ params }: Props) {
           </Card>
         )}
 
-        {/* 6. バリュー（番号付きカード形式） */}
-        {valueNames.length > 0 && (
+        {/* 6. 事業内容（番号付きカード形式） */}
+        {businessContents.length > 0 && (
           <div>
             <h3
               className="text-sm font-bold mb-3 tracking-wide"
               style={{ color: primaryColor }}
             >
-              バリュー
+              事業内容
             </h3>
             <div className="space-y-2">
-              {valueNames.map((value, i) => (
+              {businessContents.map((item, i) => (
                 <Card
                   key={i}
                   className="border-0 shadow-none bg-white border-l-2 rounded-lg"
                   style={{ borderLeftColor: accentColor }}
                 >
-                  <CardContent className="p-4 flex items-center gap-3">
-                    <span className="text-xs font-mono text-muted-foreground tabular-nums">
+                  <CardContent className="p-4 flex gap-3">
+                    <span className="text-xs font-mono text-muted-foreground tabular-nums pt-0.5">
                       {String(i + 1).padStart(2, '0')}
                     </span>
-                    <span className="text-sm font-semibold text-foreground">
-                      {value}
-                    </span>
+                    <div className="flex-1 min-w-0">
+                      <span className="text-sm font-semibold text-foreground">
+                        {item.title}
+                      </span>
+                      {item.description && (
+                        <p className="text-xs text-muted-foreground leading-relaxed mt-1 m-0">
+                          {item.description}
+                        </p>
+                      )}
+                    </div>
                   </CardContent>
                 </Card>
               ))}
