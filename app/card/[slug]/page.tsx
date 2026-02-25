@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 import QRCode from 'qrcode'
 import { generateHighResQRDataURL, getQRFilename } from '@/lib/qr-download'
 import { CardViewTracker } from './CardViewTracker'
+import { VCardButton } from './VCardButton'
 
 type Props = {
   params: Promise<{ slug: string }>
@@ -280,7 +281,7 @@ export default async function CardPage({ params }: Props) {
         )}
 
         {/* 4. 連絡先ボタン（メール・電話） */}
-        <div style={{ display: 'flex', gap: 12, marginBottom: 24 }}>
+        <div style={{ display: 'flex', gap: 12, marginBottom: 12 }}>
           {profile.email && (
             <a href={`mailto:${profile.email}`} className="contact-btn" style={{
               flex: 1, display: 'block', textAlign: 'center', padding: '12px 0',
@@ -301,6 +302,21 @@ export default async function CardPage({ params }: Props) {
               📞 電話
             </a>
           )}
+        </div>
+
+        {/* 4.5 アドレス帳に保存 */}
+        <div style={{ marginBottom: 24 }}>
+          <VCardButton
+            name={profile.name || ''}
+            position={profile.position || undefined}
+            department={profile.department || undefined}
+            companyName={company?.name || undefined}
+            email={profile.email || undefined}
+            phone={profile.phone || undefined}
+            websiteUrl={company?.website_url || undefined}
+            photoUrl={profile.photo_url || undefined}
+            primaryColor={primaryColor}
+          />
         </div>
 
         {/* 5. 企業情報（ロゴ・企業名・スローガン・MVV） */}
