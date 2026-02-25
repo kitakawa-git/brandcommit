@@ -35,20 +35,24 @@ export default function MembersPage() {
   const [fetchError, setFetchError] = useState('')
   const [togglingId, setTogglingId] = useState<string | null>(null)
 
-  const fetchMembers = async () => {
+  const fetchMembers = async (retryCount = 0) => {
     if (!companyId) return
-    setLoading(true)
-    setFetchError('')
+    if (retryCount === 0) {
+      setLoading(true)
+      setFetchError('')
+    }
+
+    const MAX_RETRIES = 2
 
     try {
       const result = await Promise.race([
         supabase
           .from('members')
-          .select('*, profile:profiles(*)')
+          .select('id, auth_id, display_name, email, is_active, created_at, profile:profiles(id, name, slug, card_enabled)')
           .eq('company_id', companyId)
           .order('created_at', { ascending: false }),
         new Promise<never>((_, reject) =>
-          setTimeout(() => reject(new Error('timeout')), 10000)
+          setTimeout(() => reject(new Error('timeout')), 15000)
         ),
       ])
 
@@ -57,9 +61,15 @@ export default function MembersPage() {
         setMembers(result.data as unknown as MemberWithProfile[])
       }
     } catch (err) {
-      console.error('[Members] データ取得エラー:', err)
+      console.error(`[Members] データ取得エラー (試行${retryCount + 1}/${MAX_RETRIES + 1}):`, err)
+
+      if (retryCount < MAX_RETRIES) {
+        await new Promise(r => setTimeout(r, 1000 * (retryCount + 1)))
+        return fetchMembers(retryCount + 1)
+      }
+
       const msg = err instanceof Error && err.message === 'timeout'
-        ? 'データの取得がタイムアウトしました'
+        ? 'データの取得がタイムアウトしました。再読み込みをお試しください。'
         : 'データの取得に失敗しました'
       setFetchError(msg)
     } finally {
@@ -152,7 +162,7 @@ export default function MembersPage() {
           ) : fetchError ? (
             <div className="text-center p-10">
               <p className="text-red-600 text-sm mb-3">{fetchError}</p>
-              <Button variant="outline" size="sm" onClick={fetchMembers}>再読み込み</Button>
+              <Button variant="outline" size="sm" onClick={() => fetchMembers(0)}>再読み込み</Button>
             </div>
           ) : members.length === 0 ? (
             <p className="text-muted-foreground text-center p-10">アカウントが登録されていません</p>

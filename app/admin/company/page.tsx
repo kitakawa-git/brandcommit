@@ -28,20 +28,24 @@ export default function CompanyPage() {
   const [message, setMessage] = useState('')
   const [messageType, setMessageType] = useState<'success' | 'error'>('success')
 
-  const fetchCompany = async () => {
+  const fetchCompany = async (retryCount = 0) => {
     if (!companyId) return
-    setLoading(true)
-    setFetchError('')
+    if (retryCount === 0) {
+      setLoading(true)
+      setFetchError('')
+    }
+
+    const MAX_RETRIES = 2
 
     try {
       const result = await Promise.race([
         supabase
           .from('companies')
-          .select('*')
+          .select('id, name, logo_url, website_url')
           .eq('id', companyId)
           .single(),
         new Promise<never>((_, reject) =>
-          setTimeout(() => reject(new Error('timeout')), 10000)
+          setTimeout(() => reject(new Error('timeout')), 15000)
         ),
       ])
 
@@ -55,9 +59,15 @@ export default function CompanyPage() {
         })
       }
     } catch (err) {
-      console.error('[Company] データ取得エラー:', err)
+      console.error(`[Company] データ取得エラー (試行${retryCount + 1}/${MAX_RETRIES + 1}):`, err)
+
+      if (retryCount < MAX_RETRIES) {
+        await new Promise(r => setTimeout(r, 1000 * (retryCount + 1)))
+        return fetchCompany(retryCount + 1)
+      }
+
       const msg = err instanceof Error && err.message === 'timeout'
-        ? 'データの取得がタイムアウトしました'
+        ? 'データの取得がタイムアウトしました。再読み込みをお試しください。'
         : 'データの取得に失敗しました'
       setFetchError(msg)
     } finally {
@@ -169,7 +179,7 @@ export default function CompanyPage() {
     return (
       <div className="text-center p-10">
         <p className="text-red-600 text-sm mb-3">{fetchError}</p>
-        <Button variant="outline" onClick={fetchCompany} className="py-2 px-4 text-[13px]">
+        <Button variant="outline" onClick={() => fetchCompany(0)} className="py-2 px-4 text-[13px]">
           再読み込み
         </Button>
       </div>
