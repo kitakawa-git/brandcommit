@@ -1,6 +1,6 @@
 'use client'
 
-// ポータル用サイドバー（明るい配色）
+// ポータル用サイドバー（floating + 明るい配色）
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { usePortalAuth } from './PortalAuthProvider'
@@ -50,10 +50,8 @@ export function PortalSidebar() {
   const pathname = usePathname()
   const { member, companyName, companyLogoUrl, profileName, profilePhotoUrl, signOut } = usePortalAuth()
 
-  // ブランド名の頭文字（ロゴがない場合のフォールバック）
   const brandInitial = companyName?.slice(0, 1) || 'B'
 
-  // プロフィールのイニシャル
   const profileInitial = profileName
     ? profileName.slice(0, 1)
     : member?.display_name?.slice(0, 1) || '?'
@@ -61,25 +59,28 @@ export function PortalSidebar() {
   const displayName = profileName || member?.display_name || member?.email
 
   return (
-    <Sidebar>
-      {/* ブランド情報ヘッダー */}
-      <SidebarHeader className="px-5 py-6">
-        <Link href="/portal" className="no-underline flex items-center gap-3">
-          <Avatar className="size-9 shrink-0 rounded-lg">
-            {companyLogoUrl && <AvatarImage src={companyLogoUrl} alt={companyName || ''} />}
-            <AvatarFallback className="rounded-lg bg-sidebar-accent text-sidebar-accent-foreground text-sm font-bold">
-              {brandInitial}
-            </AvatarFallback>
-          </Avatar>
-          <div className="min-w-0 leading-tight">
-            <h1 className="text-sm font-bold m-0 truncate" style={{ color: 'hsl(var(--sidebar-primary))' }}>
-              {companyName || 'brandcommit'}
-            </h1>
-            <p className="text-xs text-sidebar-foreground opacity-70 mt-0.5 m-0">
-              ブランドポータル
-            </p>
-          </div>
-        </Link>
+    <Sidebar variant="floating">
+      {/* ブランド情報ヘッダー（サンプル準拠: SidebarMenuButton size="lg"） */}
+      <SidebarHeader>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton size="lg" asChild>
+              <Link href="/portal">
+                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground overflow-hidden">
+                  {companyLogoUrl ? (
+                    <img src={companyLogoUrl} alt={companyName || ''} className="size-full object-cover" />
+                  ) : (
+                    <span className="text-sm font-bold">{brandInitial}</span>
+                  )}
+                </div>
+                <div className="flex flex-col gap-0.5 leading-none">
+                  <span className="font-medium">{companyName || 'brandcommit'}</span>
+                  <span className="text-xs">ブランドポータル</span>
+                </div>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
       </SidebarHeader>
 
       <SidebarContent>
@@ -104,7 +105,7 @@ export function PortalSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      {/* ユーザーメニュー（フッター固定） */}
+      {/* ユーザーメニュー */}
       <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>

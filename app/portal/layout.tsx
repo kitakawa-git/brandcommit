@@ -1,6 +1,6 @@
 'use client'
 
-// ポータルレイアウト: サイドバー + コンテンツ
+// ポータルレイアウト: floating サイドバー + コンテンツ
 import { usePathname } from 'next/navigation'
 import { PortalAuthProvider } from './components/PortalAuthProvider'
 import { PortalSidebar } from './components/PortalSidebar'
@@ -14,29 +14,33 @@ function PortalLayoutInner({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const isPublic = publicPaths.some(p => pathname.startsWith(p))
 
-  // 公開パス（ログイン・登録）ではサイドバーなし
   if (isPublic) {
     return <>{children}</>
   }
 
   return (
     <div data-portal="">
-      <SidebarProvider>
+      <SidebarProvider
+        style={{ '--sidebar-width': '19rem' } as React.CSSProperties}
+      >
         <PortalSidebar />
         <SidebarInset>
-          <header className="h-[60px] bg-white border-b border-border flex items-center px-4 gap-2">
+          <header className="flex h-16 shrink-0 items-center gap-2 px-4">
             <SidebarTrigger className="-ml-1" />
-            <Separator orientation="vertical" className="h-4" />
+            <Separator
+              orientation="vertical"
+              className="mr-2 data-[orientation=vertical]:h-4"
+            />
           </header>
-          <main className="flex-1 bg-white">
-            {children}
-          </main>
-          <footer className="px-6 py-4 text-center">
-            <Separator className="mb-4" />
-            <p className="text-xs text-muted-foreground m-0">
-              Powered by brandcommit
-            </p>
-          </footer>
+          <div className="flex flex-1 flex-col">
+            <main className="flex-1">{children}</main>
+            <footer className="px-6 py-4 text-center">
+              <Separator className="mb-4" />
+              <p className="text-xs text-muted-foreground m-0">
+                Powered by brandcommit
+              </p>
+            </footer>
+          </div>
         </SidebarInset>
       </SidebarProvider>
     </div>
