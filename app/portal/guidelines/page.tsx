@@ -4,7 +4,6 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { usePortalAuth } from '../components/PortalAuthProvider'
-import { portalColors } from '../components/PortalStyles'
 import { Card, CardContent } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import {
@@ -13,8 +12,13 @@ import {
   PolarAngleAxis,
   PolarRadiusAxis,
   Radar,
-  ResponsiveContainer,
 } from 'recharts'
+import {
+  type ChartConfig,
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+} from '@/components/ui/chart'
 
 type ValueItem = { name: string; description: string }
 type HistoryItem = { year: string; event: string }
@@ -79,6 +83,12 @@ export default function PortalGuidelinesPage() {
   // フィルター: 入力済みの特性のみ
   const filteredTraits = data.traits.filter(t => t.name && !t.name.match(/^特性\s?\d+$/))
   const chartData = filteredTraits.map(t => ({ name: t.name, score: t.score }))
+  const radarConfig = {
+    score: {
+      label: 'スコア',
+      color: 'hsl(217, 91%, 60%)',
+    },
+  } satisfies ChartConfig
 
   // フィルター: 入力済みのバリューのみ
   const filteredValues = data.values.filter(v => v.name)
@@ -288,15 +298,25 @@ export default function PortalGuidelinesPage() {
 
           {/* レーダーチャート（3つ以上の場合のみ） */}
           {chartData.length >= 3 && (
-            <div className="w-full max-w-[400px] mx-auto mb-6 aspect-square">
-              <ResponsiveContainer width="100%" height="100%">
+            <div className="w-full max-w-[400px] mx-auto mb-6">
+              <ChartContainer config={radarConfig} className="aspect-square">
                 <RadarChart data={chartData} cx="50%" cy="50%" outerRadius="70%">
-                  <PolarGrid stroke="#e0e0e0" />
-                  <PolarAngleAxis dataKey="name" tick={{ fontSize: 12, fill: portalColors.textSecondary }} />
-                  <PolarRadiusAxis angle={90} domain={[0, 10]} tick={{ fontSize: 10, fill: portalColors.textMuted }} tickCount={6} />
-                  <Radar dataKey="score" stroke={portalColors.primary} fill={portalColors.primary} fillOpacity={0.2} strokeWidth={2} />
+                  <ChartTooltip
+                    content={<ChartTooltipContent hideLabel />}
+                  />
+                  <PolarGrid />
+                  <PolarAngleAxis dataKey="name" tick={{ fontSize: 12 }} />
+                  <PolarRadiusAxis angle={90} domain={[0, 10]} tick={{ fontSize: 10 }} tickCount={6} />
+                  <Radar
+                    dataKey="score"
+                    fill="var(--color-score)"
+                    fillOpacity={0.2}
+                    stroke="var(--color-score)"
+                    strokeWidth={2}
+                    dot={{ r: 4, fillOpacity: 1, fill: 'var(--color-score)' }}
+                  />
                 </RadarChart>
-              </ResponsiveContainer>
+              </ChartContainer>
             </div>
           )}
 
