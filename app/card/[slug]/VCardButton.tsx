@@ -79,25 +79,12 @@ export function VCardButton({
 
   return (
     <Button
+      variant="outline"
       onClick={handleDownload}
-      className="contact-btn"
-      style={{
-        width: '100%',
-        padding: '12px 0',
-        backgroundColor: primaryColor,
-        borderRadius: 12,
-        color: '#ffffff',
-        fontSize: 14,
-        fontWeight: 'bold',
-        border: 'none',
-        cursor: 'pointer',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: 8,
-      }}
+      className="w-full h-11 rounded-lg text-sm font-bold gap-2"
+      style={{ borderColor: primaryColor, color: primaryColor }}
     >
-      <UserPlus size={18} />
+      <UserPlus size={16} />
       アドレス帳に保存
     </Button>
   )

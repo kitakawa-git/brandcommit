@@ -4,8 +4,11 @@ import QRCode from 'qrcode'
 import { generateHighResQRDataURL, getQRFilename } from '@/lib/qr-download'
 import { CardViewTracker } from './CardViewTracker'
 import { VCardButton } from './VCardButton'
-import { Card, CardContent } from '@/components/ui/card'
-import { Mail, Phone } from 'lucide-react'
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
+import { Separator } from '@/components/ui/separator'
+import { Mail, Phone, ExternalLink } from 'lucide-react'
 
 type Props = {
   params: Promise<{ slug: string }>
@@ -159,7 +162,7 @@ export default async function CardPage({ params }: Props) {
 
   return (
     <div
-      className="min-h-screen bg-[#f8f8f8] font-sans"
+      className="min-h-screen bg-muted/30 font-sans"
       style={{
         '--brand-primary': primaryColor,
         '--brand-text': headerTextColor,
@@ -182,31 +185,30 @@ export default async function CardPage({ params }: Props) {
       `}</style>
 
       {/* 1. ヘッダー（写真・名前・役職） */}
-      <div className="bg-[var(--brand-primary)] px-5 py-10 text-center text-[var(--brand-text)]">
-        {profile.photo_url ? (
-          <img
-            src={profile.photo_url}
-            alt={profile.name}
-            className="w-[100px] h-[100px] rounded-full object-cover mx-auto mb-4 block border-[3px] border-[var(--brand-text)]"
-          />
-        ) : (
-          <div className="w-[100px] h-[100px] rounded-full bg-[var(--brand-text)] mx-auto mb-4 flex items-center justify-center text-4xl text-[var(--brand-primary)]">
+      <div className="bg-[var(--brand-primary)] px-5 pt-12 pb-10 text-center text-[var(--brand-text)]">
+        <Avatar className="w-24 h-24 mx-auto mb-5 border-[3px] border-[var(--brand-text)]">
+          {profile.photo_url ? (
+            <AvatarImage src={profile.photo_url} alt={profile.name} />
+          ) : null}
+          <AvatarFallback
+            className="text-3xl font-semibold bg-[var(--brand-text)] text-[var(--brand-primary)]"
+          >
             {profile.name?.charAt(0)}
-          </div>
-        )}
-        <h1 className="text-2xl mb-1">{profile.name}</h1>
-        <p className="text-sm opacity-80 m-0">
+          </AvatarFallback>
+        </Avatar>
+        <h1 className="text-xl font-semibold mb-1 tracking-wide">{profile.name}</h1>
+        <p className="text-sm opacity-75 m-0">
           {profile.position} / {profile.department}
         </p>
       </div>
 
       {/* コンテンツ */}
-      <div className="max-w-[480px] mx-auto px-5 py-6">
+      <div className="max-w-md mx-auto px-5 py-8 space-y-5">
         {/* 2. 自己紹介 */}
         {profile.bio && (
-          <Card className="mb-4 border-0">
+          <Card className="border-0 shadow-none bg-white">
             <CardContent className="p-5">
-              <p className="text-sm leading-[1.8] text-[#333] m-0">
+              <p className="text-sm leading-[1.8] text-foreground/80 m-0">
                 {profile.bio}
               </p>
             </CardContent>
@@ -215,7 +217,7 @@ export default async function CardPage({ params }: Props) {
 
         {/* 3. SNSリンク（アイコン横並び） */}
         {snsLinks.length > 0 && (
-          <div className="flex justify-center gap-4 mb-4">
+          <div className="flex justify-center gap-3">
             {snsLinks.map((sns) => (
               <a
                 key={sns.label}
@@ -232,82 +234,105 @@ export default async function CardPage({ params }: Props) {
         )}
 
         {/* 4. 連絡先ボタン（メール・電話） */}
-        <div className="flex gap-3 mb-3">
+        <div className="flex gap-3">
           {profile.email && (
-            <a
-              href={`mailto:${profile.email}`}
-              className="flex-1 block text-center py-3 bg-[var(--brand-primary)] rounded-xl text-white no-underline text-sm font-bold hover:opacity-85 transition-opacity"
+            <Button
+              asChild
+              className="flex-1 h-11 rounded-lg text-sm font-bold gap-2"
+              style={{ backgroundColor: primaryColor }}
             >
-              <Mail size={16} className="inline" /> メール
-            </a>
+              <a href={`mailto:${profile.email}`}>
+                <Mail size={16} />
+                メール
+              </a>
+            </Button>
           )}
           {profile.phone && (
-            <a
-              href={`tel:${profile.phone}`}
-              className="flex-1 block text-center py-3 bg-[var(--brand-primary)] rounded-xl text-white no-underline text-sm font-bold hover:opacity-85 transition-opacity"
+            <Button
+              asChild
+              className="flex-1 h-11 rounded-lg text-sm font-bold gap-2"
+              style={{ backgroundColor: primaryColor }}
             >
-              <Phone size={16} className="inline" /> 電話
-            </a>
+              <a href={`tel:${profile.phone}`}>
+                <Phone size={16} />
+                電話
+              </a>
+            </Button>
           )}
         </div>
 
         {/* 4.5 アドレス帳に保存 */}
-        <div className="mb-6">
-          <VCardButton
-            name={profile.name || ''}
-            position={profile.position || undefined}
-            department={profile.department || undefined}
-            companyName={company?.name || undefined}
-            email={profile.email || undefined}
-            phone={profile.phone || undefined}
-            websiteUrl={company?.website_url || undefined}
-            photoUrl={profile.photo_url || undefined}
-            primaryColor={primaryColor}
-          />
-        </div>
+        <VCardButton
+          name={profile.name || ''}
+          position={profile.position || undefined}
+          department={profile.department || undefined}
+          companyName={company?.name || undefined}
+          email={profile.email || undefined}
+          phone={profile.phone || undefined}
+          websiteUrl={company?.website_url || undefined}
+          photoUrl={profile.photo_url || undefined}
+          primaryColor={primaryColor}
+        />
 
         {/* 5. 企業情報（ロゴ・企業名・スローガン・MVV） */}
         {company && (
-          <Card className="mb-4 border-0">
-            <CardContent className="p-5">
+          <Card className="border-0 shadow-sm">
+            <CardHeader className="pb-0">
               {company.logo_url && (
                 <img
                   src={company.logo_url}
                   alt={company.name}
-                  className="max-w-[120px] max-h-[48px] object-contain mb-3"
+                  className="max-w-[120px] max-h-[48px] object-contain mb-2"
                 />
               )}
-              <h2 className="text-lg mb-2 text-[var(--brand-primary)] m-0">
+              <CardTitle
+                className="text-lg"
+                style={{ color: primaryColor }}
+              >
                 {company.name}
-              </h2>
+              </CardTitle>
               {slogan && (
-                <p className="text-sm text-[#666] mb-4 italic m-0">
+                <CardDescription className="italic">
                   {slogan}
-                </p>
+                </CardDescription>
               )}
-              {missionText && (
-                <p className="text-[13px] text-[#333] leading-[1.8] m-0">
+            </CardHeader>
+            {missionText && (
+              <CardContent className="pt-4">
+                <Separator className="mb-4" />
+                <p className="text-[13px] text-foreground/70 leading-[1.8] m-0">
                   {missionText}
                 </p>
-              )}
-            </CardContent>
+              </CardContent>
+            )}
           </Card>
         )}
 
-        {/* 6. バリュー（カード形式） */}
+        {/* 6. バリュー（番号付きカード形式） */}
         {valueNames.length > 0 && (
-          <div className="mb-4">
-            <h3 className="text-[15px] font-bold mb-3 text-[var(--brand-primary)]">
+          <div>
+            <h3
+              className="text-sm font-bold mb-3 tracking-wide"
+              style={{ color: primaryColor }}
+            >
               バリュー
             </h3>
-            <div className="flex flex-wrap gap-2.5">
+            <div className="space-y-2">
               {valueNames.map((value, i) => (
-                <div
+                <Card
                   key={i}
-                  className="flex-[1_1_calc(50%-5px)] min-w-[130px] bg-white rounded-[10px] py-3.5 px-4 text-[13px] text-[#333] font-semibold text-center border-l-[3px] border-l-[var(--brand-accent)]"
+                  className="border-0 shadow-none bg-white border-l-2 rounded-lg"
+                  style={{ borderLeftColor: accentColor }}
                 >
-                  {value}
-                </div>
+                  <CardContent className="p-4 flex items-center gap-3">
+                    <span className="text-xs font-mono text-muted-foreground tabular-nums">
+                      {String(i + 1).padStart(2, '0')}
+                    </span>
+                    <span className="text-sm font-semibold text-foreground">
+                      {value}
+                    </span>
+                  </CardContent>
+                </Card>
               ))}
             </div>
           </div>
@@ -315,12 +340,17 @@ export default async function CardPage({ params }: Props) {
 
         {/* 7. ブランドストーリー */}
         {brandStory && (
-          <Card className="mb-4 border-0">
-            <CardContent className="p-5">
-              <h3 className="text-[15px] font-bold mb-3 text-[var(--brand-primary)] m-0">
+          <Card className="border-0 shadow-sm">
+            <CardHeader className="pb-0">
+              <CardTitle
+                className="text-sm tracking-wide"
+                style={{ color: primaryColor }}
+              >
                 ブランドストーリー
-              </h3>
-              <p className="text-[13px] text-[#333] leading-[1.8] whitespace-pre-wrap m-0">
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="pt-3">
+              <p className="text-[13px] text-foreground/70 leading-[1.8] whitespace-pre-wrap m-0">
                 {brandStory}
               </p>
             </CardContent>
@@ -329,40 +359,52 @@ export default async function CardPage({ params }: Props) {
 
         {/* 8. コーポレートサイトリンク */}
         {company?.website_url && (
-          <a
-            href={company.website_url}
-            target="_blank"
-            className="block text-center py-3.5 bg-[var(--brand-primary)] rounded-[10px] text-white no-underline text-sm font-bold mb-4 hover:opacity-85 transition-opacity"
+          <Button
+            asChild
+            className="w-full h-11 rounded-lg text-sm font-bold gap-2"
+            style={{ backgroundColor: primaryColor }}
           >
-            コーポレートサイトを見る →
-          </a>
+            <a href={company.website_url} target="_blank" rel="noopener noreferrer">
+              コーポレートサイトを見る
+              <ExternalLink size={14} />
+            </a>
+          </Button>
         )}
 
         {/* 9. QRコード */}
-        <div className="text-center mt-4">
-          <img
-            src={qrDataUrl}
-            alt="QRコード"
-            width={160}
-            height={160}
-            className="block mx-auto"
-          />
-          <p className="text-[11px] text-[var(--brand-primary)] mt-2 mb-1">
-            名刺に印刷用
-          </p>
-          <a
-            href={highResQrDataUrl}
-            download={downloadFilename}
-            className="text-[11px] text-[var(--brand-primary)] underline opacity-70"
-          >
-            高解像度ダウンロード（1000x1000px）
-          </a>
+        <div className="pt-2">
+          <Separator className="mb-6" />
+          <div className="text-center">
+            <img
+              src={qrDataUrl}
+              alt="QRコード"
+              width={140}
+              height={140}
+              className="block mx-auto rounded-lg"
+            />
+            <p
+              className="text-[11px] mt-3 mb-1"
+              style={{ color: primaryColor }}
+            >
+              名刺に印刷用
+            </p>
+            <a
+              href={highResQrDataUrl}
+              download={downloadFilename}
+              className="text-[11px] text-muted-foreground underline"
+            >
+              高解像度ダウンロード（1000x1000px）
+            </a>
+          </div>
         </div>
 
         {/* 10. フッター */}
-        <p className="text-center text-[11px] text-[#999] mt-4">
-          Powered by brandcommit
-        </p>
+        <div className="pt-2">
+          <Separator className="mb-4" />
+          <p className="text-center text-[11px] text-muted-foreground m-0">
+            Powered by brandcommit
+          </p>
+        </div>
       </div>
     </div>
   )
