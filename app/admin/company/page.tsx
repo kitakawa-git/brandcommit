@@ -7,8 +7,10 @@ import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '../components/AuthProvider'
 import { ImageUpload } from '../components/ImageUpload'
-import { commonStyles } from '../components/AdminStyles'
-import { cn } from '@/lib/utils'
+import { Card, CardContent } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 
 type Company = {
   id: string
@@ -157,7 +159,7 @@ export default function CompanyPage() {
 
   if (loading) {
     return (
-      <p className="text-gray-500 text-center p-10">
+      <p className="text-muted-foreground text-center p-10">
         読み込み中...
       </p>
     )
@@ -167,16 +169,16 @@ export default function CompanyPage() {
     return (
       <div className="text-center p-10">
         <p className="text-red-600 text-sm mb-3">{fetchError}</p>
-        <button onClick={fetchCompany} className={cn(commonStyles.buttonOutline, 'py-2 px-4 text-[13px]')}>
+        <Button variant="outline" onClick={fetchCompany} className="py-2 px-4 text-[13px]">
           再読み込み
-        </button>
+        </Button>
       </div>
     )
   }
 
   if (!company) {
     return (
-      <p className="text-gray-500 text-center p-10">
+      <p className="text-muted-foreground text-center p-10">
         企業データが見つかりません
       </p>
     )
@@ -184,67 +186,69 @@ export default function CompanyPage() {
 
   return (
     <div>
-      <h2 className="text-xl font-bold text-gray-900 mb-6">
+      <h2 className="text-xl font-bold text-foreground mb-6">
         ブランド基本情報
       </h2>
 
-      <div className={commonStyles.card}>
-        {/* メッセージ */}
-        {message && (
-          <div className={messageType === 'success' ? commonStyles.success : commonStyles.error}>
-            {message}
-          </div>
-        )}
+      <Card className="bg-muted/50 border shadow-none">
+        <CardContent className="p-6">
+          {/* メッセージ */}
+          {message && (
+            <div className={messageType === 'success' ? 'bg-green-50 text-green-600 px-4 py-3 rounded-lg text-sm mb-4' : 'bg-red-50 text-red-600 px-4 py-3 rounded-lg text-sm mb-4'}>
+              {message}
+            </div>
+          )}
 
-        <form onSubmit={handleSubmit}>
-          {/* ロゴ */}
-          <div className={commonStyles.formGroup}>
-            <label className={commonStyles.label}>ロゴ</label>
-            <ImageUpload
-              bucket="avatars"
-              folder="logos"
-              currentUrl={company.logo_url}
-              onUpload={(url) => handleChange('logo_url', url)}
-            />
-          </div>
+          <form onSubmit={handleSubmit}>
+            {/* ロゴ */}
+            <div className="mb-5">
+              <Label className="mb-1.5 font-bold">ロゴ</Label>
+              <ImageUpload
+                bucket="avatars"
+                folder="logos"
+                currentUrl={company.logo_url}
+                onUpload={(url) => handleChange('logo_url', url)}
+              />
+            </div>
 
-          {/* 企業名 */}
-          <div className={commonStyles.formGroup}>
-            <label className={commonStyles.label}>ブランド名</label>
-            <input
-              type="text"
-              value={company.name}
-              onChange={(e) => handleChange('name', e.target.value)}
-              placeholder="株式会社○○"
-              className={commonStyles.input}
-            />
-            <p className="text-[13px] text-gray-500 mt-1.5">
-              企業名・サービス名・個人名など、ブランディングの対象となる名称を入力してください
-            </p>
-          </div>
+            {/* 企業名 */}
+            <div className="mb-5">
+              <Label className="mb-1.5 font-bold">ブランド名</Label>
+              <Input
+                type="text"
+                value={company.name}
+                onChange={(e) => handleChange('name', e.target.value)}
+                placeholder="株式会社○○"
+                className="h-10"
+              />
+              <p className="text-[13px] text-muted-foreground mt-1.5">
+                企業名・サービス名・個人名など、ブランディングの対象となる名称を入力してください
+              </p>
+            </div>
 
-          {/* WebサイトURL */}
-          <div className={commonStyles.formGroup}>
-            <label className={commonStyles.label}>ウェブサイトURL</label>
-            <input
-              type="text"
-              value={company.website_url}
-              onChange={(e) => handleChange('website_url', e.target.value)}
-              placeholder="https://example.com"
-              className={commonStyles.input}
-            />
-          </div>
+            {/* WebサイトURL */}
+            <div className="mb-5">
+              <Label className="mb-1.5 font-bold">ウェブサイトURL</Label>
+              <Input
+                type="text"
+                value={company.website_url}
+                onChange={(e) => handleChange('website_url', e.target.value)}
+                placeholder="https://example.com"
+                className="h-10"
+              />
+            </div>
 
-          {/* 保存ボタン */}
-          <button
-            type="submit"
-            disabled={saving}
-            className={cn(commonStyles.button, 'mt-2', saving && 'opacity-60')}
-          >
-            {saving ? '保存中...' : '保存する'}
-          </button>
-        </form>
-      </div>
+            {/* 保存ボタン */}
+            <Button
+              type="submit"
+              disabled={saving}
+              className={`mt-2 ${saving ? 'opacity-60' : ''}`}
+            >
+              {saving ? '保存中...' : '保存する'}
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
     </div>
   )
 }

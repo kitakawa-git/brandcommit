@@ -4,8 +4,10 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '../components/AuthProvider'
-import { commonStyles } from '../components/AdminStyles'
-import { cn } from '@/lib/utils'
+import { Card, CardContent } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Button } from '@/components/ui/button'
 
 type InviteLink = {
   id: string
@@ -30,7 +32,6 @@ export default function MembersPortalPage() {
   const [message, setMessage] = useState('')
   const [messageType, setMessageType] = useState<'success' | 'error'>('success')
 
-  // アカウント手動作成用
   const [newEmail, setNewEmail] = useState('')
   const [newPassword, setNewPassword] = useState('')
   const [newDisplayName, setNewDisplayName] = useState('')
@@ -44,13 +45,11 @@ export default function MembersPortalPage() {
 
   const fetchData = async () => {
     if (!companyId) return
-
     const { data } = await supabase
       .from('invite_links')
       .select('*')
       .eq('company_id', companyId)
       .order('created_at', { ascending: false })
-
     if (data) setInviteLinks(data)
     setLoading(false)
   }
@@ -60,32 +59,19 @@ export default function MembersPortalPage() {
     setMessageType(type)
   }
 
-  // ── 招待リンク生成 ──
   const handleGenerateLink = async () => {
     if (!companyId) return
     setGeneratingLink(true)
-
     try {
       const { data: { session } } = await supabase.auth.getSession()
       const token = session?.access_token || ''
       const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
-
       const res = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/invite_links`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'apikey': anonKey,
-          'Authorization': `Bearer ${token}`,
-          'Prefer': 'return=representation',
-        },
+        headers: { 'Content-Type': 'application/json', 'apikey': anonKey, 'Authorization': `Bearer ${token}`, 'Prefer': 'return=representation' },
         body: JSON.stringify({ company_id: companyId }),
       })
-
-      if (!res.ok) {
-        const body = await res.text()
-        throw new Error(`HTTP ${res.status}: ${body}`)
-      }
-
+      if (!res.ok) { const body = await res.text(); throw new Error(`HTTP ${res.status}: ${body}`) }
       showMessage('招待リンクを生成しました', 'success')
       await fetchData()
     } catch (err) {
@@ -95,29 +81,17 @@ export default function MembersPortalPage() {
     }
   }
 
-  // ── 招待リンク無効化 ──
   const handleDeactivateLink = async (linkId: string) => {
     try {
       const { data: { session } } = await supabase.auth.getSession()
       const token = session?.access_token || ''
       const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
-
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/invite_links?id=eq.${linkId}`,
-        {
-          method: 'PATCH',
-          headers: {
-            'Content-Type': 'application/json',
-            'apikey': anonKey,
-            'Authorization': `Bearer ${token}`,
-            'Prefer': 'return=minimal',
-          },
-          body: JSON.stringify({ is_active: false }),
-        }
-      )
-
+      const res = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/invite_links?id=eq.${linkId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', 'apikey': anonKey, 'Authorization': `Bearer ${token}`, 'Prefer': 'return=minimal' },
+        body: JSON.stringify({ is_active: false }),
+      })
       if (!res.ok) throw new Error(`HTTP ${res.status}`)
-
       showMessage('招待リンクを無効化しました', 'success')
       await fetchData()
     } catch (err) {
@@ -125,38 +99,26 @@ export default function MembersPortalPage() {
     }
   }
 
-  // ── クリップボードにコピー ──
   const handleCopyLink = (token: string) => {
     const url = `${window.location.origin}/portal/register?token=${token}`
     navigator.clipboard.writeText(url)
     showMessage('コピーしました', 'success')
   }
 
-  // ── アカウント手動作成 ──
   const handleCreateMember = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!companyId) return
     setCreating(true)
-
     try {
       const res = await fetch('/api/members/create', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email: newEmail,
-          password: newPassword,
-          display_name: newDisplayName,
-          company_id: companyId,
-        }),
+        body: JSON.stringify({ email: newEmail, password: newPassword, display_name: newDisplayName, company_id: companyId }),
       })
-
       const result = await res.json()
       if (!res.ok) throw new Error(result.error || '作成に失敗')
-
       showMessage('アカウントを作成しました', 'success')
-      setNewEmail('')
-      setNewPassword('')
-      setNewDisplayName('')
+      setNewEmail(''); setNewPassword(''); setNewDisplayName('')
       await fetchData()
     } catch (err) {
       showMessage('作成に失敗: ' + (err instanceof Error ? err.message : '不明'), 'error')
@@ -165,166 +127,100 @@ export default function MembersPortalPage() {
     }
   }
 
-
   if (loading) {
-    return (
-      <p className="text-gray-500 text-center p-10">
-        読み込み中...
-      </p>
-    )
+    return <p className="text-muted-foreground text-center p-10">読み込み中...</p>
   }
 
   return (
     <div>
-      <h2 className="text-xl font-bold text-gray-900 mb-6">
-        アカウント作成
-      </h2>
+      <h2 className="text-xl font-bold text-foreground mb-6">アカウント作成</h2>
 
       {message && (
-        <div className={messageType === 'success' ? commonStyles.success : commonStyles.error}>
+        <div className={`px-4 py-3 rounded-lg text-sm mb-4 ${messageType === 'success' ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600'}`}>
           {message}
         </div>
       )}
 
-      {/* ── セクション1: 招待リンク ── */}
-      <div className={cn(commonStyles.card, 'mb-6')}>
-        <h3 className="text-base font-bold text-gray-900 mb-4">
-          招待リンク
-        </h3>
-        <p className="text-xs text-gray-500 mb-3">
-          従業員に共有すると、セルフ登録でアカウントを作成できます
-        </p>
+      {/* 招待リンク */}
+      <Card className="bg-muted/50 border shadow-none mb-6">
+        <CardContent className="p-6">
+          <h3 className="text-sm font-bold text-foreground mb-2">招待リンク</h3>
+          <p className="text-xs text-muted-foreground mb-3 m-0">
+            従業員に共有すると、セルフ登録でアカウントを作成できます
+          </p>
 
-        <button
-          onClick={handleGenerateLink}
-          disabled={generatingLink}
-          className={cn(commonStyles.button, 'mb-4', generatingLink && 'opacity-60')}
-        >
-          {generatingLink ? '生成中...' : '招待リンクを生成'}
-        </button>
+          <Button onClick={handleGenerateLink} disabled={generatingLink} size="sm" className="mb-4">
+            {generatingLink ? '生成中...' : '招待リンクを生成'}
+          </Button>
 
-        {inviteLinks.length > 0 && (
-          <table className={commonStyles.table}>
-            <thead>
-              <tr>
-                <th className={commonStyles.th}>リンク</th>
-                <th className={commonStyles.th}>ステータス</th>
-                <th className={commonStyles.th}>作成日</th>
-                <th className={commonStyles.th}>操作</th>
-              </tr>
-            </thead>
-            <tbody>
-              {inviteLinks.map((link) => (
-                <tr key={link.id}>
-                  <td className={cn(commonStyles.td, 'text-xs break-all')}>
-                    /portal/register?token={link.token.substring(0, 8)}...
-                  </td>
-                  <td className={commonStyles.td}>
-                    <span
-                      className="py-0.5 px-2 rounded text-xs font-bold"
-                      style={{
-                        backgroundColor: link.is_active ? '#dcfce7' : '#f3f4f6',
-                        color: link.is_active ? '#16a34a' : '#6b7280',
-                      }}
-                    >
-                      {link.is_active ? '有効' : '無効'}
-                    </span>
-                  </td>
-                  <td className={cn(commonStyles.td, 'text-xs')}>
-                    {new Date(link.created_at).toLocaleDateString('ja-JP')}
-                  </td>
-                  <td className={commonStyles.td}>
-                    {link.is_active && (
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => handleCopyLink(link.token)}
-                          className={cn(commonStyles.buttonOutline, 'py-1 px-2.5 text-xs')}
-                        >
-                          コピー
-                        </button>
-                        <button
-                          onClick={() => handleDeactivateLink(link.id)}
-                          className={cn(commonStyles.dangerButton, 'py-1 px-2.5 text-xs')}
-                        >
-                          無効化
-                        </button>
-                      </div>
-                    )}
-                  </td>
+          {inviteLinks.length > 0 && (
+            <table className="w-full border-collapse text-sm">
+              <thead>
+                <tr>
+                  <th className="text-left px-4 py-3 bg-muted text-muted-foreground font-semibold border-b border-border text-xs">リンク</th>
+                  <th className="text-left px-4 py-3 bg-muted text-muted-foreground font-semibold border-b border-border text-xs">ステータス</th>
+                  <th className="text-left px-4 py-3 bg-muted text-muted-foreground font-semibold border-b border-border text-xs">作成日</th>
+                  <th className="text-left px-4 py-3 bg-muted text-muted-foreground font-semibold border-b border-border text-xs">操作</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-      </div>
+              </thead>
+              <tbody>
+                {inviteLinks.map((link) => (
+                  <tr key={link.id}>
+                    <td className="px-4 py-3 border-b border-border text-xs text-foreground break-all">
+                      /portal/register?token={link.token.substring(0, 8)}...
+                    </td>
+                    <td className="px-4 py-3 border-b border-border">
+                      <span className={`py-0.5 px-2 rounded text-xs font-bold ${link.is_active ? 'bg-green-50 text-green-600' : 'bg-muted text-muted-foreground'}`}>
+                        {link.is_active ? '有効' : '無効'}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 border-b border-border text-xs text-muted-foreground">
+                      {new Date(link.created_at).toLocaleDateString('ja-JP')}
+                    </td>
+                    <td className="px-4 py-3 border-b border-border">
+                      {link.is_active && (
+                        <div className="flex gap-2">
+                          <Button variant="outline" size="sm" className="h-7 text-xs" onClick={() => handleCopyLink(link.token)}>コピー</Button>
+                          <Button variant="destructive" size="sm" className="h-7 text-xs" onClick={() => handleDeactivateLink(link.id)}>無効化</Button>
+                        </div>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </CardContent>
+      </Card>
 
-      {/* ── セクション2: アカウント手動作成 ── */}
-      <div className={cn(commonStyles.card, 'mb-6')}>
-        <h3 className="text-base font-bold text-gray-900 mb-4">
-          アカウント手動作成
-        </h3>
+      {/* アカウント手動作成 */}
+      <Card className="bg-muted/50 border shadow-none mb-6">
+        <CardContent className="p-6">
+          <h3 className="text-sm font-bold text-foreground mb-2">アカウント手動作成</h3>
+          <p className="text-xs text-muted-foreground mb-4 m-0">名刺プロフィールも同時に作成されます</p>
 
-        <p className="text-xs text-gray-500 mb-4">
-          名刺プロフィールも同時に作成されます
-        </p>
-
-        <form onSubmit={handleCreateMember}>
-          <div className={commonStyles.formGroup}>
-            <label className={commonStyles.label}>メールアドレス</label>
-            <input
-              type="email"
-              value={newEmail}
-              onChange={(e) => setNewEmail(e.target.value)}
-              placeholder="member@example.com"
-              required
-              className={commonStyles.input}
-            />
-          </div>
-
-          <div className={commonStyles.formGroup}>
-            <label className={commonStyles.label}>パスワード</label>
-            <div className="flex gap-2">
-              <input
-                type="text"
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                placeholder="8文字以上"
-                required
-                minLength={8}
-                className={cn(commonStyles.input, 'flex-1')}
-              />
-              <button
-                type="button"
-                onClick={() => setNewPassword(generatePassword())}
-                className={cn(commonStyles.buttonOutline, 'py-2 px-3 text-xs whitespace-nowrap')}
-              >
-                自動生成
-              </button>
+          <form onSubmit={handleCreateMember}>
+            <div className="mb-5">
+              <Label className="mb-1.5 font-bold">メールアドレス</Label>
+              <Input type="email" value={newEmail} onChange={(e) => setNewEmail(e.target.value)} placeholder="member@example.com" required className="h-10" />
             </div>
-          </div>
-
-          <div className={commonStyles.formGroup}>
-            <label className={commonStyles.label}>名前</label>
-            <input
-              type="text"
-              value={newDisplayName}
-              onChange={(e) => setNewDisplayName(e.target.value)}
-              placeholder="山田太郎"
-              required
-              className={commonStyles.input}
-            />
-          </div>
-
-          <button
-            type="submit"
-            disabled={creating}
-            className={cn(commonStyles.button, creating && 'opacity-60')}
-          >
-            {creating ? '作成中...' : 'アカウントを作成'}
-          </button>
-        </form>
-      </div>
-
+            <div className="mb-5">
+              <Label className="mb-1.5 font-bold">パスワード</Label>
+              <div className="flex gap-2">
+                <Input type="text" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} placeholder="8文字以上" required minLength={8} className="h-10 flex-1" />
+                <Button type="button" variant="outline" size="sm" onClick={() => setNewPassword(generatePassword())}>自動生成</Button>
+              </div>
+            </div>
+            <div className="mb-5">
+              <Label className="mb-1.5 font-bold">名前</Label>
+              <Input type="text" value={newDisplayName} onChange={(e) => setNewDisplayName(e.target.value)} placeholder="山田太郎" required className="h-10" />
+            </div>
+            <Button type="submit" disabled={creating}>
+              {creating ? '作成中...' : 'アカウントを作成'}
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
     </div>
   )
 }

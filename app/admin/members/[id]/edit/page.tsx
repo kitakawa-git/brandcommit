@@ -6,8 +6,8 @@ import { useParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '../../../components/AuthProvider'
 import { MemberForm } from '../../../components/MemberForm'
-import { commonStyles } from '../../../components/AdminStyles'
-import { cn } from '@/lib/utils'
+import { Card, CardContent } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
 import { downloadQRCode, generatePreviewQRDataURL, getCardUrl } from '@/lib/qr-download'
 
 export default function EditMemberPage() {
@@ -24,7 +24,6 @@ export default function EditMemberPage() {
     if (!companyId) return
 
     const fetchProfile = async () => {
-      // 自社のprofileのみ取得（company_idフィルタ付き）
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
@@ -34,7 +33,6 @@ export default function EditMemberPage() {
 
       if (!error && data) {
         setProfile(data)
-        // QRプレビュー生成
         if (data.slug) {
           generatePreviewQRDataURL(data.slug).then(setQrPreview)
         }
@@ -45,26 +43,16 @@ export default function EditMemberPage() {
   }, [id, companyId])
 
   if (loading) {
-    return (
-      <p className="text-gray-500 text-center p-10">
-        読み込み中...
-      </p>
-    )
+    return <p className="text-muted-foreground text-center p-10">読み込み中...</p>
   }
 
   if (!profile) {
-    return (
-      <p className="text-gray-500 text-center p-10">
-        従業員データが見つかりません
-      </p>
-    )
+    return <p className="text-muted-foreground text-center p-10">従業員データが見つかりません</p>
   }
 
   return (
     <div>
-      <h2 className="text-xl font-bold text-gray-900 mb-6">
-        アカウント編集
-      </h2>
+      <h2 className="text-xl font-bold text-foreground mb-6">アカウント編集</h2>
       <MemberForm
         initialData={{
           id: profile.id,
@@ -87,38 +75,37 @@ export default function EditMemberPage() {
 
       {/* QRコードプレビュー */}
       {profile.slug && (
-        <div className={cn(commonStyles.card, 'mt-6 text-center')}>
-          <h3 className="text-base font-bold text-gray-900 mb-4">
-            QRコード
-          </h3>
-          {qrPreview && (
-            <img
-              src={qrPreview}
-              alt="QRコード"
-              width={160}
-              height={160}
-              className="block mx-auto mb-3"
-            />
-          )}
-          <p className="text-xs text-gray-500 mb-4">
-            {getCardUrl(profile.slug)}
-          </p>
-          <button
-            onClick={async () => {
-              setDownloading(true)
-              try {
-                await downloadQRCode(profile.slug, profile.name || 'member')
-              } catch (err) {
-                console.error('QRコード生成エラー:', err)
-              }
-              setDownloading(false)
-            }}
-            disabled={downloading}
-            className={cn(commonStyles.button, downloading && 'opacity-60')}
-          >
-            {downloading ? '生成中...' : 'QRコードをダウンロード（印刷用）'}
-          </button>
-        </div>
+        <Card className="bg-muted/50 border shadow-none mt-6">
+          <CardContent className="p-6 text-center">
+            <h3 className="text-sm font-bold text-foreground mb-4">QRコード</h3>
+            {qrPreview && (
+              <img
+                src={qrPreview}
+                alt="QRコード"
+                width={160}
+                height={160}
+                className="block mx-auto mb-3"
+              />
+            )}
+            <p className="text-xs text-muted-foreground mb-4 m-0">
+              {getCardUrl(profile.slug)}
+            </p>
+            <Button
+              onClick={async () => {
+                setDownloading(true)
+                try {
+                  await downloadQRCode(profile.slug, profile.name || 'member')
+                } catch (err) {
+                  console.error('QRコード生成エラー:', err)
+                }
+                setDownloading(false)
+              }}
+              disabled={downloading}
+            >
+              {downloading ? '生成中...' : 'QRコードをダウンロード（印刷用）'}
+            </Button>
+          </CardContent>
+        </Card>
       )}
     </div>
   )

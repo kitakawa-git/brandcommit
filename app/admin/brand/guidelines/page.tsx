@@ -4,10 +4,12 @@
 // スローガン・コンセプトビジュアル・動画・メッセージ・MVV・ストーリー・沿革・事業内容・特性
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
-import { cn } from '@/lib/utils'
 import { useAuth } from '../../components/AuthProvider'
 import { ImageUpload } from '../../components/ImageUpload'
-import { commonStyles } from '../../components/AdminStyles'
+import { Card, CardContent } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 
 type ValueItem = { name: string; description: string }
 type HistoryItem = { year: string; event: string }
@@ -297,259 +299,261 @@ export default function BrandGuidelinesPage() {
   }
 
   if (loading) {
-    return <p className="text-gray-500 text-center p-10">読み込み中...</p>
+    return <p className="text-muted-foreground text-center p-10">読み込み中...</p>
   }
 
   if (fetchError) {
     return (
       <div className="text-center p-10">
         <p className="text-red-600 text-sm mb-3">{fetchError}</p>
-        <button onClick={fetchGuidelines} className={cn(commonStyles.buttonOutline, 'py-2 px-4 text-[13px]')}>再読み込み</button>
+        <Button variant="outline" onClick={fetchGuidelines} className="py-2 px-4 text-[13px]">再読み込み</Button>
       </div>
     )
   }
 
   return (
     <div>
-      <h2 className="text-xl font-bold text-gray-900 mb-6">
+      <h2 className="text-xl font-bold text-foreground mb-6">
         ブランド方針
       </h2>
 
-      <div className={commonStyles.card}>
-        {message && (
-          <div className={messageType === 'success' ? commonStyles.success : commonStyles.error}>
-            {message}
-          </div>
-        )}
+      <Card className="bg-muted/50 border shadow-none">
+        <CardContent className="p-6">
+          {message && (
+            <div className={messageType === 'success' ? 'bg-green-50 text-green-600 px-4 py-3 rounded-lg text-sm mb-4' : 'bg-red-50 text-red-600 px-4 py-3 rounded-lg text-sm mb-4'}>
+              {message}
+            </div>
+          )}
 
-        <form onSubmit={handleSubmit}>
-          {/* 1. スローガン */}
-          <div className={commonStyles.formGroup}>
-            <label className={commonStyles.label}>スローガン</label>
-            <input
-              type="text"
-              value={guidelines.slogan}
-              onChange={(e) => handleChange('slogan', e.target.value)}
-              placeholder="企業スローガン"
-              className={commonStyles.input}
-            />
-          </div>
+          <form onSubmit={handleSubmit}>
+            {/* 1. スローガン */}
+            <div className="mb-5">
+              <Label className="mb-1.5 font-bold">スローガン</Label>
+              <Input
+                type="text"
+                value={guidelines.slogan}
+                onChange={(e) => handleChange('slogan', e.target.value)}
+                placeholder="企業スローガン"
+                className="h-10"
+              />
+            </div>
 
-          {/* 2. コンセプトビジュアル */}
-          <div className={commonStyles.formGroup}>
-            <label className={commonStyles.label}>コンセプトビジュアル</label>
-            <ImageUpload
-              bucket="avatars"
-              folder="concept-visuals"
-              currentUrl={guidelines.concept_visual_url}
-              onUpload={(url) => handleChange('concept_visual_url', url)}
-            />
-          </div>
+            {/* 2. コンセプトビジュアル */}
+            <div className="mb-5">
+              <Label className="mb-1.5 font-bold">コンセプトビジュアル</Label>
+              <ImageUpload
+                bucket="avatars"
+                folder="concept-visuals"
+                currentUrl={guidelines.concept_visual_url}
+                onUpload={(url) => handleChange('concept_visual_url', url)}
+              />
+            </div>
 
-          {/* 3. ブランド動画URL */}
-          <div className={commonStyles.formGroup}>
-            <label className={commonStyles.label}>ブランド動画URL</label>
-            <input
-              type="text"
-              value={guidelines.brand_video_url}
-              onChange={(e) => handleChange('brand_video_url', e.target.value)}
-              placeholder="https://youtube.com/..."
-              className={commonStyles.input}
-            />
-          </div>
+            {/* 3. ブランド動画URL */}
+            <div className="mb-5">
+              <Label className="mb-1.5 font-bold">ブランド動画URL</Label>
+              <Input
+                type="text"
+                value={guidelines.brand_video_url}
+                onChange={(e) => handleChange('brand_video_url', e.target.value)}
+                placeholder="https://youtube.com/..."
+                className="h-10"
+              />
+            </div>
 
-          {/* 4. メッセージ（旧ブランドステートメント） */}
-          <div className={commonStyles.formGroup}>
-            <label className={commonStyles.label}>メッセージ</label>
-            <textarea
-              value={guidelines.brand_statement}
-              onChange={(e) => handleChange('brand_statement', e.target.value)}
-              placeholder="ブランドとしてのメッセージ"
-              className={cn(commonStyles.textarea, 'min-h-[100px]')}
-            />
-          </div>
+            {/* 4. メッセージ（旧ブランドステートメント） */}
+            <div className="mb-5">
+              <Label className="mb-1.5 font-bold">メッセージ</Label>
+              <textarea
+                value={guidelines.brand_statement}
+                onChange={(e) => handleChange('brand_statement', e.target.value)}
+                placeholder="ブランドとしてのメッセージ"
+                className="w-full px-3 py-2.5 border border-border rounded-lg text-sm outline-none resize-y min-h-[100px] focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+              />
+            </div>
 
-          {/* 5. ミッション */}
-          <div className={commonStyles.formGroup}>
-            <label className={commonStyles.label}>ミッション</label>
-            <textarea
-              value={guidelines.mission}
-              onChange={(e) => handleChange('mission', e.target.value)}
-              placeholder="私たちの使命は..."
-              className={cn(commonStyles.textarea, 'min-h-[100px]')}
-            />
-          </div>
+            {/* 5. ミッション */}
+            <div className="mb-5">
+              <Label className="mb-1.5 font-bold">ミッション</Label>
+              <textarea
+                value={guidelines.mission}
+                onChange={(e) => handleChange('mission', e.target.value)}
+                placeholder="私たちの使命は..."
+                className="w-full px-3 py-2.5 border border-border rounded-lg text-sm outline-none resize-y min-h-[100px] focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+              />
+            </div>
 
-          {/* 6. ビジョン */}
-          <div className={commonStyles.formGroup}>
-            <label className={commonStyles.label}>ビジョン</label>
-            <textarea
-              value={guidelines.vision}
-              onChange={(e) => handleChange('vision', e.target.value)}
-              placeholder="私たちが目指す未来は..."
-              className={cn(commonStyles.textarea, 'min-h-[100px]')}
-            />
-          </div>
+            {/* 6. ビジョン */}
+            <div className="mb-5">
+              <Label className="mb-1.5 font-bold">ビジョン</Label>
+              <textarea
+                value={guidelines.vision}
+                onChange={(e) => handleChange('vision', e.target.value)}
+                placeholder="私たちが目指す未来は..."
+                className="w-full px-3 py-2.5 border border-border rounded-lg text-sm outline-none resize-y min-h-[100px] focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+              />
+            </div>
 
-          {/* 7. バリュー */}
-          <div className={commonStyles.formGroup}>
-            <label className={commonStyles.label}>バリュー（最大10個）</label>
-            <p className="text-xs text-gray-500 mb-2">
-              企業が大切にする価値観を設定します
-            </p>
-            {guidelines.values.map((value, index) => (
-              <div key={index} className="flex gap-2 mb-2 items-start">
-                <input
-                  type="text"
-                  value={value.name}
-                  onChange={(e) => updateValue(index, 'name', e.target.value)}
-                  placeholder={`バリュー名 ${index + 1}`}
-                  className={cn(commonStyles.input, 'flex-1')}
-                />
-                <input
-                  type="text"
-                  value={value.description}
-                  onChange={(e) => updateValue(index, 'description', e.target.value)}
-                  placeholder="説明"
-                  className={cn(commonStyles.input, 'flex-[2]')}
-                />
-                <button type="button" onClick={() => removeValue(index)} className={cn(commonStyles.dangerButton, 'py-2 px-3.5 text-[13px] whitespace-nowrap')}>
-                  削除
-                </button>
-              </div>
-            ))}
-            {guidelines.values.length < 10 && (
-              <button type="button" onClick={addValue} className={cn(commonStyles.buttonOutline, 'py-2 px-4 text-[13px]')}>
-                + バリューを追加
-              </button>
-            )}
-          </div>
-
-          {/* 8. ブランドストーリー */}
-          <div className={commonStyles.formGroup}>
-            <label className={commonStyles.label}>ブランドストーリー</label>
-            <textarea
-              value={guidelines.brand_story}
-              onChange={(e) => handleChange('brand_story', e.target.value)}
-              placeholder="企業の成り立ちや想いを物語として..."
-              className={cn(commonStyles.textarea, 'min-h-[200px]')}
-            />
-          </div>
-
-          {/* 9. 沿革 */}
-          <div className={commonStyles.formGroup}>
-            <label className={commonStyles.label}>沿革</label>
-            <p className="text-xs text-gray-500 mb-2">
-              企業の歩みを年と出来事で記録します
-            </p>
-            {guidelines.history.map((item, index) => (
-              <div key={index} className="flex gap-2 mb-2 items-center">
-                <input
-                  type="text"
-                  value={item.year}
-                  onChange={(e) => updateHistory(index, 'year', e.target.value)}
-                  placeholder="年"
-                  className={cn(commonStyles.input, 'w-20 shrink-0')}
-                />
-                <input
-                  type="text"
-                  value={item.event}
-                  onChange={(e) => updateHistory(index, 'event', e.target.value)}
-                  placeholder="出来事"
-                  className={cn(commonStyles.input, 'flex-1')}
-                />
-                <button type="button" onClick={() => removeHistory(index)} className={cn(commonStyles.dangerButton, 'py-2 px-3.5 text-[13px] whitespace-nowrap')}>
-                  削除
-                </button>
-              </div>
-            ))}
-            <button type="button" onClick={addHistory} className={cn(commonStyles.buttonOutline, 'py-2 px-4 text-[13px]')}>
-              + 沿革を追加
-            </button>
-          </div>
-
-          {/* 10. 事業内容 */}
-          <div className={commonStyles.formGroup}>
-            <label className={commonStyles.label}>事業内容</label>
-            {guidelines.business_content.map((item, index) => (
-              <div key={index} className="border border-gray-200 rounded-lg p-3 mb-2">
-                <div className="flex gap-2 mb-2 items-center">
-                  <input
+            {/* 7. バリュー */}
+            <div className="mb-5">
+              <Label className="mb-1.5 font-bold">バリュー（最大10個）</Label>
+              <p className="text-xs text-muted-foreground mb-2">
+                企業が大切にする価値観を設定します
+              </p>
+              {guidelines.values.map((value, index) => (
+                <div key={index} className="flex gap-2 mb-2 items-start">
+                  <Input
                     type="text"
-                    value={item.title}
-                    onChange={(e) => updateBusiness(index, 'title', e.target.value)}
-                    placeholder="事業タイトル"
-                    className={cn(commonStyles.input, 'flex-1')}
+                    value={value.name}
+                    onChange={(e) => updateValue(index, 'name', e.target.value)}
+                    placeholder={`バリュー名 ${index + 1}`}
+                    className="h-10 flex-1"
                   />
-                  <button type="button" onClick={() => removeBusiness(index)} className={cn(commonStyles.dangerButton, 'py-2 px-3.5 text-[13px] whitespace-nowrap')}>
+                  <Input
+                    type="text"
+                    value={value.description}
+                    onChange={(e) => updateValue(index, 'description', e.target.value)}
+                    placeholder="説明"
+                    className="h-10 flex-[2]"
+                  />
+                  <Button type="button" variant="destructive" onClick={() => removeValue(index)} className="py-2 px-3.5 text-[13px] whitespace-nowrap">
                     削除
-                  </button>
+                  </Button>
                 </div>
-                <textarea
-                  value={item.description}
-                  onChange={(e) => updateBusiness(index, 'description', e.target.value)}
-                  placeholder="事業の説明"
-                  className={cn(commonStyles.textarea, 'min-h-[60px]')}
-                />
-              </div>
-            ))}
-            <button type="button" onClick={addBusiness} className={cn(commonStyles.buttonOutline, 'py-2 px-4 text-[13px]')}>
-              + 事業内容を追加
-            </button>
-          </div>
+              ))}
+              {guidelines.values.length < 10 && (
+                <Button type="button" variant="outline" onClick={addValue} className="py-2 px-4 text-[13px]">
+                  + バリューを追加
+                </Button>
+              )}
+            </div>
 
-          {/* 11. ブランド特性 */}
-          <div className={commonStyles.formGroup}>
-            <label className={commonStyles.label}>ブランド特性（最大5つ）</label>
-            <p className="text-xs text-gray-500 mb-2">
-              ブランドの性格を表す特性とスコア（1〜10）を設定します
-            </p>
-            {guidelines.traits.map((trait, index) => (
-              <div key={index} className="flex gap-2 mb-2 items-center">
-                <input
-                  type="text"
-                  value={trait.name}
-                  onChange={(e) => updateTrait(index, 'name', e.target.value)}
-                  placeholder="特性名"
-                  className={cn(commonStyles.input, 'flex-1')}
-                />
-                <input
-                  type="number"
-                  min={1}
-                  max={10}
-                  value={trait.score}
-                  onChange={(e) => updateTrait(index, 'score', parseInt(e.target.value) || 5)}
-                  className={cn(commonStyles.input, 'w-[70px] text-center')}
-                />
-                <input
-                  type="text"
-                  value={trait.description}
-                  onChange={(e) => updateTrait(index, 'description', e.target.value)}
-                  placeholder="この特性の説明"
-                  className={cn(commonStyles.input, 'flex-[2]')}
-                />
-                <button type="button" onClick={() => removeTrait(index)} className={cn(commonStyles.dangerButton, 'py-2 px-3.5 text-[13px] whitespace-nowrap')}>
-                  削除
-                </button>
-              </div>
-            ))}
-            {guidelines.traits.length < 5 && (
-              <button type="button" onClick={addTrait} className={cn(commonStyles.buttonOutline, 'py-2 px-4 text-[13px]')}>
-                + 特性を追加
-              </button>
-            )}
-          </div>
+            {/* 8. ブランドストーリー */}
+            <div className="mb-5">
+              <Label className="mb-1.5 font-bold">ブランドストーリー</Label>
+              <textarea
+                value={guidelines.brand_story}
+                onChange={(e) => handleChange('brand_story', e.target.value)}
+                placeholder="企業の成り立ちや想いを物語として..."
+                className="w-full px-3 py-2.5 border border-border rounded-lg text-sm outline-none resize-y min-h-[200px] focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+              />
+            </div>
 
-          {/* 保存ボタン */}
-          <button
-            type="submit"
-            disabled={saving}
-            className={cn(commonStyles.button, 'mt-2', saving && 'opacity-60')}
-          >
-            {saving ? '保存中...' : '保存する'}
-          </button>
-        </form>
-      </div>
+            {/* 9. 沿革 */}
+            <div className="mb-5">
+              <Label className="mb-1.5 font-bold">沿革</Label>
+              <p className="text-xs text-muted-foreground mb-2">
+                企業の歩みを年と出来事で記録します
+              </p>
+              {guidelines.history.map((item, index) => (
+                <div key={index} className="flex gap-2 mb-2 items-center">
+                  <Input
+                    type="text"
+                    value={item.year}
+                    onChange={(e) => updateHistory(index, 'year', e.target.value)}
+                    placeholder="年"
+                    className="h-10 w-20 shrink-0"
+                  />
+                  <Input
+                    type="text"
+                    value={item.event}
+                    onChange={(e) => updateHistory(index, 'event', e.target.value)}
+                    placeholder="出来事"
+                    className="h-10 flex-1"
+                  />
+                  <Button type="button" variant="destructive" onClick={() => removeHistory(index)} className="py-2 px-3.5 text-[13px] whitespace-nowrap">
+                    削除
+                  </Button>
+                </div>
+              ))}
+              <Button type="button" variant="outline" onClick={addHistory} className="py-2 px-4 text-[13px]">
+                + 沿革を追加
+              </Button>
+            </div>
+
+            {/* 10. 事業内容 */}
+            <div className="mb-5">
+              <Label className="mb-1.5 font-bold">事業内容</Label>
+              {guidelines.business_content.map((item, index) => (
+                <div key={index} className="border border-border rounded-lg p-3 mb-2">
+                  <div className="flex gap-2 mb-2 items-center">
+                    <Input
+                      type="text"
+                      value={item.title}
+                      onChange={(e) => updateBusiness(index, 'title', e.target.value)}
+                      placeholder="事業タイトル"
+                      className="h-10 flex-1"
+                    />
+                    <Button type="button" variant="destructive" onClick={() => removeBusiness(index)} className="py-2 px-3.5 text-[13px] whitespace-nowrap">
+                      削除
+                    </Button>
+                  </div>
+                  <textarea
+                    value={item.description}
+                    onChange={(e) => updateBusiness(index, 'description', e.target.value)}
+                    placeholder="事業の説明"
+                    className="w-full px-3 py-2.5 border border-border rounded-lg text-sm outline-none resize-y min-h-[60px] focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                  />
+                </div>
+              ))}
+              <Button type="button" variant="outline" onClick={addBusiness} className="py-2 px-4 text-[13px]">
+                + 事業内容を追加
+              </Button>
+            </div>
+
+            {/* 11. ブランド特性 */}
+            <div className="mb-5">
+              <Label className="mb-1.5 font-bold">ブランド特性（最大5つ）</Label>
+              <p className="text-xs text-muted-foreground mb-2">
+                ブランドの性格を表す特性とスコア（1〜10）を設定します
+              </p>
+              {guidelines.traits.map((trait, index) => (
+                <div key={index} className="flex gap-2 mb-2 items-center">
+                  <Input
+                    type="text"
+                    value={trait.name}
+                    onChange={(e) => updateTrait(index, 'name', e.target.value)}
+                    placeholder="特性名"
+                    className="h-10 flex-1"
+                  />
+                  <Input
+                    type="number"
+                    min={1}
+                    max={10}
+                    value={trait.score}
+                    onChange={(e) => updateTrait(index, 'score', parseInt(e.target.value) || 5)}
+                    className="h-10 w-[70px] text-center"
+                  />
+                  <Input
+                    type="text"
+                    value={trait.description}
+                    onChange={(e) => updateTrait(index, 'description', e.target.value)}
+                    placeholder="この特性の説明"
+                    className="h-10 flex-[2]"
+                  />
+                  <Button type="button" variant="destructive" onClick={() => removeTrait(index)} className="py-2 px-3.5 text-[13px] whitespace-nowrap">
+                    削除
+                  </Button>
+                </div>
+              ))}
+              {guidelines.traits.length < 5 && (
+                <Button type="button" variant="outline" onClick={addTrait} className="py-2 px-4 text-[13px]">
+                  + 特性を追加
+                </Button>
+              )}
+            </div>
+
+            {/* 保存ボタン */}
+            <Button
+              type="submit"
+              disabled={saving}
+              className={`mt-2 ${saving ? 'opacity-60' : ''}`}
+            >
+              {saving ? '保存中...' : '保存する'}
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
     </div>
   )
 }

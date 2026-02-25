@@ -3,9 +3,11 @@
 // ビジュアルアイデンティティ 編集ページ（1企業1レコード、upsert方式）
 import { useEffect, useState, useRef } from 'react'
 import { supabase } from '@/lib/supabase'
-import { cn } from '@/lib/utils'
 import { useAuth } from '../../components/AuthProvider'
-import { commonStyles } from '../../components/AdminStyles'
+import { Card, CardContent } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 
 type Fonts = {
   primary: string
@@ -316,7 +318,7 @@ export default function BrandVisualsPage() {
 
   if (loading) {
     return (
-      <p className="text-gray-500 text-center p-10">
+      <p className="text-muted-foreground text-center p-10">
         読み込み中...
       </p>
     )
@@ -326,210 +328,212 @@ export default function BrandVisualsPage() {
     return (
       <div className="text-center p-10">
         <p className="text-red-600 text-sm mb-3">{fetchError}</p>
-        <button onClick={fetchVisuals} className={cn(commonStyles.buttonOutline, 'py-2 px-4 text-[13px]')}>
+        <Button variant="outline" onClick={fetchVisuals} className="py-2 px-4 text-[13px]">
           再読み込み
-        </button>
+        </Button>
       </div>
     )
   }
 
   return (
     <div>
-      <h2 className="text-xl font-bold text-gray-900 mb-6">
+      <h2 className="text-xl font-bold text-foreground mb-6">
         ビジュアルアイデンティティ
       </h2>
 
-      <div className={commonStyles.card}>
-        {message && (
-          <div className={messageType === 'success' ? commonStyles.success : commonStyles.error}>
-            {message}
-          </div>
-        )}
+      <Card className="bg-muted/50 border shadow-none">
+        <CardContent className="p-6">
+          {message && (
+            <div className={messageType === 'success' ? 'bg-green-50 text-green-600 px-4 py-3 rounded-lg text-sm mb-4' : 'bg-red-50 text-red-600 px-4 py-3 rounded-lg text-sm mb-4'}>
+              {message}
+            </div>
+          )}
 
-        <form onSubmit={handleSubmit}>
-          {/* ロゴコンセプト */}
-          <div className={commonStyles.formGroup}>
-            <label className={commonStyles.label}>ロゴコンセプト</label>
-            <textarea
-              value={visuals.logo_concept}
-              onChange={(e) => handleChange('logo_concept', e.target.value)}
-              placeholder="ロゴに込めた意味やコンセプトを記述"
-              className={cn(commonStyles.textarea, 'min-h-[100px]')}
-            />
-          </div>
+          <form onSubmit={handleSubmit}>
+            {/* ロゴコンセプト */}
+            <div className="mb-5">
+              <Label className="mb-1.5 font-bold">ロゴコンセプト</Label>
+              <textarea
+                value={visuals.logo_concept}
+                onChange={(e) => handleChange('logo_concept', e.target.value)}
+                placeholder="ロゴに込めた意味やコンセプトを記述"
+                className="w-full px-3 py-2.5 border border-border rounded-lg text-sm outline-none resize-y min-h-[100px] focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+              />
+            </div>
 
-          {/* ロゴガイドライン */}
-          <div className="mb-5 pb-5 border-b border-gray-200">
-            <h3 className="text-[15px] font-bold text-gray-900 mb-4">
-              ロゴガイドライン
-            </h3>
+            {/* ロゴガイドライン */}
+            <div className="mb-5 pb-5 border-b border-border">
+              <h3 className="text-[15px] font-bold text-foreground mb-4">
+                ロゴガイドライン
+              </h3>
 
-            {visuals.logo_sections.map((section, sIdx) => (
-              <div key={sIdx} className="border border-gray-200 rounded-lg p-4 mb-3">
-                {/* セクションヘッダー */}
-                <div className="flex items-center gap-2 mb-3">
-                  <input
-                    type="text"
-                    value={section.title}
-                    onChange={(e) => updateSectionTitle(sIdx, e.target.value)}
-                    placeholder="セクションタイトル（例: ロゴ、余白の指定、禁止事項）"
-                    className={cn(commonStyles.input, 'flex-1')}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => removeSection(sIdx)}
-                    className="py-2 px-3 bg-transparent text-red-600 border border-red-600 rounded-md text-[13px] cursor-pointer whitespace-nowrap"
-                  >
-                    削除
-                  </button>
-                </div>
-
-                {/* 画像一覧 */}
-                {section.items.length > 0 && (
-                  <div className="grid grid-cols-[repeat(auto-fill,minmax(160px,1fr))] gap-3 mb-3">
-                    {section.items.map((item, iIdx) => (
-                      <div key={iIdx} className="border border-gray-200 rounded-lg overflow-hidden bg-gray-50">
-                        <div className="p-2 flex items-center justify-center min-h-[100px] bg-gray-100">
-                          <img
-                            src={item.url}
-                            alt={item.caption || ''}
-                            className="max-w-full max-h-[100px] object-contain"
-                          />
-                        </div>
-                        <div className="p-2">
-                          <input
-                            type="text"
-                            value={item.caption}
-                            onChange={(e) => updateCaption(sIdx, iIdx, e.target.value)}
-                            placeholder="キャプション"
-                            className={cn(commonStyles.input, 'text-xs py-1.5 px-2')}
-                          />
-                          <button
-                            type="button"
-                            onClick={() => removeImage(sIdx, iIdx)}
-                            className="mt-1.5 py-1 px-2 bg-transparent text-red-600 border-none text-xs cursor-pointer w-full text-center"
-                          >
-                            画像を削除
-                          </button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                {/* 画像追加 */}
-                {section.items.length < 10 && (
-                  <div>
-                    <input
-                      ref={(el) => { fileInputRefs.current[`file-${sIdx}`] = el }}
-                      type="file"
-                      accept="image/png,image/jpeg,image/svg+xml"
-                      className="hidden"
-                      onChange={(e) => {
-                        const file = e.target.files?.[0]
-                        if (file) handleImageUpload(sIdx, file)
-                        e.target.value = ''
-                      }}
+              {visuals.logo_sections.map((section, sIdx) => (
+                <div key={sIdx} className="border border-border rounded-lg p-4 mb-3">
+                  {/* セクションヘッダー */}
+                  <div className="flex items-center gap-2 mb-3">
+                    <Input
+                      type="text"
+                      value={section.title}
+                      onChange={(e) => updateSectionTitle(sIdx, e.target.value)}
+                      placeholder="セクションタイトル（例: ロゴ、余白の指定、禁止事項）"
+                      className="h-10 flex-1"
                     />
                     <button
                       type="button"
-                      disabled={uploadingMap[`${sIdx}`]}
-                      onClick={() => fileInputRefs.current[`file-${sIdx}`]?.click()}
-                      className="py-1.5 px-3.5 bg-transparent text-gray-500 border border-dashed border-gray-300 rounded-md text-[13px] cursor-pointer"
+                      onClick={() => removeSection(sIdx)}
+                      className="py-2 px-3 bg-transparent text-red-600 border border-red-600 rounded-md text-[13px] cursor-pointer whitespace-nowrap"
                     >
-                      {uploadingMap[`${sIdx}`] ? 'アップロード中...' : '+ 画像を追加'}
+                      削除
                     </button>
                   </div>
-                )}
+
+                  {/* 画像一覧 */}
+                  {section.items.length > 0 && (
+                    <div className="grid grid-cols-[repeat(auto-fill,minmax(160px,1fr))] gap-3 mb-3">
+                      {section.items.map((item, iIdx) => (
+                        <div key={iIdx} className="border border-border rounded-lg overflow-hidden bg-gray-50">
+                          <div className="p-2 flex items-center justify-center min-h-[100px] bg-gray-100">
+                            <img
+                              src={item.url}
+                              alt={item.caption || ''}
+                              className="max-w-full max-h-[100px] object-contain"
+                            />
+                          </div>
+                          <div className="p-2">
+                            <Input
+                              type="text"
+                              value={item.caption}
+                              onChange={(e) => updateCaption(sIdx, iIdx, e.target.value)}
+                              placeholder="キャプション"
+                              className="text-xs py-1.5 px-2"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => removeImage(sIdx, iIdx)}
+                              className="mt-1.5 py-1 px-2 bg-transparent text-red-600 border-none text-xs cursor-pointer w-full text-center"
+                            >
+                              画像を削除
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* 画像追加 */}
+                  {section.items.length < 10 && (
+                    <div>
+                      <input
+                        ref={(el) => { fileInputRefs.current[`file-${sIdx}`] = el }}
+                        type="file"
+                        accept="image/png,image/jpeg,image/svg+xml"
+                        className="hidden"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0]
+                          if (file) handleImageUpload(sIdx, file)
+                          e.target.value = ''
+                        }}
+                      />
+                      <button
+                        type="button"
+                        disabled={uploadingMap[`${sIdx}`]}
+                        onClick={() => fileInputRefs.current[`file-${sIdx}`]?.click()}
+                        className="py-1.5 px-3.5 bg-transparent text-muted-foreground border border-dashed border-muted-foreground/50 rounded-md text-[13px] cursor-pointer"
+                      >
+                        {uploadingMap[`${sIdx}`] ? 'アップロード中...' : '+ 画像を追加'}
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ))}
+
+              {visuals.logo_sections.length < 10 && (
+                <button
+                  type="button"
+                  onClick={addSection}
+                  className="py-2 px-4 bg-transparent text-blue-600 border border-blue-600 rounded-md text-[13px] cursor-pointer"
+                >
+                  + セクションを追加
+                </button>
+              )}
+            </div>
+
+            {/* カラー */}
+            <div className="mb-5">
+              <Label className="mb-1.5 font-bold">プライマリカラー</Label>
+              <div className="flex items-center gap-3">
+                <input type="color" value={visuals.primary_color} onChange={(e) => handleChange('primary_color', e.target.value)} className="w-12 h-12 border border-border rounded-lg cursor-pointer p-0.5" />
+                <Input type="text" value={visuals.primary_color} onChange={(e) => handleChange('primary_color', e.target.value)} className="h-10 w-[140px]" />
+                <div className="w-20 h-10 rounded-md border border-border" style={{ backgroundColor: visuals.primary_color }} />
               </div>
-            ))}
-
-            {visuals.logo_sections.length < 10 && (
-              <button
-                type="button"
-                onClick={addSection}
-                className="py-2 px-4 bg-transparent text-blue-600 border border-blue-600 rounded-md text-[13px] cursor-pointer"
-              >
-                + セクションを追加
-              </button>
-            )}
-          </div>
-
-          {/* カラー */}
-          <div className={commonStyles.formGroup}>
-            <label className={commonStyles.label}>プライマリカラー</label>
-            <div className="flex items-center gap-3">
-              <input type="color" value={visuals.primary_color} onChange={(e) => handleChange('primary_color', e.target.value)} className="w-12 h-12 border border-gray-300 rounded-lg cursor-pointer p-0.5" />
-              <input type="text" value={visuals.primary_color} onChange={(e) => handleChange('primary_color', e.target.value)} className={cn(commonStyles.input, 'w-[140px]')} />
-              <div className="w-20 h-10 rounded-md border border-gray-200" style={{ backgroundColor: visuals.primary_color }} />
             </div>
-          </div>
-          <div className={commonStyles.formGroup}>
-            <label className={commonStyles.label}>セカンダリカラー</label>
-            <div className="flex items-center gap-3">
-              <input type="color" value={visuals.secondary_color} onChange={(e) => handleChange('secondary_color', e.target.value)} className="w-12 h-12 border border-gray-300 rounded-lg cursor-pointer p-0.5" />
-              <input type="text" value={visuals.secondary_color} onChange={(e) => handleChange('secondary_color', e.target.value)} className={cn(commonStyles.input, 'w-[140px]')} />
-              <div className="w-20 h-10 rounded-md border border-gray-200" style={{ backgroundColor: visuals.secondary_color }} />
+            <div className="mb-5">
+              <Label className="mb-1.5 font-bold">セカンダリカラー</Label>
+              <div className="flex items-center gap-3">
+                <input type="color" value={visuals.secondary_color} onChange={(e) => handleChange('secondary_color', e.target.value)} className="w-12 h-12 border border-border rounded-lg cursor-pointer p-0.5" />
+                <Input type="text" value={visuals.secondary_color} onChange={(e) => handleChange('secondary_color', e.target.value)} className="h-10 w-[140px]" />
+                <div className="w-20 h-10 rounded-md border border-border" style={{ backgroundColor: visuals.secondary_color }} />
+              </div>
             </div>
-          </div>
-          <div className={commonStyles.formGroup}>
-            <label className={commonStyles.label}>アクセントカラー</label>
-            <div className="flex items-center gap-3">
-              <input type="color" value={visuals.accent_color} onChange={(e) => handleChange('accent_color', e.target.value)} className="w-12 h-12 border border-gray-300 rounded-lg cursor-pointer p-0.5" />
-              <input type="text" value={visuals.accent_color} onChange={(e) => handleChange('accent_color', e.target.value)} className={cn(commonStyles.input, 'w-[140px]')} />
-              <div className="w-20 h-10 rounded-md border border-gray-200" style={{ backgroundColor: visuals.accent_color }} />
+            <div className="mb-5">
+              <Label className="mb-1.5 font-bold">アクセントカラー</Label>
+              <div className="flex items-center gap-3">
+                <input type="color" value={visuals.accent_color} onChange={(e) => handleChange('accent_color', e.target.value)} className="w-12 h-12 border border-border rounded-lg cursor-pointer p-0.5" />
+                <Input type="text" value={visuals.accent_color} onChange={(e) => handleChange('accent_color', e.target.value)} className="h-10 w-[140px]" />
+                <div className="w-20 h-10 rounded-md border border-border" style={{ backgroundColor: visuals.accent_color }} />
+              </div>
             </div>
-          </div>
 
-          {/* フォント設定 */}
-          <div className="mt-2 mb-5 pt-5 border-t border-gray-200">
-            <h3 className="text-[15px] font-bold text-gray-900 mb-4">
-              フォント設定
-            </h3>
+            {/* フォント設定 */}
+            <div className="mt-2 mb-5 pt-5 border-t border-border">
+              <h3 className="text-[15px] font-bold text-foreground mb-4">
+                フォント設定
+              </h3>
 
-            <div className={commonStyles.formGroup}>
-              <label className={commonStyles.label}>プライマリフォント</label>
-              <input
-                type="text"
-                value={visuals.fonts.primary}
-                onChange={(e) => handleFontChange('primary', e.target.value)}
-                placeholder="Noto Sans JP"
-                className={commonStyles.input}
+              <div className="mb-5">
+                <Label className="mb-1.5 font-bold">プライマリフォント</Label>
+                <Input
+                  type="text"
+                  value={visuals.fonts.primary}
+                  onChange={(e) => handleFontChange('primary', e.target.value)}
+                  placeholder="Noto Sans JP"
+                  className="h-10"
+                />
+              </div>
+
+              <div className="mb-5">
+                <Label className="mb-1.5 font-bold">セカンダリフォント</Label>
+                <Input
+                  type="text"
+                  value={visuals.fonts.secondary}
+                  onChange={(e) => handleFontChange('secondary', e.target.value)}
+                  placeholder="Inter"
+                  className="h-10"
+                />
+              </div>
+            </div>
+
+            {/* ビジュアルガイドライン */}
+            <div className="mb-5">
+              <Label className="mb-1.5 font-bold">ビジュアルガイドライン</Label>
+              <textarea
+                value={visuals.visual_guidelines}
+                onChange={(e) => handleChange('visual_guidelines', e.target.value)}
+                placeholder="写真のトーン、イラストのスタイルなど"
+                className="w-full px-3 py-2.5 border border-border rounded-lg text-sm outline-none resize-y min-h-[100px] focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
               />
             </div>
 
-            <div className={commonStyles.formGroup}>
-              <label className={commonStyles.label}>セカンダリフォント</label>
-              <input
-                type="text"
-                value={visuals.fonts.secondary}
-                onChange={(e) => handleFontChange('secondary', e.target.value)}
-                placeholder="Inter"
-                className={commonStyles.input}
-              />
-            </div>
-          </div>
-
-          {/* ビジュアルガイドライン */}
-          <div className={commonStyles.formGroup}>
-            <label className={commonStyles.label}>ビジュアルガイドライン</label>
-            <textarea
-              value={visuals.visual_guidelines}
-              onChange={(e) => handleChange('visual_guidelines', e.target.value)}
-              placeholder="写真のトーン、イラストのスタイルなど"
-              className={cn(commonStyles.textarea, 'min-h-[100px]')}
-            />
-          </div>
-
-          <button
-            type="submit"
-            disabled={saving}
-            className={cn(commonStyles.button, 'mt-2', saving && 'opacity-60')}
-          >
-            {saving ? '保存中...' : '保存する'}
-          </button>
-        </form>
-      </div>
+            <Button
+              type="submit"
+              disabled={saving}
+              className={`mt-2 ${saving ? 'opacity-60' : ''}`}
+            >
+              {saving ? '保存中...' : '保存する'}
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
     </div>
   )
 }

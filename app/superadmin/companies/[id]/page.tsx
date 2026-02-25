@@ -5,8 +5,10 @@ import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
-import { commonStyles } from '../../../admin/components/AdminStyles'
-import { cn } from '@/lib/utils'
+import { Card, CardContent } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import { ArrowLeft } from 'lucide-react'
 
 type Company = {
@@ -166,7 +168,7 @@ export default function CompanyDetailPage() {
 
   if (loading) {
     return (
-      <p className="text-gray-500 text-center p-10">
+      <p className="text-muted-foreground text-center p-10">
         読み込み中...
       </p>
     )
@@ -174,7 +176,7 @@ export default function CompanyDetailPage() {
 
   if (!company) {
     return (
-      <p className="text-gray-500 text-center p-10">
+      <p className="text-muted-foreground text-center p-10">
         企業が見つかりません
       </p>
     )
@@ -185,12 +187,12 @@ export default function CompanyDetailPage() {
       {/* ナビ */}
       <Link
         href="/superadmin/companies"
-        className="text-gray-500 no-underline text-sm inline-block mb-4"
+        className="text-muted-foreground no-underline text-sm inline-block mb-4"
       >
         <ArrowLeft size={14} className="inline" /> 企業一覧に戻る
       </Link>
 
-      <h2 className="text-xl font-bold text-gray-900 mb-6">
+      <h2 className="text-xl font-bold text-foreground mb-6">
         {company.name}
       </h2>
 
@@ -201,222 +203,230 @@ export default function CompanyDetailPage() {
           { label: '今月', value: viewStats.month, color: '#16a34a' },
           { label: '今週', value: viewStats.week, color: '#f59e0b' },
         ].map((stat) => (
-          <div key={stat.label} className={cn(commonStyles.card, 'text-center p-5')}>
-            <p className="text-xs text-gray-500 mb-1.5">
-              📊 {stat.label}
-            </p>
-            <p className="text-[28px] font-bold m-0" style={{ color: stat.color }}>
-              {stat.value.toLocaleString()}
-            </p>
-          </div>
+          <Card key={stat.label} className="bg-muted/50 border shadow-none">
+            <CardContent className="text-center p-5">
+              <p className="text-xs text-muted-foreground mb-1.5">
+                {stat.label}
+              </p>
+              <p className="text-[28px] font-bold m-0" style={{ color: stat.color }}>
+                {stat.value.toLocaleString()}
+              </p>
+            </CardContent>
+          </Card>
         ))}
       </div>
 
       {/* === 企業情報編集セクション === */}
-      <div className={cn(commonStyles.card, 'mb-6')}>
-        <h3 className="text-base font-bold text-gray-900 mb-4">
-          企業情報
-        </h3>
+      <Card className="bg-muted/50 border shadow-none mb-6">
+        <CardContent className="p-6">
+          <h3 className="text-base font-bold text-foreground mb-4">
+            企業情報
+          </h3>
 
-        {message && (
-          <div className={messageType === 'success' ? commonStyles.success : commonStyles.error}>
-            {message}
-          </div>
-        )}
+          {message && (
+            <div className={messageType === 'success' ? 'bg-green-50 text-green-600 px-4 py-3 rounded-lg text-sm mb-4' : 'bg-red-50 text-red-600 px-4 py-3 rounded-lg text-sm mb-4'}>
+              {message}
+            </div>
+          )}
 
-        <form onSubmit={handleSave}>
-          <div className={commonStyles.formGroup}>
-            <label className={commonStyles.label}>企業名</label>
-            <input
-              type="text"
-              value={editName}
-              onChange={(e) => setEditName(e.target.value)}
-              className={commonStyles.input}
-            />
-          </div>
-
-          <div className={commonStyles.formGroup}>
-            <label className={commonStyles.label}>スローガン</label>
-            <input
-              type="text"
-              value={editSlogan}
-              onChange={(e) => setEditSlogan(e.target.value)}
-              className={commonStyles.input}
-            />
-          </div>
-
-          <div className={commonStyles.formGroup}>
-            <label className={commonStyles.label}>ミッション・ビジョン・バリュー</label>
-            <textarea
-              value={editMvv}
-              onChange={(e) => setEditMvv(e.target.value)}
-              className={cn(commonStyles.textarea, 'min-h-[100px]')}
-            />
-          </div>
-
-          <div className={commonStyles.formGroup}>
-            <label className={commonStyles.label}>ブランドカラー（プライマリ）</label>
-            <div className="flex items-center gap-3">
-              <input
-                type="color"
-                value={editBrandColorPrimary}
-                onChange={(e) => setEditBrandColorPrimary(e.target.value)}
-                className="w-12 h-12 border border-gray-300 rounded-lg cursor-pointer p-0.5"
-              />
-              <input
+          <form onSubmit={handleSave}>
+            <div className="mb-5">
+              <Label className="mb-1.5 font-bold">企業名</Label>
+              <Input
                 type="text"
-                value={editBrandColorPrimary}
-                onChange={(e) => setEditBrandColorPrimary(e.target.value)}
-                className={cn(commonStyles.input, 'w-[140px]')}
-              />
-              <div
-                className="w-20 h-10 rounded-md border border-gray-200"
-                style={{ backgroundColor: editBrandColorPrimary }}
+                value={editName}
+                onChange={(e) => setEditName(e.target.value)}
+                className="h-10"
               />
             </div>
-          </div>
 
-          <div className={commonStyles.formGroup}>
-            <label className={commonStyles.label}>ブランドカラー（セカンダリ）</label>
-            <div className="flex items-center gap-3">
-              <input
-                type="color"
-                value={editBrandColorSecondary}
-                onChange={(e) => setEditBrandColorSecondary(e.target.value)}
-                className="w-12 h-12 border border-gray-300 rounded-lg cursor-pointer p-0.5"
-              />
-              <input
+            <div className="mb-5">
+              <Label className="mb-1.5 font-bold">スローガン</Label>
+              <Input
                 type="text"
-                value={editBrandColorSecondary}
-                onChange={(e) => setEditBrandColorSecondary(e.target.value)}
-                className={cn(commonStyles.input, 'w-[140px]')}
-              />
-              <div
-                className="w-20 h-10 rounded-md border border-gray-200"
-                style={{ backgroundColor: editBrandColorSecondary }}
+                value={editSlogan}
+                onChange={(e) => setEditSlogan(e.target.value)}
+                className="h-10"
               />
             </div>
-          </div>
 
-          <div className={commonStyles.formGroup}>
-            <label className={commonStyles.label}>Webサイト URL</label>
-            <input
-              type="url"
-              value={editWebsiteUrl}
-              onChange={(e) => setEditWebsiteUrl(e.target.value)}
-              className={commonStyles.input}
-            />
-          </div>
+            <div className="mb-5">
+              <Label className="mb-1.5 font-bold">ミッション・ビジョン・バリュー</Label>
+              <textarea
+                value={editMvv}
+                onChange={(e) => setEditMvv(e.target.value)}
+                className="w-full px-3 py-2.5 border border-border rounded-lg text-sm outline-none resize-y min-h-[100px] focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+              />
+            </div>
 
-          <button
-            type="submit"
-            disabled={saving}
-            className={cn(commonStyles.button, 'bg-[#1e3a5f] hover:bg-[#2a4a6f]', saving && 'opacity-60')}
-          >
-            {saving ? '保存中...' : '保存する'}
-          </button>
-        </form>
-      </div>
+            <div className="mb-5">
+              <Label className="mb-1.5 font-bold">ブランドカラー（プライマリ）</Label>
+              <div className="flex items-center gap-3">
+                <input
+                  type="color"
+                  value={editBrandColorPrimary}
+                  onChange={(e) => setEditBrandColorPrimary(e.target.value)}
+                  className="w-12 h-12 border border-border rounded-lg cursor-pointer p-0.5"
+                />
+                <Input
+                  type="text"
+                  value={editBrandColorPrimary}
+                  onChange={(e) => setEditBrandColorPrimary(e.target.value)}
+                  className="h-10 w-[140px]"
+                />
+                <div
+                  className="w-20 h-10 rounded-md border border-border"
+                  style={{ backgroundColor: editBrandColorPrimary }}
+                />
+              </div>
+            </div>
+
+            <div className="mb-5">
+              <Label className="mb-1.5 font-bold">ブランドカラー（セカンダリ）</Label>
+              <div className="flex items-center gap-3">
+                <input
+                  type="color"
+                  value={editBrandColorSecondary}
+                  onChange={(e) => setEditBrandColorSecondary(e.target.value)}
+                  className="w-12 h-12 border border-border rounded-lg cursor-pointer p-0.5"
+                />
+                <Input
+                  type="text"
+                  value={editBrandColorSecondary}
+                  onChange={(e) => setEditBrandColorSecondary(e.target.value)}
+                  className="h-10 w-[140px]"
+                />
+                <div
+                  className="w-20 h-10 rounded-md border border-border"
+                  style={{ backgroundColor: editBrandColorSecondary }}
+                />
+              </div>
+            </div>
+
+            <div className="mb-5">
+              <Label className="mb-1.5 font-bold">Webサイト URL</Label>
+              <Input
+                type="url"
+                value={editWebsiteUrl}
+                onChange={(e) => setEditWebsiteUrl(e.target.value)}
+                className="h-10"
+              />
+            </div>
+
+            <Button
+              type="submit"
+              disabled={saving}
+              className={`bg-[#1e3a5f] hover:bg-[#2a4a6f] ${saving ? 'opacity-60' : ''}`}
+            >
+              {saving ? '保存中...' : '保存する'}
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
 
       {/* === 社員一覧セクション === */}
-      <div className={cn(commonStyles.card, 'mb-6')}>
-        <h3 className="text-base font-bold text-gray-900 mb-4">
-          従業員一覧（{profiles.length}名）
-        </h3>
+      <Card className="bg-muted/50 border shadow-none mb-6">
+        <CardContent className="p-6">
+          <h3 className="text-base font-bold text-foreground mb-4">
+            従業員一覧（{profiles.length}名）
+          </h3>
 
-        {profiles.length === 0 ? (
-          <p className="text-gray-500 text-sm">
-            従業員が登録されていません
-          </p>
-        ) : (
-          <table className={commonStyles.table}>
-            <thead>
-              <tr>
-                <th className={commonStyles.th}>名前</th>
-                <th className={commonStyles.th}>部署</th>
-                <th className={commonStyles.th}>役職</th>
-                <th className={commonStyles.th}>メール</th>
-                <th className={commonStyles.th}>slug</th>
-              </tr>
-            </thead>
-            <tbody>
-              {profiles.map((profile) => (
-                <tr key={profile.id}>
-                  <td className={cn(commonStyles.td, 'font-semibold')}>{profile.name}</td>
-                  <td className={cn(commonStyles.td, 'text-gray-500')}>
-                    {profile.department || '—'}
-                  </td>
-                  <td className={cn(commonStyles.td, 'text-gray-500')}>
-                    {profile.position || '—'}
-                  </td>
-                  <td className={cn(commonStyles.td, 'text-gray-500 text-[13px]')}>
-                    {profile.email || '—'}
-                  </td>
-                  <td className={cn(commonStyles.td, 'text-[13px]')}>
-                    <Link
-                      href={`/card/${profile.slug}`}
-                      target="_blank"
-                      className="text-blue-600 no-underline"
-                    >
-                      {profile.slug}
-                    </Link>
-                  </td>
+          {profiles.length === 0 ? (
+            <p className="text-muted-foreground text-sm">
+              従業員が登録されていません
+            </p>
+          ) : (
+            <table className="w-full border-collapse text-sm">
+              <thead>
+                <tr>
+                  <th className="text-left px-4 py-3 bg-muted text-muted-foreground font-semibold border-b border-border text-xs">名前</th>
+                  <th className="text-left px-4 py-3 bg-muted text-muted-foreground font-semibold border-b border-border text-xs">部署</th>
+                  <th className="text-left px-4 py-3 bg-muted text-muted-foreground font-semibold border-b border-border text-xs">役職</th>
+                  <th className="text-left px-4 py-3 bg-muted text-muted-foreground font-semibold border-b border-border text-xs">メール</th>
+                  <th className="text-left px-4 py-3 bg-muted text-muted-foreground font-semibold border-b border-border text-xs">slug</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-      </div>
+              </thead>
+              <tbody>
+                {profiles.map((profile) => (
+                  <tr key={profile.id}>
+                    <td className="px-4 py-3 border-b border-border text-foreground font-semibold">{profile.name}</td>
+                    <td className="px-4 py-3 border-b border-border text-muted-foreground">
+                      {profile.department || '—'}
+                    </td>
+                    <td className="px-4 py-3 border-b border-border text-muted-foreground">
+                      {profile.position || '—'}
+                    </td>
+                    <td className="px-4 py-3 border-b border-border text-muted-foreground text-[13px]">
+                      {profile.email || '—'}
+                    </td>
+                    <td className="px-4 py-3 border-b border-border text-foreground text-[13px]">
+                      <Link
+                        href={`/card/${profile.slug}`}
+                        target="_blank"
+                        className="text-blue-600 no-underline"
+                      >
+                        {profile.slug}
+                      </Link>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </CardContent>
+      </Card>
 
       {/* === 管理者一覧セクション === */}
-      <div className={commonStyles.card}>
-        <h3 className="text-base font-bold text-gray-900 mb-4">
-          管理者（{adminUsers.length}名）
-        </h3>
+      <Card className="bg-muted/50 border shadow-none">
+        <CardContent className="p-6">
+          <h3 className="text-base font-bold text-foreground mb-4">
+            管理者（{adminUsers.length}名）
+          </h3>
 
-        {adminUsers.length === 0 ? (
-          <p className="text-gray-500 text-sm">
-            管理者が登録されていません
-          </p>
-        ) : (
-          <table className={commonStyles.table}>
-            <thead>
-              <tr>
-                <th className={commonStyles.th}>権限</th>
-                <th className={commonStyles.th}>スーパー管理者</th>
-                <th className={commonStyles.th}>登録日</th>
-              </tr>
-            </thead>
-            <tbody>
-              {adminUsers.map((admin) => (
-                <tr key={admin.id}>
-                  <td className={commonStyles.td}>
-                    <span
-                      className="py-0.5 px-2 rounded text-xs font-semibold"
-                      style={{
-                        backgroundColor: admin.role === 'owner' ? '#dbeafe' : '#f3f4f6',
-                        color: admin.role === 'owner' ? '#1e40af' : '#6b7280',
-                      }}
-                    >
-                      {admin.role}
-                    </span>
-                  </td>
-                  <td className={commonStyles.td}>
-                    {admin.is_superadmin ? (
-                      <span className="py-0.5 px-2 bg-amber-100 text-amber-800 rounded text-xs font-semibold">
-                        YES
-                      </span>
-                    ) : '—'}
-                  </td>
-                  <td className={cn(commonStyles.td, 'text-gray-500 text-[13px]')}>
-                    {new Date(admin.created_at).toLocaleDateString('ja-JP')}
-                  </td>
+          {adminUsers.length === 0 ? (
+            <p className="text-muted-foreground text-sm">
+              管理者が登録されていません
+            </p>
+          ) : (
+            <table className="w-full border-collapse text-sm">
+              <thead>
+                <tr>
+                  <th className="text-left px-4 py-3 bg-muted text-muted-foreground font-semibold border-b border-border text-xs">権限</th>
+                  <th className="text-left px-4 py-3 bg-muted text-muted-foreground font-semibold border-b border-border text-xs">スーパー管理者</th>
+                  <th className="text-left px-4 py-3 bg-muted text-muted-foreground font-semibold border-b border-border text-xs">登録日</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-      </div>
+              </thead>
+              <tbody>
+                {adminUsers.map((admin) => (
+                  <tr key={admin.id}>
+                    <td className="px-4 py-3 border-b border-border text-foreground">
+                      <span
+                        className="py-0.5 px-2 rounded text-xs font-semibold"
+                        style={{
+                          backgroundColor: admin.role === 'owner' ? '#dbeafe' : '#f3f4f6',
+                          color: admin.role === 'owner' ? '#1e40af' : '#6b7280',
+                        }}
+                      >
+                        {admin.role}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 border-b border-border text-foreground">
+                      {admin.is_superadmin ? (
+                        <span className="py-0.5 px-2 bg-amber-100 text-amber-800 rounded text-xs font-semibold">
+                          YES
+                        </span>
+                      ) : '—'}
+                    </td>
+                    <td className="px-4 py-3 border-b border-border text-muted-foreground text-[13px]">
+                      {new Date(admin.created_at).toLocaleDateString('ja-JP')}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </CardContent>
+      </Card>
     </div>
   )
 }

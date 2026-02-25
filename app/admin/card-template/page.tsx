@@ -4,8 +4,8 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '../components/AuthProvider'
-import { commonStyles } from '../components/AdminStyles'
-import { cn } from '@/lib/utils'
+import { Card, CardContent } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
 import {
   generatePreviewQRDataURL,
   generateHighResQRDataURL,
@@ -98,78 +98,83 @@ export default function CardTemplatePage() {
     <div>
       {/* ページヘッダー */}
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-xl font-bold text-gray-900">
+        <h2 className="text-xl font-bold text-foreground">
           QRコード出力
         </h2>
-        <button
+        <Button
           onClick={handleBulkDownload}
           disabled={bulkDownloading || members.length === 0}
-          className={cn(commonStyles.button, (bulkDownloading || members.length === 0) && 'opacity-60')}
+          className={bulkDownloading || members.length === 0 ? 'opacity-60' : ''}
         >
           {bulkDownloading ? '生成中...' : '一括ダウンロード（ZIP）'}
-        </button>
+        </Button>
       </div>
 
       {/* 印刷ガイド */}
-      <div className={cn(commonStyles.card, 'mb-6 bg-sky-50 border-sky-200')}>
-        <h3 className="text-[15px] font-bold text-gray-900 mb-3">
-          印刷ガイド
-        </h3>
-        <ul className="m-0 pl-5 text-sm text-gray-900 leading-8">
-          <li>推奨サイズ: <strong>20mm x 20mm</strong>（名刺裏面に最適）</li>
-          <li>推奨配置: 名刺裏面の右下または中央</li>
-          <li>解像度: 1000 x 1000 px（300dpi相当の印刷用高解像度）</li>
-          <li>形式: PNG（白背景）</li>
-          <li>余白を確保し、QRコードの周囲に最低2mmの白マージンを設けてください</li>
-          <li>読み取りテスト: 印刷後、スマートフォンで読み取れることを必ず確認してください</li>
-        </ul>
-      </div>
+      <Card className="bg-sky-50 border-sky-200 shadow-none mb-6">
+        <CardContent className="p-6">
+          <h3 className="text-[15px] font-bold text-foreground mb-3">
+            印刷ガイド
+          </h3>
+          <ul className="m-0 pl-5 text-sm text-foreground leading-8">
+            <li>推奨サイズ: <strong>20mm x 20mm</strong>（名刺裏面に最適）</li>
+            <li>推奨配置: 名刺裏面の右下または中央</li>
+            <li>解像度: 1000 x 1000 px（300dpi相当の印刷用高解像度）</li>
+            <li>形式: PNG（白背景）</li>
+            <li>余白を確保し、QRコードの周囲に最低2mmの白マージンを設けてください</li>
+            <li>読み取りテスト: 印刷後、スマートフォンで読み取れることを必ず確認してください</li>
+          </ul>
+        </CardContent>
+      </Card>
 
       {/* メンバー一覧 */}
-      <div className={commonStyles.card}>
-        <h3 className="text-[15px] font-bold text-gray-900 mb-4">
-          QRコード一覧
-        </h3>
+      <Card className="bg-muted/50 border shadow-none">
+        <CardContent className="p-6">
+          <h3 className="text-[15px] font-bold text-foreground mb-4">
+            QRコード一覧
+          </h3>
 
-        {loading ? (
-          <p className="text-gray-500 text-center p-10">
-            読み込み中...
-          </p>
-        ) : members.length === 0 ? (
-          <p className="text-gray-500 text-center p-10">
-            従業員が登録されていません
-          </p>
-        ) : (
-          <div className="grid grid-cols-[repeat(auto-fill,minmax(220px,1fr))] gap-5">
-            {members.map((member) => (
-              <div key={member.id} className="border border-gray-200 rounded-xl p-5 text-center">
-                {member.qrPreview && (
-                  <img
-                    src={member.qrPreview}
-                    alt={`${member.name} QR`}
-                    width={120}
-                    height={120}
-                    className="block mx-auto mb-3"
-                  />
-                )}
-                <p className="text-sm font-bold text-gray-900 mb-1">
-                  {member.name}
-                </p>
-                <p className="text-xs text-gray-500 mb-3">
-                  {member.position || '-'} / {member.department || '-'}
-                </p>
-                <button
-                  onClick={() => handleDownload(member.slug, member.name, member.id)}
-                  disabled={downloadingId === member.id}
-                  className={cn(commonStyles.buttonOutline, 'w-full text-[13px] py-2 px-3', downloadingId === member.id && 'opacity-50')}
-                >
-                  {downloadingId === member.id ? '生成中...' : 'ダウンロード'}
-                </button>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
+          {loading ? (
+            <p className="text-muted-foreground text-center p-10">
+              読み込み中...
+            </p>
+          ) : members.length === 0 ? (
+            <p className="text-muted-foreground text-center p-10">
+              従業員が登録されていません
+            </p>
+          ) : (
+            <div className="grid grid-cols-[repeat(auto-fill,minmax(220px,1fr))] gap-5">
+              {members.map((member) => (
+                <div key={member.id} className="border border-border rounded-xl p-5 text-center">
+                  {member.qrPreview && (
+                    <img
+                      src={member.qrPreview}
+                      alt={`${member.name} QR`}
+                      width={120}
+                      height={120}
+                      className="block mx-auto mb-3"
+                    />
+                  )}
+                  <p className="text-sm font-bold text-foreground mb-1">
+                    {member.name}
+                  </p>
+                  <p className="text-xs text-muted-foreground mb-3">
+                    {member.position || '-'} / {member.department || '-'}
+                  </p>
+                  <Button
+                    variant="outline"
+                    onClick={() => handleDownload(member.slug, member.name, member.id)}
+                    disabled={downloadingId === member.id}
+                    className={`w-full text-[13px] py-2 px-3 ${downloadingId === member.id ? 'opacity-50' : ''}`}
+                  >
+                    {downloadingId === member.id ? '生成中...' : 'ダウンロード'}
+                  </Button>
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   )
 }

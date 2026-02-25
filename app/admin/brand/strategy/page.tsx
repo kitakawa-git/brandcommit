@@ -3,9 +3,11 @@
 // ブランド戦略 編集ページ（ターゲット・ペルソナ・ポジショニングマップ・行動指針）
 import { useEffect, useState, useRef } from 'react'
 import { supabase } from '@/lib/supabase'
-import { cn } from '@/lib/utils'
 import { useAuth } from '../../components/AuthProvider'
-import { commonStyles } from '../../components/AdminStyles'
+import { Card, CardContent } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 
 type PersonaItem = {
   name: string
@@ -333,7 +335,7 @@ export default function BrandStrategyPage() {
 
   if (loading) {
     return (
-      <p className="text-gray-500 text-center p-10">
+      <p className="text-muted-foreground text-center p-10">
         読み込み中...
       </p>
     )
@@ -343,272 +345,284 @@ export default function BrandStrategyPage() {
     return (
       <div className="text-center p-10">
         <p className="text-red-600 text-sm mb-3">{fetchError}</p>
-        <button onClick={fetchData} className={cn(commonStyles.buttonOutline, 'py-2 px-4 text-[13px]')}>
+        <Button variant="outline" onClick={fetchData} className="py-2 px-4 text-[13px]">
           再読み込み
-        </button>
+        </Button>
       </div>
     )
   }
 
   return (
     <div>
-      <h2 className="text-xl font-bold text-gray-900 mb-6">
+      <h2 className="text-xl font-bold text-foreground mb-6">
         ブランド戦略
       </h2>
 
-      <div className={commonStyles.card}>
-        {message && (
-          <div className={messageType === 'success' ? commonStyles.success : commonStyles.error}>
-            {message}
-          </div>
-        )}
+      <Card className="bg-muted/50 border shadow-none">
+        <CardContent className="p-6">
+          {message && (
+            <div className={messageType === 'success' ? 'bg-green-50 text-green-600 px-4 py-3 rounded-lg text-sm mb-4' : 'bg-red-50 text-red-600 px-4 py-3 rounded-lg text-sm mb-4'}>
+              {message}
+            </div>
+          )}
 
-        <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit}>
 
-          {/* ===== ターゲット ===== */}
-          <div className="mb-6">
-            <h3 className="text-[15px] font-bold text-gray-900 mb-3 pb-2 border-b border-gray-200">ターゲット</h3>
-            <textarea
-              value={target}
-              onChange={(e) => setTarget(e.target.value)}
-              placeholder="ブランドのターゲット市場や顧客層を記述"
-              className={cn(commonStyles.textarea, 'min-h-[100px]')}
-            />
-          </div>
+            {/* ===== ターゲット ===== */}
+            <div className="mb-6">
+              <h3 className="text-[15px] font-bold text-foreground mb-3 pb-2 border-b border-border">ターゲット</h3>
+              <textarea
+                value={target}
+                onChange={(e) => setTarget(e.target.value)}
+                placeholder="ブランドのターゲット市場や顧客層を記述"
+                className="w-full px-3 py-2.5 border border-border rounded-lg text-sm outline-none resize-y min-h-[100px] focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+              />
+            </div>
 
-          {/* ===== ペルソナ ===== */}
-          <div className="mb-6">
-            <h3 className="text-[15px] font-bold text-gray-900 mb-3 pb-2 border-b border-gray-200">ペルソナ</h3>
-            <p className="text-xs text-gray-500 mb-4">
-              ターゲット顧客のペルソナを設定します（最大5件）
-            </p>
-
-            {personas.map((persona, index) => (
-              <div key={index} className="border border-gray-200 rounded-lg p-4 mb-3">
-                <div className="flex justify-between items-center mb-3">
-                  <span className="text-[13px] font-bold text-gray-500">
-                    ペルソナ {index + 1}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => removePersona(index)}
-                    className={cn(commonStyles.dangerButton, 'py-1 px-3 text-xs')}
-                  >
-                    削除
-                  </button>
-                </div>
-
-                <div className={commonStyles.formGroup}>
-                  <label className={commonStyles.label}>ペルソナ名称</label>
-                  <input
-                    type="text"
-                    value={persona.name}
-                    onChange={(e) => updatePersona(index, 'name', e.target.value)}
-                    placeholder="例: 情報感度の高いマーケター"
-                    className={commonStyles.input}
-                  />
-                </div>
-
-                <div className="flex gap-3">
-                  <div className={cn(commonStyles.formGroup, 'flex-1')}>
-                    <label className={commonStyles.label}>年齢層</label>
-                    <input
-                      type="text"
-                      value={persona.age_range}
-                      onChange={(e) => updatePersona(index, 'age_range', e.target.value)}
-                      placeholder="例: 30-40代"
-                      className={commonStyles.input}
-                    />
-                  </div>
-                  <div className={cn(commonStyles.formGroup, 'flex-1')}>
-                    <label className={commonStyles.label}>職業</label>
-                    <input
-                      type="text"
-                      value={persona.occupation}
-                      onChange={(e) => updatePersona(index, 'occupation', e.target.value)}
-                      placeholder="例: マーケティング担当者"
-                      className={commonStyles.input}
-                    />
-                  </div>
-                </div>
-
-                <div className={commonStyles.formGroup}>
-                  <label className={commonStyles.label}>説明</label>
-                  <textarea
-                    value={persona.description}
-                    onChange={(e) => updatePersona(index, 'description', e.target.value)}
-                    placeholder="このペルソナの背景や特徴"
-                    className={cn(commonStyles.textarea, 'min-h-[80px]')}
-                  />
-                </div>
-
-                <div className={commonStyles.formGroup}>
-                  <label className={commonStyles.label}>ニーズ</label>
-                  {persona.needs.map((need, needIndex) => (
-                    <div key={needIndex} className="flex gap-2 mb-2">
-                      <input
-                        type="text"
-                        value={need}
-                        onChange={(e) => updateNeed(index, needIndex, e.target.value)}
-                        placeholder={`ニーズ ${needIndex + 1}`}
-                        className={cn(commonStyles.input, 'flex-1')}
-                      />
-                      <button
-                        type="button"
-                        onClick={() => removeNeed(index, needIndex)}
-                        className={cn(commonStyles.dangerButton, 'py-2 px-3.5 text-[13px] whitespace-nowrap')}
-                      >
-                        削除
-                      </button>
-                    </div>
-                  ))}
-                  <button
-                    type="button"
-                    onClick={() => addNeed(index)}
-                    className={cn(commonStyles.buttonOutline, 'py-1.5 px-3 text-xs')}
-                  >
-                    + ニーズを追加
-                  </button>
-                </div>
-
-                <div>
-                  <label className={commonStyles.label}>課題・ペインポイント</label>
-                  {persona.pain_points.map((point, pointIndex) => (
-                    <div key={pointIndex} className="flex gap-2 mb-2">
-                      <input
-                        type="text"
-                        value={point}
-                        onChange={(e) => updatePainPoint(index, pointIndex, e.target.value)}
-                        placeholder={`課題 ${pointIndex + 1}`}
-                        className={cn(commonStyles.input, 'flex-1')}
-                      />
-                      <button
-                        type="button"
-                        onClick={() => removePainPoint(index, pointIndex)}
-                        className={cn(commonStyles.dangerButton, 'py-2 px-3.5 text-[13px] whitespace-nowrap')}
-                      >
-                        削除
-                      </button>
-                    </div>
-                  ))}
-                  <button
-                    type="button"
-                    onClick={() => addPainPoint(index)}
-                    className={cn(commonStyles.buttonOutline, 'py-1.5 px-3 text-xs')}
-                  >
-                    + 課題を追加
-                  </button>
-                </div>
-              </div>
-            ))}
-
-            {personas.length < 5 && (
-              <button
-                type="button"
-                onClick={addPersona}
-                className={cn(commonStyles.buttonOutline, 'py-2 px-4 text-[13px]')}
-              >
-                + ペルソナを追加
-              </button>
-            )}
-          </div>
-
-          {/* ===== ポジショニングマップ ===== */}
-          <div className="mb-6">
-            <h3 className="text-[15px] font-bold text-gray-900 mb-3 pb-2 border-b border-gray-200">ポジショニングマップ</h3>
-
-            {positioningMapUrl ? (
-              <div className="mb-3">
-                <div className="relative inline-block border border-gray-200 rounded-lg overflow-hidden">
-                  <img
-                    src={positioningMapUrl}
-                    alt="ポジショニングマップ"
-                    className="max-w-full max-h-[300px] block"
-                  />
-                  <button
-                    type="button"
-                    onClick={removeMap}
-                    className={cn(commonStyles.dangerButton, 'absolute top-2 right-2 py-1 px-2.5 text-xs')}
-                  >
-                    削除
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <p className="text-[13px] text-gray-500 mb-3">
-                ポジショニングマップ画像をアップロードしてください
+            {/* ===== ペルソナ ===== */}
+            <div className="mb-6">
+              <h3 className="text-[15px] font-bold text-foreground mb-3 pb-2 border-b border-border">ペルソナ</h3>
+              <p className="text-xs text-muted-foreground mb-4">
+                ターゲット顧客のペルソナを設定します（最大5件）
               </p>
-            )}
 
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              onChange={handleMapUpload}
-              className="hidden"
-            />
-            <button
-              type="button"
-              onClick={() => fileInputRef.current?.click()}
-              disabled={uploading}
-              className={cn(commonStyles.buttonOutline, 'py-2 px-4 text-[13px]', uploading && 'opacity-60')}
-            >
-              {uploading ? 'アップロード中...' : '画像をアップロード'}
-            </button>
-          </div>
+              {personas.map((persona, index) => (
+                <div key={index} className="border border-border rounded-lg p-4 mb-3">
+                  <div className="flex justify-between items-center mb-3">
+                    <span className="text-[13px] font-bold text-muted-foreground">
+                      ペルソナ {index + 1}
+                    </span>
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      onClick={() => removePersona(index)}
+                      className="py-1 px-3 text-xs"
+                    >
+                      削除
+                    </Button>
+                  </div>
 
-          {/* ===== 行動指針 ===== */}
-          <div className="mb-6">
-            <h3 className="text-[15px] font-bold text-gray-900 mb-3 pb-2 border-b border-gray-200">行動指針</h3>
+                  <div className="mb-5">
+                    <Label className="mb-1.5 font-bold">ペルソナ名称</Label>
+                    <Input
+                      type="text"
+                      value={persona.name}
+                      onChange={(e) => updatePersona(index, 'name', e.target.value)}
+                      placeholder="例: 情報感度の高いマーケター"
+                      className="h-10"
+                    />
+                  </div>
 
-            {actionGuidelines.map((guideline, index) => (
-              <div key={index} className="flex gap-2 mb-2 items-start">
-                <input
-                  type="text"
-                  value={guideline.title}
-                  onChange={(e) => updateGuideline(index, 'title', e.target.value)}
-                  placeholder="タイトル（例: 顧客第一）"
-                  className={cn(commonStyles.input, 'flex-[0_0_200px]')}
-                />
-                <input
-                  type="text"
-                  value={guideline.description}
-                  onChange={(e) => updateGuideline(index, 'description', e.target.value)}
-                  placeholder="説明（例: 常に顧客の視点で考える）"
-                  className={cn(commonStyles.input, 'flex-1')}
-                />
-                <button
+                  <div className="flex gap-3">
+                    <div className="mb-5 flex-1">
+                      <Label className="mb-1.5 font-bold">年齢層</Label>
+                      <Input
+                        type="text"
+                        value={persona.age_range}
+                        onChange={(e) => updatePersona(index, 'age_range', e.target.value)}
+                        placeholder="例: 30-40代"
+                        className="h-10"
+                      />
+                    </div>
+                    <div className="mb-5 flex-1">
+                      <Label className="mb-1.5 font-bold">職業</Label>
+                      <Input
+                        type="text"
+                        value={persona.occupation}
+                        onChange={(e) => updatePersona(index, 'occupation', e.target.value)}
+                        placeholder="例: マーケティング担当者"
+                        className="h-10"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="mb-5">
+                    <Label className="mb-1.5 font-bold">説明</Label>
+                    <textarea
+                      value={persona.description}
+                      onChange={(e) => updatePersona(index, 'description', e.target.value)}
+                      placeholder="このペルソナの背景や特徴"
+                      className="w-full px-3 py-2.5 border border-border rounded-lg text-sm outline-none resize-y min-h-[80px] focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                    />
+                  </div>
+
+                  <div className="mb-5">
+                    <Label className="mb-1.5 font-bold">ニーズ</Label>
+                    {persona.needs.map((need, needIndex) => (
+                      <div key={needIndex} className="flex gap-2 mb-2">
+                        <Input
+                          type="text"
+                          value={need}
+                          onChange={(e) => updateNeed(index, needIndex, e.target.value)}
+                          placeholder={`ニーズ ${needIndex + 1}`}
+                          className="h-10 flex-1"
+                        />
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          onClick={() => removeNeed(index, needIndex)}
+                          className="py-2 px-3.5 text-[13px] whitespace-nowrap"
+                        >
+                          削除
+                        </Button>
+                      </div>
+                    ))}
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => addNeed(index)}
+                      className="py-1.5 px-3 text-xs"
+                    >
+                      + ニーズを追加
+                    </Button>
+                  </div>
+
+                  <div>
+                    <Label className="mb-1.5 font-bold">課題・ペインポイント</Label>
+                    {persona.pain_points.map((point, pointIndex) => (
+                      <div key={pointIndex} className="flex gap-2 mb-2">
+                        <Input
+                          type="text"
+                          value={point}
+                          onChange={(e) => updatePainPoint(index, pointIndex, e.target.value)}
+                          placeholder={`課題 ${pointIndex + 1}`}
+                          className="h-10 flex-1"
+                        />
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          onClick={() => removePainPoint(index, pointIndex)}
+                          className="py-2 px-3.5 text-[13px] whitespace-nowrap"
+                        >
+                          削除
+                        </Button>
+                      </div>
+                    ))}
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => addPainPoint(index)}
+                      className="py-1.5 px-3 text-xs"
+                    >
+                      + 課題を追加
+                    </Button>
+                  </div>
+                </div>
+              ))}
+
+              {personas.length < 5 && (
+                <Button
                   type="button"
-                  onClick={() => removeGuideline(index)}
-                  className={cn(commonStyles.dangerButton, 'py-2 px-3.5 text-[13px] whitespace-nowrap')}
+                  variant="outline"
+                  onClick={addPersona}
+                  className="py-2 px-4 text-[13px]"
                 >
-                  削除
-                </button>
-              </div>
-            ))}
+                  + ペルソナを追加
+                </Button>
+              )}
+            </div>
 
-            {actionGuidelines.length < 10 && (
-              <button
+            {/* ===== ポジショニングマップ ===== */}
+            <div className="mb-6">
+              <h3 className="text-[15px] font-bold text-foreground mb-3 pb-2 border-b border-border">ポジショニングマップ</h3>
+
+              {positioningMapUrl ? (
+                <div className="mb-3">
+                  <div className="relative inline-block border border-border rounded-lg overflow-hidden">
+                    <img
+                      src={positioningMapUrl}
+                      alt="ポジショニングマップ"
+                      className="max-w-full max-h-[300px] block"
+                    />
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      onClick={removeMap}
+                      className="absolute top-2 right-2 py-1 px-2.5 text-xs"
+                    >
+                      削除
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <p className="text-[13px] text-muted-foreground mb-3">
+                  ポジショニングマップ画像をアップロードしてください
+                </p>
+              )}
+
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleMapUpload}
+                className="hidden"
+              />
+              <Button
                 type="button"
-                onClick={addGuideline}
-                className={cn(commonStyles.buttonOutline, 'py-1.5 px-3 text-xs')}
+                variant="outline"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploading}
+                className={`py-2 px-4 text-[13px] ${uploading ? 'opacity-60' : ''}`}
               >
-                + 行動指針を追加
-              </button>
-            )}
-          </div>
+                {uploading ? 'アップロード中...' : '画像をアップロード'}
+              </Button>
+            </div>
 
-          <div>
-            <button
-              type="submit"
-              disabled={saving}
-              className={cn(commonStyles.button, 'mt-2', saving && 'opacity-60')}
-            >
-              {saving ? '保存中...' : '保存する'}
-            </button>
-          </div>
-        </form>
-      </div>
+            {/* ===== 行動指針 ===== */}
+            <div className="mb-6">
+              <h3 className="text-[15px] font-bold text-foreground mb-3 pb-2 border-b border-border">行動指針</h3>
+
+              {actionGuidelines.map((guideline, index) => (
+                <div key={index} className="flex gap-2 mb-2 items-start">
+                  <Input
+                    type="text"
+                    value={guideline.title}
+                    onChange={(e) => updateGuideline(index, 'title', e.target.value)}
+                    placeholder="タイトル（例: 顧客第一）"
+                    className="h-10 flex-[0_0_200px]"
+                  />
+                  <Input
+                    type="text"
+                    value={guideline.description}
+                    onChange={(e) => updateGuideline(index, 'description', e.target.value)}
+                    placeholder="説明（例: 常に顧客の視点で考える）"
+                    className="h-10 flex-1"
+                  />
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    onClick={() => removeGuideline(index)}
+                    className="py-2 px-3.5 text-[13px] whitespace-nowrap"
+                  >
+                    削除
+                  </Button>
+                </div>
+              ))}
+
+              {actionGuidelines.length < 10 && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={addGuideline}
+                  className="py-1.5 px-3 text-xs"
+                >
+                  + 行動指針を追加
+                </Button>
+              )}
+            </div>
+
+            <div>
+              <Button
+                type="submit"
+                disabled={saving}
+                className={`mt-2 ${saving ? 'opacity-60' : ''}`}
+              >
+                {saving ? '保存中...' : '保存する'}
+              </Button>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
     </div>
   )
 }

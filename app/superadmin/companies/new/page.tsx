@@ -5,8 +5,10 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
-import { commonStyles } from '../../../admin/components/AdminStyles'
-import { cn } from '@/lib/utils'
+import { Card, CardContent } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import { ArrowLeft } from 'lucide-react'
 
 export default function NewCompanyPage() {
@@ -125,168 +127,169 @@ export default function NewCompanyPage() {
       <div className="flex items-center gap-4 mb-6">
         <Link
           href="/superadmin/companies"
-          className="text-gray-500 no-underline text-sm"
+          className="text-muted-foreground no-underline text-sm"
         >
           <ArrowLeft size={14} className="inline" /> 企業一覧に戻る
         </Link>
       </div>
 
-      <h2 className="text-xl font-bold text-gray-900 mb-6">
+      <h2 className="text-xl font-bold text-foreground mb-6">
         新規企業を登録
       </h2>
 
-      <div className={cn(commonStyles.card, 'max-w-[600px]')}>
-        {/* 成功メッセージ */}
-        {successMessage && (
-          <div className={commonStyles.success}>
-            {successMessage}
-          </div>
-        )}
+      <Card className="bg-muted/50 border shadow-none max-w-[600px]">
+        <CardContent className="p-6">
+          {/* 成功メッセージ */}
+          {successMessage && (
+            <div className="bg-green-50 text-green-600 px-4 py-3 rounded-lg text-sm mb-4">
+              {successMessage}
+            </div>
+          )}
 
-        {/* エラーメッセージ */}
-        {error && (
-          <div className={cn(commonStyles.error, 'whitespace-pre-wrap break-words')}>
-            {error}
-          </div>
-        )}
+          {/* エラーメッセージ */}
+          {error && (
+            <div className="bg-red-50 text-red-600 px-4 py-3 rounded-lg text-sm mb-4 whitespace-pre-wrap break-words">
+              {error}
+            </div>
+          )}
 
-        <form onSubmit={handleSubmit}>
-          {/* === 企業情報セクション === */}
-          <h3 className="text-base font-bold text-gray-900 mb-4 pb-2 border-b border-gray-200">
-            企業情報
-          </h3>
+          <form onSubmit={handleSubmit}>
+            {/* === 企業情報セクション === */}
+            <h3 className="text-base font-bold text-foreground mb-4 pb-2 border-b border-border">
+              企業情報
+            </h3>
 
-          <div className={commonStyles.formGroup}>
-            <label className={commonStyles.label}>企業名 *</label>
-            <input
-              type="text"
-              value={companyName}
-              onChange={(e) => setCompanyName(e.target.value)}
-              placeholder="株式会社○○"
-              required
-              className={commonStyles.input}
-            />
-          </div>
-
-          <div className={commonStyles.formGroup}>
-            <label className={commonStyles.label}>スローガン</label>
-            <input
-              type="text"
-              value={slogan}
-              onChange={(e) => setSlogan(e.target.value)}
-              placeholder="企業のスローガン"
-              className={commonStyles.input}
-            />
-          </div>
-
-          <div className={commonStyles.formGroup}>
-            <label className={commonStyles.label}>ミッション・ビジョン・バリュー</label>
-            <textarea
-              value={mvv}
-              onChange={(e) => setMvv(e.target.value)}
-              placeholder="企業のMVVを入力"
-              className={cn(commonStyles.textarea, 'min-h-[100px]')}
-            />
-          </div>
-
-          <div className={commonStyles.formGroup}>
-            <label className={commonStyles.label}>ブランドカラー（プライマリ）</label>
-            <div className="flex items-center gap-3">
-              <input
-                type="color"
-                value={brandColorPrimary}
-                onChange={(e) => setBrandColorPrimary(e.target.value)}
-                className="w-12 h-12 border border-gray-300 rounded-lg cursor-pointer p-0.5"
-              />
-              <input
+            <div className="mb-5">
+              <Label className="mb-1.5 font-bold">企業名 *</Label>
+              <Input
                 type="text"
-                value={brandColorPrimary}
-                onChange={(e) => setBrandColorPrimary(e.target.value)}
-                className={cn(commonStyles.input, 'w-[140px]')}
+                value={companyName}
+                onChange={(e) => setCompanyName(e.target.value)}
+                placeholder="株式会社○○"
+                required
+                className="h-10"
               />
             </div>
-          </div>
 
-          <div className={commonStyles.formGroup}>
-            <label className={commonStyles.label}>ブランドカラー（セカンダリ）</label>
-            <div className="flex items-center gap-3">
-              <input
-                type="color"
-                value={brandColorSecondary}
-                onChange={(e) => setBrandColorSecondary(e.target.value)}
-                className="w-12 h-12 border border-gray-300 rounded-lg cursor-pointer p-0.5"
-              />
-              <input
+            <div className="mb-5">
+              <Label className="mb-1.5 font-bold">スローガン</Label>
+              <Input
                 type="text"
-                value={brandColorSecondary}
-                onChange={(e) => setBrandColorSecondary(e.target.value)}
-                className={cn(commonStyles.input, 'w-[140px]')}
+                value={slogan}
+                onChange={(e) => setSlogan(e.target.value)}
+                placeholder="企業のスローガン"
+                className="h-10"
               />
             </div>
-          </div>
 
-          <div className={commonStyles.formGroup}>
-            <label className={commonStyles.label}>Webサイト URL</label>
-            <input
-              type="url"
-              value={websiteUrl}
-              onChange={(e) => setWebsiteUrl(e.target.value)}
-              placeholder="https://example.com"
-              className={commonStyles.input}
-            />
-          </div>
+            <div className="mb-5">
+              <Label className="mb-1.5 font-bold">ミッション・ビジョン・バリュー</Label>
+              <textarea
+                value={mvv}
+                onChange={(e) => setMvv(e.target.value)}
+                placeholder="企業のMVVを入力"
+                className="w-full px-3 py-2.5 border border-border rounded-lg text-sm outline-none resize-y min-h-[100px] focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+              />
+            </div>
 
-          {/* === 管理者アカウントセクション === */}
-          <h3 className="text-base font-bold text-gray-900 mt-6 mb-4 pb-2 border-b border-gray-200">
-            管理者アカウント
-          </h3>
+            <div className="mb-5">
+              <Label className="mb-1.5 font-bold">ブランドカラー（プライマリ）</Label>
+              <div className="flex items-center gap-3">
+                <input
+                  type="color"
+                  value={brandColorPrimary}
+                  onChange={(e) => setBrandColorPrimary(e.target.value)}
+                  className="w-12 h-12 border border-border rounded-lg cursor-pointer p-0.5"
+                />
+                <Input
+                  type="text"
+                  value={brandColorPrimary}
+                  onChange={(e) => setBrandColorPrimary(e.target.value)}
+                  className="h-10 w-[140px]"
+                />
+              </div>
+            </div>
 
-          <div className={commonStyles.formGroup}>
-            <label className={commonStyles.label}>メールアドレス *</label>
-            <input
-              type="email"
-              value={adminEmail}
-              onChange={(e) => setAdminEmail(e.target.value)}
-              placeholder="admin@company.com"
-              required
-              className={commonStyles.input}
-            />
-          </div>
+            <div className="mb-5">
+              <Label className="mb-1.5 font-bold">ブランドカラー（セカンダリ）</Label>
+              <div className="flex items-center gap-3">
+                <input
+                  type="color"
+                  value={brandColorSecondary}
+                  onChange={(e) => setBrandColorSecondary(e.target.value)}
+                  className="w-12 h-12 border border-border rounded-lg cursor-pointer p-0.5"
+                />
+                <Input
+                  type="text"
+                  value={brandColorSecondary}
+                  onChange={(e) => setBrandColorSecondary(e.target.value)}
+                  className="h-10 w-[140px]"
+                />
+              </div>
+            </div>
 
-          <div className={commonStyles.formGroup}>
-            <label className={commonStyles.label}>パスワード *</label>
-            <input
-              type="password"
-              value={adminPassword}
-              onChange={(e) => setAdminPassword(e.target.value)}
-              placeholder="8文字以上の安全なパスワード"
-              required
-              minLength={8}
-              className={commonStyles.input}
-            />
-            <p className="text-xs text-gray-500 mt-1">
-              ※ このメールアドレスとパスワードで管理画面にログインできます
-            </p>
-          </div>
+            <div className="mb-5">
+              <Label className="mb-1.5 font-bold">Webサイト URL</Label>
+              <Input
+                type="url"
+                value={websiteUrl}
+                onChange={(e) => setWebsiteUrl(e.target.value)}
+                placeholder="https://example.com"
+                className="h-10"
+              />
+            </div>
 
-          {/* ボタン */}
-          <div className="flex gap-3 mt-6">
-            <button
-              type="submit"
-              disabled={saving}
-              className={cn(commonStyles.button, 'bg-[#1e3a5f] hover:bg-[#2a4a6f]', saving && 'opacity-60')}
-            >
-              {saving ? '作成中...' : '企業+管理者を作成'}
-            </button>
-            <Link
-              href="/superadmin/companies"
-              className={commonStyles.buttonOutline}
-            >
-              キャンセル
-            </Link>
-          </div>
-        </form>
-      </div>
+            {/* === 管理者アカウントセクション === */}
+            <h3 className="text-base font-bold text-foreground mt-6 mb-4 pb-2 border-b border-border">
+              管理者アカウント
+            </h3>
+
+            <div className="mb-5">
+              <Label className="mb-1.5 font-bold">メールアドレス *</Label>
+              <Input
+                type="email"
+                value={adminEmail}
+                onChange={(e) => setAdminEmail(e.target.value)}
+                placeholder="admin@company.com"
+                required
+                className="h-10"
+              />
+            </div>
+
+            <div className="mb-5">
+              <Label className="mb-1.5 font-bold">パスワード *</Label>
+              <Input
+                type="password"
+                value={adminPassword}
+                onChange={(e) => setAdminPassword(e.target.value)}
+                placeholder="8文字以上の安全なパスワード"
+                required
+                minLength={8}
+                className="h-10"
+              />
+              <p className="text-xs text-muted-foreground mt-1">
+                ※ このメールアドレスとパスワードで管理画面にログインできます
+              </p>
+            </div>
+
+            {/* ボタン */}
+            <div className="flex gap-3 mt-6">
+              <Button
+                type="submit"
+                disabled={saving}
+                className={`bg-[#1e3a5f] hover:bg-[#2a4a6f] ${saving ? 'opacity-60' : ''}`}
+              >
+                {saving ? '作成中...' : '企業+管理者を作成'}
+              </Button>
+              <Button variant="outline" asChild>
+                <Link href="/superadmin/companies">
+                  キャンセル
+                </Link>
+              </Button>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
     </div>
   )
 }
