@@ -273,7 +273,7 @@ export default function VerbalIdentityPage() {
                 value={personality.tone_of_voice}
                 onChange={(e) => handleChange('tone_of_voice', e.target.value)}
                 placeholder="フォーマルだが親しみやすい、専門用語は最小限に..."
-                className="w-full px-3 py-2.5 border border-border rounded-lg text-sm outline-none resize-y min-h-[100px] focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                className="w-full px-3 py-2.5 bg-white border border-border rounded-lg text-sm outline-none resize-y min-h-[100px] focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
               />
             </div>
 
@@ -284,7 +284,7 @@ export default function VerbalIdentityPage() {
                 value={personality.communication_style}
                 onChange={(e) => handleChange('communication_style', e.target.value)}
                 placeholder="結論から伝える、データで裏付ける..."
-                className="w-full px-3 py-2.5 border border-border rounded-lg text-sm outline-none resize-y min-h-[100px] focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                className="w-full px-3 py-2.5 bg-white border border-border rounded-lg text-sm outline-none resize-y min-h-[100px] focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
               />
             </div>
 

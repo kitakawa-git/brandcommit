@@ -345,7 +345,7 @@ export default function BrandVisualsPage() {
                 value={visuals.logo_concept}
                 onChange={(e) => handleChange('logo_concept', e.target.value)}
                 placeholder="ロゴに込めた意味やコンセプトを記述"
-                className="w-full px-3 py-2.5 border border-border rounded-lg text-sm outline-none resize-y min-h-[100px] focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                className="w-full px-3 py-2.5 bg-white border border-border rounded-lg text-sm outline-none resize-y min-h-[100px] focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
               />
             </div>
 
@@ -510,7 +510,7 @@ export default function BrandVisualsPage() {
                 value={visuals.visual_guidelines}
                 onChange={(e) => handleChange('visual_guidelines', e.target.value)}
                 placeholder="写真のトーン、イラストのスタイルなど"
-                className="w-full px-3 py-2.5 border border-border rounded-lg text-sm outline-none resize-y min-h-[100px] focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                className="w-full px-3 py-2.5 bg-white border border-border rounded-lg text-sm outline-none resize-y min-h-[100px] focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
               />
             </div>
 

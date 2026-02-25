@@ -356,7 +356,7 @@ export default function BrandGuidelinesPage() {
                 value={guidelines.brand_statement}
                 onChange={(e) => handleChange('brand_statement', e.target.value)}
                 placeholder="ブランドとしてのメッセージ"
-                className="w-full px-3 py-2.5 border border-border rounded-lg text-sm outline-none resize-y min-h-[100px] focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                className="w-full px-3 py-2.5 bg-white border border-border rounded-lg text-sm outline-none resize-y min-h-[100px] focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
               />
             </div>
 
@@ -367,7 +367,7 @@ export default function BrandGuidelinesPage() {
                 value={guidelines.mission}
                 onChange={(e) => handleChange('mission', e.target.value)}
                 placeholder="私たちの使命は..."
-                className="w-full px-3 py-2.5 border border-border rounded-lg text-sm outline-none resize-y min-h-[100px] focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                className="w-full px-3 py-2.5 bg-white border border-border rounded-lg text-sm outline-none resize-y min-h-[100px] focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
               />
             </div>
 
@@ -378,7 +378,7 @@ export default function BrandGuidelinesPage() {
                 value={guidelines.vision}
                 onChange={(e) => handleChange('vision', e.target.value)}
                 placeholder="私たちが目指す未来は..."
-                className="w-full px-3 py-2.5 border border-border rounded-lg text-sm outline-none resize-y min-h-[100px] focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                className="w-full px-3 py-2.5 bg-white border border-border rounded-lg text-sm outline-none resize-y min-h-[100px] focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
               />
             </div>
 
@@ -423,7 +423,7 @@ export default function BrandGuidelinesPage() {
                 value={guidelines.brand_story}
                 onChange={(e) => handleChange('brand_story', e.target.value)}
                 placeholder="企業の成り立ちや想いを物語として..."
-                className="w-full px-3 py-2.5 border border-border rounded-lg text-sm outline-none resize-y min-h-[200px] focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                className="w-full px-3 py-2.5 bg-white border border-border rounded-lg text-sm outline-none resize-y min-h-[200px] focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
               />
             </div>
 
@@ -480,7 +480,7 @@ export default function BrandGuidelinesPage() {
                     value={item.description}
                     onChange={(e) => updateBusiness(index, 'description', e.target.value)}
                     placeholder="事業の説明"
-                    className="w-full px-3 py-2.5 border border-border rounded-lg text-sm outline-none resize-y min-h-[60px] focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                    className="w-full px-3 py-2.5 bg-white border border-border rounded-lg text-sm outline-none resize-y min-h-[60px] focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                   />
                 </div>
               ))}

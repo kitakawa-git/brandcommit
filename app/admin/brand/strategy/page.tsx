@@ -362,7 +362,7 @@ export default function BrandStrategyPage() {
                 value={target}
                 onChange={(e) => setTarget(e.target.value)}
                 placeholder="ブランドのターゲット市場や顧客層を記述"
-                className="w-full px-3 py-2.5 border border-border rounded-lg text-sm outline-none resize-y min-h-[100px] focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                className="w-full px-3 py-2.5 bg-white border border-border rounded-lg text-sm outline-none resize-y min-h-[100px] focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
               />
             </div>
 
@@ -429,7 +429,7 @@ export default function BrandStrategyPage() {
                       value={persona.description}
                       onChange={(e) => updatePersona(index, 'description', e.target.value)}
                       placeholder="このペルソナの背景や特徴"
-                      className="w-full px-3 py-2.5 border border-border rounded-lg text-sm outline-none resize-y min-h-[80px] focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                      className="w-full px-3 py-2.5 bg-white border border-border rounded-lg text-sm outline-none resize-y min-h-[80px] focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                     />
                   </div>
 

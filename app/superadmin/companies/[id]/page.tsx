@@ -255,7 +255,7 @@ export default function CompanyDetailPage() {
               <textarea
                 value={editMvv}
                 onChange={(e) => setEditMvv(e.target.value)}
-                className="w-full px-3 py-2.5 border border-border rounded-lg text-sm outline-none resize-y min-h-[100px] focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                className="w-full px-3 py-2.5 bg-white border border-border rounded-lg text-sm outline-none resize-y min-h-[100px] focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
               />
             </div>
 

@@ -166,7 +166,7 @@ export function MemberForm({ initialData, companyId }: Props) {
               value={form.bio}
               onChange={(e) => handleChange('bio', e.target.value)}
               placeholder="自己紹介を入力してください"
-              className="flex w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring min-h-[100px] resize-y"
+              className="flex w-full rounded-md border border-input bg-white px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring min-h-[100px] resize-y"
             />
           </div>
 
