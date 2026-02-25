@@ -4,8 +4,7 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { usePortalAuth } from '../components/PortalAuthProvider'
-import { portalStyles } from '../components/PortalStyles'
-import { cn } from '@/lib/utils'
+import { Card, CardContent } from '@/components/ui/card'
 
 type Personality = {
   tone_of_voice: string | null
@@ -48,72 +47,88 @@ export default function PortalVerbalIdentityPage() {
     })
   }, [companyId])
 
-  if (loading) return <div className={portalStyles.empty}>読み込み中...</div>
+  if (loading) return <div className="text-center py-16 text-muted-foreground text-[15px]">読み込み中...</div>
 
   const hasTone = personality?.tone_of_voice
   const hasStyle = personality?.communication_style
   const hasTerms = terms.length > 0
 
   if (!hasTone && !hasStyle && !hasTerms) {
-    return <div className={portalStyles.empty}>まだ登録されていません</div>
+    return <div className="text-center py-16 text-muted-foreground text-[15px]">まだ登録されていません</div>
   }
 
   return (
-    <div className={portalStyles.pageContainer}>
-      <h1 className={portalStyles.pageTitle}>バーバルアイデンティティ</h1>
-      <p className={portalStyles.pageDescription}>
-        ブランドのトーン・コミュニケーションスタイル・用語ルール
-      </p>
+    <div className="max-w-3xl mx-auto px-5 py-8 space-y-8">
+      <div>
+        <h1 className="text-2xl font-bold text-foreground mb-1">バーバルアイデンティティ</h1>
+        <p className="text-sm text-muted-foreground">
+          ブランドのトーン・コミュニケーションスタイル・用語ルール
+        </p>
+      </div>
 
-      {/* トーン */}
+      {/* 1. トーン・オブ・ボイス */}
       {hasTone && (
-        <div className={portalStyles.section}>
-          <h2 className={portalStyles.sectionTitle}>トーン・オブ・ボイス</h2>
-          <div className={portalStyles.card}>
-            <div className={portalStyles.value}>{personality!.tone_of_voice}</div>
-          </div>
-        </div>
+        <section>
+          <h2 className="text-sm font-bold text-foreground mb-3 tracking-wide">トーン・オブ・ボイス</h2>
+          <Card className="bg-muted/50 border shadow-none">
+            <CardContent className="p-5">
+              <p className="text-sm text-foreground/80 leading-[1.8] whitespace-pre-wrap m-0">{personality!.tone_of_voice}</p>
+            </CardContent>
+          </Card>
+        </section>
       )}
 
-      {/* コミュニケーションスタイル */}
+      {/* 2. コミュニケーションスタイル */}
       {hasStyle && (
-        <div className={portalStyles.section}>
-          <h2 className={portalStyles.sectionTitle}>コミュニケーションスタイル</h2>
-          <div className={portalStyles.card}>
-            <div className={portalStyles.value}>{personality!.communication_style}</div>
-          </div>
-        </div>
+        <section>
+          <h2 className="text-sm font-bold text-foreground mb-3 tracking-wide">コミュニケーションスタイル</h2>
+          <Card className="bg-muted/50 border shadow-none">
+            <CardContent className="p-5">
+              <p className="text-sm text-foreground/80 leading-[1.8] whitespace-pre-wrap m-0">{personality!.communication_style}</p>
+            </CardContent>
+          </Card>
+        </section>
       )}
 
-      {/* 用語ルール */}
+      {/* 3. 用語ルール */}
       {hasTerms && (
-        <div className={portalStyles.section}>
-          <h2 className={portalStyles.sectionTitle}>用語ルール</h2>
-          <table className={portalStyles.table}>
-            <thead>
-              <tr>
-                <th className={cn(portalStyles.th, 'w-[30%]')}>推奨する表現</th>
-                <th className={cn(portalStyles.th, 'w-[30%]')}>避ける表現</th>
-                <th className={portalStyles.th}>補足・文脈</th>
-              </tr>
-            </thead>
-            <tbody>
-              {terms.map((term, i) => (
-                <tr key={i}>
-                  <td className={cn(portalStyles.td, 'font-bold text-green-600')}>
-                    {term.preferred_term}
-                  </td>
-                  <td className={cn(portalStyles.td, 'text-red-600 line-through')}>
-                    {term.avoided_term}
-                  </td>
-                  <td className={cn(portalStyles.td, 'text-gray-500 text-[13px]')}>
-                    {term.context || '—'}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <section>
+          <h2 className="text-sm font-bold text-foreground mb-3 tracking-wide">用語ルール</h2>
+          <Card className="bg-muted/50 border shadow-none overflow-hidden">
+            <CardContent className="p-0">
+              <table className="w-full border-collapse text-sm">
+                <thead>
+                  <tr>
+                    <th className="text-left px-4 py-3 bg-muted text-muted-foreground font-semibold border-b border-border text-xs w-[30%]">
+                      推奨する表現
+                    </th>
+                    <th className="text-left px-4 py-3 bg-muted text-muted-foreground font-semibold border-b border-border text-xs w-[30%]">
+                      避ける表現
+                    </th>
+                    <th className="text-left px-4 py-3 bg-muted text-muted-foreground font-semibold border-b border-border text-xs">
+                      補足・文脈
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {terms.map((term, i) => (
+                    <tr key={i}>
+                      <td className="px-4 py-3 border-b border-border font-bold text-green-600 text-sm">
+                        {term.preferred_term}
+                      </td>
+                      <td className="px-4 py-3 border-b border-border text-red-500 line-through text-sm">
+                        {term.avoided_term}
+                      </td>
+                      <td className="px-4 py-3 border-b border-border text-muted-foreground text-xs">
+                        {term.context || '—'}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </CardContent>
+          </Card>
+        </section>
       )}
     </div>
   )
