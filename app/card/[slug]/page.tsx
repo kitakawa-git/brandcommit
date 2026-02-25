@@ -289,25 +289,6 @@ export default async function CardPage({ params }: Props) {
                   {missionText}
                 </p>
               )}
-              {guidelinesValues.length > 0 && (
-                <div className={missionText ? 'mt-4' : ''}>
-                  <div className="flex flex-wrap gap-2">
-                    {guidelinesValues.map((v, i) => (
-                      <span
-                        key={i}
-                        className="inline-block px-3 py-1 rounded-full text-xs font-semibold"
-                        style={{
-                          backgroundColor: `${primaryColor}10`,
-                          color: primaryColor,
-                          border: `1px solid ${primaryColor}30`,
-                        }}
-                      >
-                        {v.name}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
             </CardContent>
           </Card>
         )}
