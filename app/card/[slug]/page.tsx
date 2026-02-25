@@ -5,6 +5,7 @@ import { generateHighResQRDataURL, getQRFilename } from '@/lib/qr-download'
 import { CardViewTracker } from './CardViewTracker'
 import { VCardButton } from './VCardButton'
 import { Card, CardContent } from '@/components/ui/card'
+import { Mail, Phone } from 'lucide-react'
 
 type Props = {
   params: Promise<{ slug: string }>
@@ -237,7 +238,7 @@ export default async function CardPage({ params }: Props) {
               href={`mailto:${profile.email}`}
               className="flex-1 block text-center py-3 bg-[var(--brand-primary)] rounded-xl text-white no-underline text-sm font-bold hover:opacity-85 transition-opacity"
             >
-              ✉ メール
+              <Mail size={16} className="inline" /> メール
             </a>
           )}
           {profile.phone && (
@@ -245,7 +246,7 @@ export default async function CardPage({ params }: Props) {
               href={`tel:${profile.phone}`}
               className="flex-1 block text-center py-3 bg-[var(--brand-primary)] rounded-xl text-white no-underline text-sm font-bold hover:opacity-85 transition-opacity"
             >
-              📞 電話
+              <Phone size={16} className="inline" /> 電話
             </a>
           )}
         </div>

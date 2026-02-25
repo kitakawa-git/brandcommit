@@ -7,6 +7,7 @@ import { supabase } from '@/lib/supabase'
 import { useAuth } from '../components/AuthProvider'
 import { commonStyles } from '../components/AdminStyles'
 import { cn } from '@/lib/utils'
+import { Check, Plus } from 'lucide-react'
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
 const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
@@ -148,7 +149,7 @@ export default function MembersPage() {
           アカウント一覧
         </h2>
         <Link href="/admin/members-portal" className={commonStyles.button}>
-          ＋ 新規追加
+          <Plus size={16} className="inline" /> 新規追加
         </Link>
       </div>
 
@@ -211,7 +212,7 @@ export default function MembersPage() {
                             color: cardEnabled ? '#16a34a' : '#9ca3af',
                           }}
                         >
-                          {cardEnabled ? '✅ ON' : 'OFF'}
+                          {cardEnabled ? <><Check size={14} className="inline" /> ON</> : 'OFF'}
                         </button>
                       ) : (
                         <span className="text-gray-400 text-xs">-</span>

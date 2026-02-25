@@ -7,6 +7,7 @@ import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import { commonStyles } from '../../../admin/components/AdminStyles'
 import { cn } from '@/lib/utils'
+import { ArrowLeft } from 'lucide-react'
 
 export default function NewCompanyPage() {
   const router = useRouter()
@@ -126,7 +127,7 @@ export default function NewCompanyPage() {
           href="/superadmin/companies"
           className="text-gray-500 no-underline text-sm"
         >
-          ← 企業一覧に戻る
+          <ArrowLeft size={14} className="inline" /> 企業一覧に戻る
         </Link>
       </div>
 

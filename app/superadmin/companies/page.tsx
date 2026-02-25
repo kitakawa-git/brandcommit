@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import { commonStyles } from '../../admin/components/AdminStyles'
 import { cn } from '@/lib/utils'
+import { Building2, Plus } from 'lucide-react'
 
 type CompanyWithCount = {
   id: string
@@ -92,7 +93,7 @@ export default function CompaniesPage() {
           href="/superadmin/companies/new"
           className={cn(commonStyles.button, 'bg-[#1e3a5f] hover:bg-[#2a4a6f]')}
         >
-          ＋ 新規企業を登録
+          <Plus size={16} className="inline" /> 新規企業を登録
         </Link>
       </div>
 
@@ -126,8 +127,8 @@ export default function CompaniesPage() {
                           className="w-8 h-8 rounded-md object-cover"
                         />
                       ) : (
-                        <div className="w-8 h-8 rounded-md bg-gray-200 flex items-center justify-center text-sm">
-                          🏢
+                        <div className="w-8 h-8 rounded-md bg-gray-200 flex items-center justify-center">
+                          <Building2 size={16} className="text-gray-400" />
                         </div>
                       )}
                       <span className="font-semibold">{company.name}</span>

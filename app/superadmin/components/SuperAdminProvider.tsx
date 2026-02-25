@@ -7,6 +7,7 @@ import { supabase } from '@/lib/supabase'
 import type { User } from '@supabase/supabase-js'
 import { SuperAdminSidebar } from './SuperAdminSidebar'
 import { SuperAdminHeader } from './SuperAdminHeader'
+import { ShieldAlert } from 'lucide-react'
 
 type SuperAdminContextType = {
   user: User | null
@@ -123,7 +124,9 @@ export function SuperAdminProvider({ children }: { children: React.ReactNode }) 
       <SuperAdminContext.Provider value={contextValue}>
         <div className="flex items-center justify-center min-h-screen bg-gray-50 font-sans">
           <div className="bg-white rounded-xl p-10 text-center max-w-[400px] shadow-sm">
-            <div className="text-5xl mb-4">🔒</div>
+            <div className="mb-4 flex justify-center text-gray-400">
+              <ShieldAlert size={48} />
+            </div>
             <h2 className="text-xl font-bold text-gray-900 mb-3">
               アクセス権限がありません
             </h2>

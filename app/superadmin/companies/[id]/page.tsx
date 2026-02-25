@@ -7,6 +7,7 @@ import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import { commonStyles } from '../../../admin/components/AdminStyles'
 import { cn } from '@/lib/utils'
+import { ArrowLeft } from 'lucide-react'
 
 type Company = {
   id: string
@@ -186,7 +187,7 @@ export default function CompanyDetailPage() {
         href="/superadmin/companies"
         className="text-gray-500 no-underline text-sm inline-block mb-4"
       >
-        ← 企業一覧に戻る
+        <ArrowLeft size={14} className="inline" /> 企業一覧に戻る
       </Link>
 
       <h2 className="text-xl font-bold text-gray-900 mb-6">

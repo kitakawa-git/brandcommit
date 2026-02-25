@@ -1,19 +1,20 @@
 // brandcommit ランディングページ
 import Link from 'next/link'
+import { ContactRound, Palette, Users, type LucideIcon } from 'lucide-react'
 
-const features = [
+const features: { icon: LucideIcon; title: string; description: string }[] = [
   {
-    icon: '📇',
+    icon: ContactRound,
     title: 'スマート名刺',
     description: 'QRコード対応のデジタル名刺を簡単作成。印刷用の高解像度QRコードもワンクリックでダウンロード。',
   },
   {
-    icon: '🎨',
+    icon: Palette,
     title: 'ブランド管理',
     description: 'MVV・ブランドカラー・ストーリーを一元管理。名刺ページに自動反映されます。',
   },
   {
-    icon: '👥',
+    icon: Users,
     title: 'チーム連携',
     description: '全従業員の名刺を統一されたブランドデザインで管理。一括QRコードダウンロードにも対応。',
   },
@@ -62,10 +63,12 @@ export default function Home() {
           主な機能
         </h2>
         <div className="grid grid-cols-[repeat(auto-fit,minmax(260px,1fr))] gap-8">
-          {features.map((feature) => (
+          {features.map((feature) => {
+            const Icon = feature.icon
+            return (
             <div key={feature.title} className="bg-gray-50 rounded-xl p-8 text-center">
-              <div className="text-4xl mb-4">
-                {feature.icon}
+              <div className="mb-4 flex justify-center text-blue-600">
+                <Icon size={40} strokeWidth={1.5} />
               </div>
               <h3 className="text-lg font-bold text-gray-900 mb-3">
                 {feature.title}
@@ -74,7 +77,7 @@ export default function Home() {
                 {feature.description}
               </p>
             </div>
-          ))}
+          )})}
         </div>
       </section>
 
