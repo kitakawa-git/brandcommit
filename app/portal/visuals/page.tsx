@@ -1,11 +1,16 @@
 'use client'
 
 // ビジュアルアイデンティティ 閲覧ページ（ロゴセクション＋カラー＋フォント＋ガイドライン）
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { usePortalAuth } from '../components/PortalAuthProvider'
-import { portalStyles } from '../components/PortalStyles'
-import { cn } from '@/lib/utils'
+import { Card, CardContent } from '@/components/ui/card'
+import { Separator } from '@/components/ui/separator'
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+} from '@/components/ui/dialog'
 
 type LogoItem = { url: string; caption: string }
 type LogoSection = { title: string; items: LogoItem[] }
@@ -25,15 +30,6 @@ export default function PortalVisualsPage() {
   const [data, setData] = useState<Visuals | null>(null)
   const [loading, setLoading] = useState(true)
   const [modalImage, setModalImage] = useState<string | null>(null)
-
-  const closeModal = useCallback(() => setModalImage(null), [])
-
-  useEffect(() => {
-    if (!modalImage) return
-    const handleKey = (e: KeyboardEvent) => { if (e.key === 'Escape') closeModal() }
-    window.addEventListener('keydown', handleKey)
-    return () => window.removeEventListener('keydown', handleKey)
-  }, [modalImage, closeModal])
 
   useEffect(() => {
     if (!companyId) return
@@ -58,8 +54,8 @@ export default function PortalVisualsPage() {
       })
   }, [companyId])
 
-  if (loading) return <div className={portalStyles.empty}>読み込み中...</div>
-  if (!data) return <div className={portalStyles.empty}>まだ登録されていません</div>
+  if (loading) return <div className="text-center py-16 text-muted-foreground text-[15px]">読み込み中...</div>
+  if (!data) return <div className="text-center py-16 text-muted-foreground text-[15px]">まだ登録されていません</div>
 
   // 画像があるセクションのみ表示
   const validSections = data.logo_sections.filter(s => s.items && s.items.length > 0)
@@ -90,144 +86,163 @@ export default function PortalVisualsPage() {
     const { r, g, b } = hexToRgb(color)
     const { h, s, l } = rgbToHsl(r, g, b)
     return (
-      <div className="flex items-center gap-3 mb-4">
+      <div className="flex items-center gap-4">
         <div
-          className="w-12 h-12 rounded-lg border border-gray-200 shrink-0"
+          className="w-14 h-14 rounded-lg border border-border shrink-0"
           style={{ backgroundColor: color }}
         />
         <div>
-          <div className="text-sm font-bold text-gray-900 mb-0.5">{label}</div>
-          <div className="text-[13px] text-gray-500 font-mono">HEX: {color.toUpperCase()}</div>
-          <div className="text-[13px] text-gray-500 font-mono">RGB: {r}, {g}, {b}</div>
-          <div className="text-[13px] text-gray-500 font-mono">HSL: {h}°, {s}%, {l}%</div>
+          <p className="text-sm font-bold text-foreground mb-0.5 m-0">{label}</p>
+          <p className="text-xs text-muted-foreground font-mono m-0">
+            HEX: {color.toUpperCase()} · RGB: {r}, {g}, {b} · HSL: {h}°, {s}%, {l}%
+          </p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className={portalStyles.pageContainer}>
-      <h1 className={portalStyles.pageTitle}>ビジュアルアイデンティティ</h1>
-      <p className={portalStyles.pageDescription}>
-        ロゴガイドライン・ブランドカラー・フォント規定
-      </p>
-
-      {/* ロゴコンセプト */}
-      {data.logo_concept && (
-        <div className={portalStyles.section}>
-          <h2 className={portalStyles.sectionTitle}>ロゴコンセプト</h2>
-          <div className={portalStyles.card}>
-            <div className={portalStyles.value}>{data.logo_concept}</div>
-          </div>
-        </div>
-      )}
-
-      {/* ロゴガイドライン */}
-      {validSections.length > 0 && (
-        <div className={portalStyles.section}>
-          <h2 className={portalStyles.sectionTitle}>ロゴガイドライン</h2>
-
-          <div className={portalStyles.card}>
-            {validSections.map((section, sIdx) => (
-              <div key={sIdx} className={cn(
-                sIdx < validSections.length - 1 && 'pb-5 mb-5 border-b border-gray-200'
-              )}>
-                {/* セクションタイトル */}
-                {section.title && (
-                  <h3 className="text-[15px] font-bold text-gray-900 mb-3">
-                    {section.title}
-                  </h3>
-                )}
-
-                {/* 画像グリッド */}
-                <div className="grid grid-cols-3 gap-4">
-                  {section.items.map((item, iIdx) => (
-                    <div key={iIdx} className="text-center">
-                      <div
-                        onClick={() => setModalImage(item.url)}
-                        className="p-4 flex items-center justify-center min-h-[120px] cursor-pointer"
-                      >
-                        <img
-                          src={item.url}
-                          alt={item.caption || ''}
-                          className="max-w-full max-h-[140px] object-contain"
-                        />
-                      </div>
-                      {item.caption && (
-                        <div className="text-[13px] text-gray-500">
-                          {item.caption}
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* ブランドカラー */}
-      <div className={portalStyles.section}>
-        <h2 className={portalStyles.sectionTitle}>ブランドカラー</h2>
-        <div className={portalStyles.card}>
-          {colorSwatch(data.primary_color, 'プライマリカラー')}
-          {colorSwatch(data.secondary_color, 'セカンダリカラー')}
-          {colorSwatch(data.accent_color, 'アクセントカラー')}
-        </div>
+    <div className="max-w-3xl mx-auto px-5 py-8 space-y-8">
+      <div>
+        <h1 className="text-2xl font-bold text-foreground mb-1">ビジュアルアイデンティティ</h1>
+        <p className="text-sm text-muted-foreground">
+          ロゴガイドライン・ブランドカラー・フォント規定
+        </p>
       </div>
 
-      {/* フォント */}
+      {/* 1. ロゴコンセプト */}
+      {data.logo_concept && (
+        <section>
+          <h2 className="text-sm font-bold text-foreground mb-3 tracking-wide">ロゴコンセプト</h2>
+          <Card className="bg-muted/50 border shadow-none">
+            <CardContent className="p-5">
+              <p className="text-sm text-foreground/80 leading-[1.8] whitespace-pre-wrap m-0">{data.logo_concept}</p>
+            </CardContent>
+          </Card>
+        </section>
+      )}
+
+      {/* 2. ロゴガイドライン */}
+      {validSections.length > 0 && (
+        <section>
+          <h2 className="text-sm font-bold text-foreground mb-3 tracking-wide">ロゴガイドライン</h2>
+          <Card className="bg-muted/50 border shadow-none">
+            <CardContent className="p-5">
+              {validSections.map((section, sIdx) => (
+                <div key={sIdx}>
+                  {sIdx > 0 && <Separator className="my-5" />}
+
+                  {section.title && (
+                    <h3 className="text-sm font-bold text-foreground mb-3 m-0">
+                      {section.title}
+                    </h3>
+                  )}
+
+                  <div className="grid grid-cols-3 gap-4">
+                    {section.items.map((item, iIdx) => (
+                      <div key={iIdx} className="text-center">
+                        <div
+                          onClick={() => setModalImage(item.url)}
+                          className="p-3 flex items-center justify-center min-h-[100px] cursor-pointer rounded-lg hover:bg-muted transition-colors"
+                        >
+                          <img
+                            src={item.url}
+                            alt={item.caption || ''}
+                            className="max-w-full max-h-[140px] object-contain"
+                          />
+                        </div>
+                        {item.caption && (
+                          <p className="text-xs text-muted-foreground mt-1.5 m-0">
+                            {item.caption}
+                          </p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        </section>
+      )}
+
+      {/* 3. ブランドカラー */}
+      <section>
+        <h2 className="text-sm font-bold text-foreground mb-3 tracking-wide">ブランドカラー</h2>
+        <Card className="bg-muted/50 border shadow-none">
+          <CardContent className="p-5 space-y-4">
+            {colorSwatch(data.primary_color, 'プライマリカラー')}
+            <Separator />
+            {colorSwatch(data.secondary_color, 'セカンダリカラー')}
+            <Separator />
+            {colorSwatch(data.accent_color, 'アクセントカラー')}
+          </CardContent>
+        </Card>
+      </section>
+
+      {/* 4. フォント */}
       {(data.fonts.primary || data.fonts.secondary) && (
-        <div className={portalStyles.section}>
-          <h2 className={portalStyles.sectionTitle}>フォント</h2>
-          <div className={portalStyles.card}>
-            {data.fonts.primary && (
-              <div className={data.fonts.secondary ? 'mb-3' : ''}>
-                <div className={portalStyles.label}>プライマリフォント</div>
-                <div className={portalStyles.value} style={{ fontFamily: data.fonts.primary }}>{data.fonts.primary}</div>
-              </div>
-            )}
-            {data.fonts.secondary && (
-              <div>
-                <div className={portalStyles.label}>セカンダリフォント</div>
-                <div className={portalStyles.value} style={{ fontFamily: data.fonts.secondary }}>{data.fonts.secondary}</div>
-              </div>
-            )}
-          </div>
-        </div>
+        <section>
+          <h2 className="text-sm font-bold text-foreground mb-3 tracking-wide">フォント</h2>
+          <Card className="bg-muted/50 border shadow-none">
+            <CardContent className="p-5 space-y-4">
+              {data.fonts.primary && (
+                <div>
+                  <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-1.5 m-0">
+                    プライマリフォント
+                  </p>
+                  <p
+                    className="text-lg text-foreground m-0"
+                    style={{ fontFamily: data.fonts.primary }}
+                  >
+                    {data.fonts.primary}
+                  </p>
+                </div>
+              )}
+              {data.fonts.primary && data.fonts.secondary && <Separator />}
+              {data.fonts.secondary && (
+                <div>
+                  <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-1.5 m-0">
+                    セカンダリフォント
+                  </p>
+                  <p
+                    className="text-lg text-foreground m-0"
+                    style={{ fontFamily: data.fonts.secondary }}
+                  >
+                    {data.fonts.secondary}
+                  </p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </section>
       )}
 
-      {/* ビジュアルガイドライン */}
+      {/* 5. ビジュアルガイドライン */}
       {data.visual_guidelines && (
-        <div className={portalStyles.section}>
-          <h2 className={portalStyles.sectionTitle}>ビジュアルガイドライン</h2>
-          <div className={portalStyles.card}>
-            <div className={portalStyles.value}>{data.visual_guidelines}</div>
-          </div>
-        </div>
+        <section>
+          <h2 className="text-sm font-bold text-foreground mb-3 tracking-wide">ビジュアルガイドライン</h2>
+          <Card className="bg-muted/50 border shadow-none">
+            <CardContent className="p-5">
+              <p className="text-sm text-foreground/80 leading-[1.8] whitespace-pre-wrap m-0">{data.visual_guidelines}</p>
+            </CardContent>
+          </Card>
+        </section>
       )}
 
-      {/* 画像拡大モーダル */}
-      {modalImage && (
-        <div
-          onClick={closeModal}
-          className="fixed inset-0 bg-black/70 flex items-center justify-center z-[9999]"
-        >
-          <button
-            onClick={closeModal}
-            className="absolute top-4 right-4 bg-transparent border-none text-white text-[32px] cursor-pointer leading-none"
-          >
-            ×
-          </button>
-          <img
-            src={modalImage}
-            alt=""
-            onClick={(e) => e.stopPropagation()}
-            className="max-w-[90vw] max-h-[90vh] object-contain"
-          />
-        </div>
-      )}
+      {/* 画像拡大ダイアログ */}
+      <Dialog open={!!modalImage} onOpenChange={(open) => { if (!open) setModalImage(null) }}>
+        <DialogContent className="max-w-[90vw] max-h-[90vh] p-2 bg-transparent border-none shadow-none">
+          <DialogTitle className="sr-only">画像拡大表示</DialogTitle>
+          {modalImage && (
+            <img
+              src={modalImage}
+              alt="拡大表示"
+              className="max-w-full max-h-[85vh] object-contain rounded-lg mx-auto"
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
