@@ -60,7 +60,7 @@ export function PortalAuthProvider({ children }: { children: React.ReactNode }) 
     try {
       const { data, error } = await supabase
         .from('members')
-        .select('*')
+        .select('*, profile:profiles(name, photo_url)')
         .eq('auth_id', authId)
         .eq('is_active', true)
         .single()
@@ -78,6 +78,12 @@ export function PortalAuthProvider({ children }: { children: React.ReactNode }) 
         email: data.email,
       })
 
+      // プロフィール情報を取得（join 結果から）
+      const profileRaw = data.profile as { name: string; photo_url: string } | { name: string; photo_url: string }[] | null
+      const profile = Array.isArray(profileRaw) ? profileRaw[0] ?? null : profileRaw
+      setProfileName(profile?.name || data.display_name || null)
+      setProfilePhotoUrl(profile?.photo_url || null)
+
       // 会社情報を取得
       try {
         const { data: companyData } = await supabase
@@ -91,23 +97,6 @@ export function PortalAuthProvider({ children }: { children: React.ReactNode }) 
         }
       } catch {
         // 会社情報取得失敗は無視
-      }
-
-      // プロフィール情報を取得（profiles テーブル）
-      try {
-        const { data: profileData } = await supabase
-          .from('profiles')
-          .select('name, photo_url')
-          .eq('member_id', data.id)
-          .single()
-        if (profileData) {
-          setProfileName(profileData.name || data.display_name || null)
-          setProfilePhotoUrl(profileData.photo_url || null)
-        } else {
-          setProfileName(data.display_name || null)
-        }
-      } catch {
-        setProfileName(data.display_name || null)
       }
 
       return true
