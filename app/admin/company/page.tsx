@@ -4,6 +4,7 @@
 // ブランド関連項目（スローガン、MVV、ブランドストーリー、提供価値、ブランドカラー）は
 // ブランド掲示の各ページで管理するため、ここでは企業名・ロゴ・WebサイトURLのみ管理
 import { useEffect, useState } from 'react'
+import { toast } from 'sonner'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '../components/AuthProvider'
 import { ImageUpload } from '../components/ImageUpload'
@@ -25,8 +26,6 @@ export default function CompanyPage() {
   const [loading, setLoading] = useState(true)
   const [fetchError, setFetchError] = useState('')
   const [saving, setSaving] = useState(false)
-  const [message, setMessage] = useState('')
-  const [messageType, setMessageType] = useState<'success' | 'error'>('success')
 
   const fetchCompany = async (retryCount = 0) => {
     if (!companyId) return
@@ -134,8 +133,6 @@ export default function CompanyPage() {
     e.preventDefault()
     if (!company) return
     setSaving(true)
-    setMessage('')
-    setMessageType('error')
 
     try {
       const normalizedWebsiteUrl = normalizeUrl(company.website_url)
@@ -150,18 +147,15 @@ export default function CompanyPage() {
 
       if (!result.ok) {
         console.error('[Company Save] エラー:', result.error)
-        setMessage('保存に失敗しました: ' + result.error)
-        setMessageType('error')
+        toast.error('保存に失敗しました: ' + result.error)
       } else {
-        setMessage('保存しました')
-        setMessageType('success')
+        toast.success('保存しました')
         handleChange('website_url', normalizedWebsiteUrl)
       }
     } catch (err) {
       console.error('[Company Save] 予期しないエラー:', err)
       const errorMessage = err instanceof Error ? err.message : '不明なエラーが発生しました'
-      setMessage('保存に失敗しました: ' + errorMessage)
-      setMessageType('error')
+      toast.error('保存に失敗しました: ' + errorMessage)
     } finally {
       setSaving(false)
     }
@@ -202,13 +196,6 @@ export default function CompanyPage() {
 
       <Card className="bg-muted/50 border shadow-none">
         <CardContent className="p-6">
-          {/* メッセージ */}
-          {message && (
-            <div className={messageType === 'success' ? 'bg-green-50 text-green-600 px-4 py-3 rounded-lg text-sm mb-4' : 'bg-red-50 text-red-600 px-4 py-3 rounded-lg text-sm mb-4'}>
-              {message}
-            </div>
-          )}
-
           <form onSubmit={handleSubmit}>
             {/* ロゴ */}
             <div className="mb-5">

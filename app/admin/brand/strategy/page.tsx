@@ -2,6 +2,7 @@
 
 // ブランド戦略 編集ページ（ターゲット・ペルソナ・ポジショニングマップ・行動指針）
 import { useEffect, useState, useRef } from 'react'
+import { toast } from 'sonner'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '../../components/AuthProvider'
 import { Card, CardContent } from '@/components/ui/card'
@@ -46,8 +47,6 @@ export default function BrandStrategyPage() {
   const [loading, setLoading] = useState(true)
   const [fetchError, setFetchError] = useState('')
   const [saving, setSaving] = useState(false)
-  const [message, setMessage] = useState('')
-  const [messageType, setMessageType] = useState<'success' | 'error'>('success')
   const [uploading, setUploading] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -193,8 +192,7 @@ export default function BrandStrategyPage() {
     if (!file || !companyId) return
 
     if (file.size > 5 * 1024 * 1024) {
-      setMessage('ファイルサイズは5MB以下にしてください')
-      setMessageType('error')
+      toast.error('ファイルサイズは5MB以下にしてください')
       return
     }
 
@@ -218,8 +216,7 @@ export default function BrandStrategyPage() {
       setPositioningMapUrl(publicUrl)
     } catch (err) {
       console.error('[MapUpload] エラー:', err)
-      setMessage('画像のアップロードに失敗しました')
-      setMessageType('error')
+      toast.error('画像のアップロードに失敗しました')
     } finally {
       setUploading(false)
       if (fileInputRef.current) fileInputRef.current.value = ''
@@ -235,8 +232,6 @@ export default function BrandStrategyPage() {
     e.preventDefault()
     if (!companyId) return
     setSaving(true)
-    setMessage('')
-    setMessageType('error')
 
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
     const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
@@ -322,12 +317,10 @@ export default function BrandStrategyPage() {
 
       setPersonas(cleanedPersonas)
       setActionGuidelines(cleanedGuidelines)
-      setMessage('保存しました')
-      setMessageType('success')
+      toast.success('保存しました')
     } catch (err) {
       console.error('[BrandStrategy Save] エラー:', err)
-      setMessage('保存に失敗しました: ' + (err instanceof Error ? err.message : '不明なエラー'))
-      setMessageType('error')
+      toast.error('保存に失敗しました: ' + (err instanceof Error ? err.message : '不明なエラー'))
     } finally {
       setSaving(false)
     }
@@ -360,12 +353,6 @@ export default function BrandStrategyPage() {
 
       <Card className="bg-muted/50 border shadow-none">
         <CardContent className="p-6">
-          {message && (
-            <div className={messageType === 'success' ? 'bg-green-50 text-green-600 px-4 py-3 rounded-lg text-sm mb-4' : 'bg-red-50 text-red-600 px-4 py-3 rounded-lg text-sm mb-4'}>
-              {message}
-            </div>
-          )}
-
           <form onSubmit={handleSubmit}>
 
             {/* ===== ターゲット ===== */}

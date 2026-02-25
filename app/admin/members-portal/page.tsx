@@ -2,6 +2,7 @@
 
 // アカウント作成（ポータル） — 招待リンク管理 + アカウント手動作成
 import { useEffect, useState } from 'react'
+import { toast } from 'sonner'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '../components/AuthProvider'
 import { Card, CardContent } from '@/components/ui/card'
@@ -29,8 +30,6 @@ export default function MembersPortalPage() {
   const { companyId } = useAuth()
   const [inviteLinks, setInviteLinks] = useState<InviteLink[]>([])
   const [loading, setLoading] = useState(true)
-  const [message, setMessage] = useState('')
-  const [messageType, setMessageType] = useState<'success' | 'error'>('success')
 
   const [newEmail, setNewEmail] = useState('')
   const [newPassword, setNewPassword] = useState('')
@@ -55,8 +54,8 @@ export default function MembersPortalPage() {
   }
 
   const showMessage = (msg: string, type: 'success' | 'error') => {
-    setMessage(msg)
-    setMessageType(type)
+    if (type === 'success') toast.success(msg)
+    else toast.error(msg)
   }
 
   const handleGenerateLink = async () => {
@@ -134,12 +133,6 @@ export default function MembersPortalPage() {
   return (
     <div>
       <h2 className="text-xl font-bold text-foreground mb-6">アカウント作成</h2>
-
-      {message && (
-        <div className={`px-4 py-3 rounded-lg text-sm mb-4 ${messageType === 'success' ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600'}`}>
-          {message}
-        </div>
-      )}
 
       {/* 招待リンク */}
       <Card className="bg-muted/50 border shadow-none mb-6">

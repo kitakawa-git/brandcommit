@@ -2,6 +2,7 @@
 
 // バーバルアイデンティティ 編集ページ（トーンオブボイス・コミュニケーションスタイル・用語ルール統合）
 import { useEffect, useState } from 'react'
+import { toast } from 'sonner'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '../../components/AuthProvider'
 import { Card, CardContent } from '@/components/ui/card'
@@ -31,8 +32,6 @@ export default function VerbalIdentityPage() {
   const [loading, setLoading] = useState(true)
   const [fetchError, setFetchError] = useState('')
   const [saving, setSaving] = useState(false)
-  const [message, setMessage] = useState('')
-  const [messageType, setMessageType] = useState<'success' | 'error'>('success')
 
   const fetchData = async () => {
     if (!companyId) return
@@ -169,8 +168,6 @@ export default function VerbalIdentityPage() {
     e.preventDefault()
     if (!companyId) return
     setSaving(true)
-    setMessage('')
-    setMessageType('error')
 
     try {
       const { data: { session } } = await supabase.auth.getSession()
@@ -238,12 +235,10 @@ export default function VerbalIdentityPage() {
       }
       setTerms(cleanedTerms)
 
-      setMessage('保存しました')
-      setMessageType('success')
+      toast.success('保存しました')
     } catch (err) {
       console.error('[VerbalIdentity Save] エラー:', err)
-      setMessage('保存に失敗しました: ' + (err instanceof Error ? err.message : '不明なエラー'))
-      setMessageType('error')
+      toast.error('保存に失敗しました: ' + (err instanceof Error ? err.message : '不明なエラー'))
     } finally {
       setSaving(false)
     }
@@ -270,12 +265,6 @@ export default function VerbalIdentityPage() {
 
       <Card className="bg-muted/50 border shadow-none">
         <CardContent className="p-6">
-          {message && (
-            <div className={messageType === 'success' ? 'bg-green-50 text-green-600 px-4 py-3 rounded-lg text-sm mb-4' : 'bg-red-50 text-red-600 px-4 py-3 rounded-lg text-sm mb-4'}>
-              {message}
-            </div>
-          )}
-
           <form onSubmit={handleSubmit}>
             {/* トーンオブボイス */}
             <div className="mb-5">

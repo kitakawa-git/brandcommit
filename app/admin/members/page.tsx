@@ -3,6 +3,7 @@
 // アカウント一覧ページ（統合: members + profiles JOIN）
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
+import { toast } from 'sonner'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '../components/AuthProvider'
 import { Card, CardContent } from '@/components/ui/card'
@@ -109,7 +110,7 @@ export default function MembersPage() {
       }))
     } catch (err) {
       console.error('card_enabled更新エラー:', err)
-      alert('名刺設定の更新に失敗しました')
+      toast.error('名刺設定の更新に失敗しました')
     } finally {
       setTogglingId(null)
     }
@@ -140,7 +141,7 @@ export default function MembersPage() {
       ))
     } catch (err) {
       console.error('無効化エラー:', err)
-      alert('アカウントの無効化に失敗しました')
+      toast.error('アカウントの無効化に失敗しました')
     }
   }
 

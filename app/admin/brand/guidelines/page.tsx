@@ -3,6 +3,7 @@
 // ブランド方針 編集ページ
 // スローガン・コンセプトビジュアル・動画・メッセージ・MVV・ストーリー・沿革・事業内容・特性
 import { useEffect, useState } from 'react'
+import { toast } from 'sonner'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '../../components/AuthProvider'
 import { ImageUpload } from '../../components/ImageUpload'
@@ -49,8 +50,6 @@ export default function BrandGuidelinesPage() {
   const [loading, setLoading] = useState(true)
   const [fetchError, setFetchError] = useState('')
   const [saving, setSaving] = useState(false)
-  const [message, setMessage] = useState('')
-  const [messageType, setMessageType] = useState<'success' | 'error'>('success')
 
   const fetchGuidelines = async () => {
     if (!companyId) return
@@ -237,8 +236,6 @@ export default function BrandGuidelinesPage() {
     e.preventDefault()
     if (!companyId) return
     setSaving(true)
-    setMessage('')
-    setMessageType('error')
 
     try {
       const { data: { session } } = await supabase.auth.getSession()
@@ -276,8 +273,7 @@ export default function BrandGuidelinesPage() {
       }
 
       if (result.ok) {
-        setMessage('保存しました')
-        setMessageType('success')
+        toast.success('保存しました')
         handleChange('values', cleanedValues)
         handleChange('history', cleanedHistory)
         handleChange('business_content', cleanedBusiness)
@@ -286,13 +282,11 @@ export default function BrandGuidelinesPage() {
           handleChange('brand_video_url', normalizeUrl(guidelines.brand_video_url))
         }
       } else {
-        setMessage('保存に失敗しました: ' + result.error)
-        setMessageType('error')
+        toast.error('保存に失敗しました: ' + result.error)
       }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : '不明なエラーが発生しました'
-      setMessage('保存に失敗しました: ' + errorMessage)
-      setMessageType('error')
+      toast.error('保存に失敗しました: ' + errorMessage)
     } finally {
       setSaving(false)
     }
@@ -319,12 +313,6 @@ export default function BrandGuidelinesPage() {
 
       <Card className="bg-muted/50 border shadow-none">
         <CardContent className="p-6">
-          {message && (
-            <div className={messageType === 'success' ? 'bg-green-50 text-green-600 px-4 py-3 rounded-lg text-sm mb-4' : 'bg-red-50 text-red-600 px-4 py-3 rounded-lg text-sm mb-4'}>
-              {message}
-            </div>
-          )}
-
           <form onSubmit={handleSubmit}>
             {/* 1. スローガン */}
             <div className="mb-5">

@@ -2,6 +2,7 @@
 
 // ビジュアルアイデンティティ 編集ページ（1企業1レコード、upsert方式）
 import { useEffect, useState, useRef } from 'react'
+import { toast } from 'sonner'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '../../components/AuthProvider'
 import { Card, CardContent } from '@/components/ui/card'
@@ -42,8 +43,6 @@ export default function BrandVisualsPage() {
   const [loading, setLoading] = useState(true)
   const [fetchError, setFetchError] = useState('')
   const [saving, setSaving] = useState(false)
-  const [message, setMessage] = useState('')
-  const [messageType, setMessageType] = useState<'success' | 'error'>('success')
   const [uploadingMap, setUploadingMap] = useState<Record<string, boolean>>({})
   const fileInputRefs = useRef<Record<string, HTMLInputElement | null>>({})
 
@@ -130,7 +129,7 @@ export default function BrandVisualsPage() {
   const handleImageUpload = async (sIdx: number, file: File) => {
     if (!companyId) return
     if (file.size > 5 * 1024 * 1024) {
-      alert('ファイルサイズは5MB以下にしてください')
+      toast.error('ファイルサイズは5MB以下にしてください')
       return
     }
 
@@ -146,7 +145,7 @@ export default function BrandVisualsPage() {
         .upload(fileName, file, { upsert: true })
 
       if (error) {
-        alert('アップロードに失敗しました: ' + error.message)
+        toast.error('アップロードに失敗しました: ' + error.message)
         return
       }
 
@@ -161,7 +160,7 @@ export default function BrandVisualsPage() {
         return { ...prev, logo_sections: sections }
       })
     } catch {
-      alert('アップロード中にエラーが発生しました')
+      toast.error('アップロード中にエラーが発生しました')
     } finally {
       setUploadingMap(prev => ({ ...prev, [key]: false }))
     }
@@ -265,8 +264,6 @@ export default function BrandVisualsPage() {
     e.preventDefault()
     if (!companyId) return
     setSaving(true)
-    setMessage('')
-    setMessageType('error')
 
     try {
       const { data: { session } } = await supabase.auth.getSession()
@@ -302,15 +299,12 @@ export default function BrandVisualsPage() {
       }
 
       if (result.ok) {
-        setMessage('保存しました')
-        setMessageType('success')
+        toast.success('保存しました')
       } else {
-        setMessage('保存に失敗しました: ' + result.error)
-        setMessageType('error')
+        toast.error('保存に失敗しました: ' + result.error)
       }
     } catch (err) {
-      setMessage('保存に失敗しました: ' + (err instanceof Error ? err.message : '不明なエラー'))
-      setMessageType('error')
+      toast.error('保存に失敗しました: ' + (err instanceof Error ? err.message : '不明なエラー'))
     } finally {
       setSaving(false)
     }
@@ -343,12 +337,6 @@ export default function BrandVisualsPage() {
 
       <Card className="bg-muted/50 border shadow-none">
         <CardContent className="p-6">
-          {message && (
-            <div className={messageType === 'success' ? 'bg-green-50 text-green-600 px-4 py-3 rounded-lg text-sm mb-4' : 'bg-red-50 text-red-600 px-4 py-3 rounded-lg text-sm mb-4'}>
-              {message}
-            </div>
-          )}
-
           <form onSubmit={handleSubmit}>
             {/* ロゴコンセプト */}
             <div className="mb-5">
