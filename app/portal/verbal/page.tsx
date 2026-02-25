@@ -3,6 +3,7 @@
 // バーバルアイデンティティ 閲覧ページ（トーンオブボイス・コミュニケーションスタイル・用語ルール統合）
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
+import { fetchWithRetry } from '@/lib/supabase-fetch'
 import { usePortalAuth } from '../components/PortalAuthProvider'
 import { Card, CardContent } from '@/components/ui/card'
 
@@ -27,21 +28,29 @@ export default function PortalVerbalIdentityPage() {
     if (!companyId) return
 
     Promise.all([
-      supabase.from('brand_personalities').select('*').eq('company_id', companyId).single(),
-      supabase.from('brand_terms').select('*').eq('company_id', companyId).order('sort_order'),
+      fetchWithRetry(() =>
+        supabase.from('brand_personalities').select('tone_of_voice, communication_style').eq('company_id', companyId).single()
+      ),
+      fetchWithRetry(() =>
+        supabase.from('brand_terms').select('preferred_term, avoided_term, context, sort_order').eq('company_id', companyId).order('sort_order')
+      ),
     ]).then(([pRes, tRes]) => {
       if (pRes.data) {
+        const rec = pRes.data as Record<string, unknown>
         setPersonality({
-          tone_of_voice: pRes.data.tone_of_voice,
-          communication_style: pRes.data.communication_style,
+          tone_of_voice: (rec.tone_of_voice as string) || null,
+          communication_style: (rec.communication_style as string) || null,
         })
       }
-      if (tRes.data) {
-        setTerms(tRes.data.map((d: Record<string, unknown>) => ({
-          preferred_term: (d.preferred_term as string) || '',
-          avoided_term: (d.avoided_term as string) || '',
-          context: (d.context as string) || null,
-        })))
+      if (tRes.data && Array.isArray(tRes.data)) {
+        setTerms(tRes.data.map((d: unknown) => {
+          const rec = d as Record<string, unknown>
+          return {
+            preferred_term: (rec.preferred_term as string) || '',
+            avoided_term: (rec.avoided_term as string) || '',
+            context: (rec.context as string) || null,
+          }
+        }))
       }
       setLoading(false)
     })

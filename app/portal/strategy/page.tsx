@@ -3,6 +3,7 @@
 // ブランド戦略 閲覧ページ
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
+import { fetchWithRetry } from '@/lib/supabase-fetch'
 import { usePortalAuth } from '../components/PortalAuthProvider'
 import { Card, CardContent } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
@@ -37,29 +38,33 @@ export default function PortalStrategyPage() {
 
   useEffect(() => {
     if (!companyId) return
-    supabase
-      .from('brand_personas')
-      .select('*')
-      .eq('company_id', companyId)
-      .order('sort_order')
-      .then(({ data }) => {
-        if (data && data.length > 0) {
-          const first = data[0] as Record<string, unknown>
-          setTarget((first.target as string) || '')
-          setPositioningMapUrl((first.positioning_map_url as string) || '')
-          setActionGuidelines((first.action_guidelines as ActionGuideline[]) || [])
+    fetchWithRetry(() =>
+      supabase
+        .from('brand_personas')
+        .select('name, age_range, occupation, description, needs, pain_points, target, positioning_map_url, action_guidelines, sort_order')
+        .eq('company_id', companyId)
+        .order('sort_order')
+    ).then(({ data }) => {
+      if (data && Array.isArray(data) && data.length > 0) {
+        const first = data[0] as Record<string, unknown>
+        setTarget((first.target as string) || '')
+        setPositioningMapUrl((first.positioning_map_url as string) || '')
+        setActionGuidelines((first.action_guidelines as ActionGuideline[]) || [])
 
-          setPersonas(data.map((d: Record<string, unknown>) => ({
-            name: (d.name as string) || '',
-            age_range: (d.age_range as string) || null,
-            occupation: (d.occupation as string) || null,
-            description: (d.description as string) || null,
-            needs: (d.needs as string[]) || [],
-            pain_points: (d.pain_points as string[]) || [],
-          })))
-        }
-        setLoading(false)
-      })
+        setPersonas(data.map((d: unknown) => {
+          const rec = d as Record<string, unknown>
+          return {
+            name: (rec.name as string) || '',
+            age_range: (rec.age_range as string) || null,
+            occupation: (rec.occupation as string) || null,
+            description: (rec.description as string) || null,
+            needs: (rec.needs as string[]) || [],
+            pain_points: (rec.pain_points as string[]) || [],
+          }
+        }))
+      }
+      setLoading(false)
+    })
   }, [companyId])
 
   if (loading) return <div className="text-center py-16 text-muted-foreground text-[15px]">読み込み中...</div>

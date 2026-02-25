@@ -3,6 +3,7 @@
 // ブランド方針 閲覧ページ
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
+import { fetchWithRetry } from '@/lib/supabase-fetch'
 import { usePortalAuth } from '../components/PortalAuthProvider'
 import { Card, CardContent } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
@@ -52,29 +53,31 @@ export default function PortalGuidelinesPage() {
 
   useEffect(() => {
     if (!companyId) return
-    supabase
-      .from('brand_guidelines')
-      .select('*')
-      .eq('company_id', companyId)
-      .single()
-      .then(({ data: d }) => {
-        if (d) {
-          setData({
-            slogan: d.slogan,
-            concept_visual_url: d.concept_visual_url,
-            brand_video_url: d.brand_video_url,
-            brand_statement: d.brand_statement,
-            mission: d.mission,
-            vision: d.vision,
-            values: (d.values as ValueItem[]) || [],
-            brand_story: d.brand_story,
-            history: (d.history as HistoryItem[]) || [],
-            business_content: (d.business_content as BusinessItem[]) || [],
-            traits: (d.traits as TraitItem[]) || [],
-          })
-        }
-        setLoading(false)
-      })
+    fetchWithRetry(() =>
+      supabase
+        .from('brand_guidelines')
+        .select('slogan, concept_visual_url, brand_video_url, brand_statement, mission, vision, values, brand_story, history, business_content, traits')
+        .eq('company_id', companyId)
+        .single()
+    ).then(({ data: d }) => {
+      if (d) {
+        const rec = d as Record<string, unknown>
+        setData({
+          slogan: (rec.slogan as string) || null,
+          concept_visual_url: (rec.concept_visual_url as string) || null,
+          brand_video_url: (rec.brand_video_url as string) || null,
+          brand_statement: (rec.brand_statement as string) || null,
+          mission: (rec.mission as string) || null,
+          vision: (rec.vision as string) || null,
+          values: (rec.values as ValueItem[]) || [],
+          brand_story: (rec.brand_story as string) || null,
+          history: (rec.history as HistoryItem[]) || [],
+          business_content: (rec.business_content as BusinessItem[]) || [],
+          traits: (rec.traits as TraitItem[]) || [],
+        })
+      }
+      setLoading(false)
+    })
   }, [companyId])
 
   if (loading) return <div className="text-center py-16 text-muted-foreground text-[15px]">読み込み中...</div>

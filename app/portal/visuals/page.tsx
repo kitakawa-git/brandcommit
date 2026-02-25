@@ -3,6 +3,7 @@
 // ビジュアルアイデンティティ 閲覧ページ（ロゴセクション＋カラー＋フォント＋ガイドライン）
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
+import { fetchWithRetry } from '@/lib/supabase-fetch'
 import { usePortalAuth } from '../components/PortalAuthProvider'
 import { Card, CardContent } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
@@ -33,25 +34,27 @@ export default function PortalVisualsPage() {
 
   useEffect(() => {
     if (!companyId) return
-    supabase
-      .from('brand_visuals')
-      .select('*')
-      .eq('company_id', companyId)
-      .single()
-      .then(({ data: d }) => {
-        if (d) {
-          setData({
-            primary_color: d.primary_color || '#2563eb',
-            secondary_color: d.secondary_color || '#64748b',
-            accent_color: d.accent_color || '#f59e0b',
-            fonts: (d.fonts as { primary: string; secondary: string }) || { primary: '', secondary: '' },
-            visual_guidelines: d.visual_guidelines,
-            logo_concept: d.logo_concept || null,
-            logo_sections: (d.logo_sections as LogoSection[]) || [],
-          })
-        }
-        setLoading(false)
-      })
+    fetchWithRetry(() =>
+      supabase
+        .from('brand_visuals')
+        .select('primary_color, secondary_color, accent_color, fonts, visual_guidelines, logo_concept, logo_sections')
+        .eq('company_id', companyId)
+        .single()
+    ).then(({ data: d }) => {
+      if (d) {
+        const rec = d as Record<string, unknown>
+        setData({
+          primary_color: (rec.primary_color as string) || '#2563eb',
+          secondary_color: (rec.secondary_color as string) || '#64748b',
+          accent_color: (rec.accent_color as string) || '#f59e0b',
+          fonts: (rec.fonts as { primary: string; secondary: string }) || { primary: '', secondary: '' },
+          visual_guidelines: (rec.visual_guidelines as string) || null,
+          logo_concept: (rec.logo_concept as string) || null,
+          logo_sections: (rec.logo_sections as LogoSection[]) || [],
+        })
+      }
+      setLoading(false)
+    })
   }, [companyId])
 
   if (loading) return <div className="text-center py-16 text-muted-foreground text-[15px]">読み込み中...</div>
