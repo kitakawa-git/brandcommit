@@ -3,9 +3,11 @@
 // shadcn/ui Sidebar ベースの管理画面サイドバー
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { useAuth } from './AuthProvider'
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
@@ -14,6 +16,13 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from '@/components/ui/sidebar'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 import {
   Users,
   Sparkles,
@@ -24,6 +33,10 @@ import {
   Palette,
   MessageSquare,
   Compass,
+  CircleUser,
+  LogOut,
+  ShieldCheck,
+  ChevronsUpDown,
   type LucideIcon,
 } from 'lucide-react'
 
@@ -50,13 +63,14 @@ const brandItems: NavItem[] = [
 
 export function AppSidebar() {
   const pathname = usePathname()
+  const { user, isSuperAdmin, signOut } = useAuth()
 
   return (
     <Sidebar>
       {/* ロゴ・タイトル */}
       <SidebarHeader className="px-5 py-6">
         <Link href="/admin" className="no-underline">
-          <h1 className="text-lg font-bold text-sidebar-primary-foreground m-0" style={{ color: 'hsl(var(--sidebar-primary))' }}>
+          <h1 className="text-lg font-bold m-0" style={{ color: 'hsl(var(--sidebar-primary))' }}>
             brandcommit
           </h1>
         </Link>
@@ -109,6 +123,44 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
+
+      {/* ユーザーメニュー（フッター固定） */}
+      <SidebarFooter>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <SidebarMenuButton size="lg" className="data-[state=open]:bg-sidebar-accent">
+                  <CircleUser className="size-5 shrink-0" />
+                  <span className="flex-1 truncate text-sm">{user?.email}</span>
+                  <ChevronsUpDown className="ml-auto size-4 shrink-0 opacity-50" />
+                </SidebarMenuButton>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                side="top"
+                align="start"
+                className="w-[--radix-dropdown-menu-trigger-width] min-w-56"
+              >
+                {isSuperAdmin && (
+                  <>
+                    <DropdownMenuItem asChild>
+                      <Link href="/superadmin/companies" className="no-underline">
+                        <ShieldCheck className="mr-2 size-4" />
+                        スーパー管理画面
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                  </>
+                )}
+                <DropdownMenuItem onClick={signOut}>
+                  <LogOut className="mr-2 size-4" />
+                  ログアウト
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarFooter>
     </Sidebar>
   )
 }
