@@ -136,7 +136,7 @@ export default async function CardPage({ params }: Props) {
   // ミッション表示用テキスト
   const missionText = mission || ''
 
-  // 提供価値（brand_values テーブルから取得）
+  // バリュー（brand_values テーブルから取得）
   const providedValues: string[] = brandValues
     .map((v: { title: string }) => v.title)
     .filter(Boolean)
@@ -363,14 +363,14 @@ export default async function CardPage({ params }: Props) {
           </div>
         )}
 
-        {/* 6. 提供価値（カード形式） */}
+        {/* 6. バリュー（カード形式） */}
         {providedValues.length > 0 && (
           <div style={{ marginBottom: 16 }}>
             <h3 style={{
               fontSize: 15, fontWeight: 'bold', margin: '0 0 12px',
               color: primaryColor,
             }}>
-              提供価値
+              バリュー
             </h3>
             <div style={{
               display: 'flex',
