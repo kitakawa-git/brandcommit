@@ -31,9 +31,14 @@ export default function Home() {
         <span className="text-xl font-bold text-foreground">
           brandcommit
         </span>
-        <Button asChild variant="ghost" size="sm" className="text-blue-600 font-bold">
-          <Link href="/admin/login">ログイン</Link>
-        </Button>
+        <div className="flex items-center gap-3">
+          <Button asChild variant="ghost" size="sm" className="text-blue-600 font-bold">
+            <Link href="/portal/login">ログイン</Link>
+          </Button>
+          <Button asChild variant="ghost" size="sm" className="text-muted-foreground text-xs">
+            <Link href="/admin/login">管理者</Link>
+          </Button>
+        </div>
       </header>
 
       {/* ヒーローセクション */}
@@ -49,7 +54,7 @@ export default function Home() {
             <Link href="/signup">無料で始める</Link>
           </Button>
           <Button asChild variant="outline" size="lg" className="h-12 px-8 text-base">
-            <Link href="/admin/login">ログイン</Link>
+            <Link href="/portal/login">ログイン</Link>
           </Button>
         </div>
       </section>
