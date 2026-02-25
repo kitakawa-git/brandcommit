@@ -30,12 +30,6 @@ const cards = [
     title: 'ブランド戦略',
     description: 'ターゲット・ペルソナ・ポジショニング・行動指針',
   },
-  {
-    href: '/portal/values',
-    icon: '💎',
-    title: '提供価値',
-    description: '主要な強み・差別化要因',
-  },
 ]
 
 export default function PortalTopPage() {

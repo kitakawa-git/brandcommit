@@ -11,7 +11,6 @@ const navLinks = [
   { href: '/portal/strategy', label: 'ブランド戦略' },
   { href: '/portal/visuals', label: 'ビジュアル' },
   { href: '/portal/verbal', label: 'バーバル' },
-  { href: '/portal/values', label: '提供価値' },
 ]
 
 // 認証不要のパス

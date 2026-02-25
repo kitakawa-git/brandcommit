@@ -11,7 +11,6 @@ import {
   CreditCard,
   UserPlus,
   FileText,
-  Diamond,
   Palette,
   MessageSquare,
   Compass,
@@ -37,7 +36,6 @@ const brandItems: NavItem[] = [
   { href: '/admin/brand/strategy', label: 'ブランド戦略', icon: Compass },
   { href: '/admin/brand/visuals', label: 'ビジュアル', icon: Palette },
   { href: '/admin/brand/verbal', label: 'バーバル', icon: MessageSquare },
-  { href: '/admin/brand/values', label: '提供価値', icon: Diamond },
 ]
 
 export function Sidebar() {
