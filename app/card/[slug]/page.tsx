@@ -94,17 +94,12 @@ export default async function CardPage({ params }: Props) {
   const companyId = profile.company_id
 
   // ブランドデータをブランドテーブルから取得
-  const [guidelinesRes, valuesRes, visualsRes] = await Promise.all([
+  const [guidelinesRes, visualsRes] = await Promise.all([
     supabase
       .from('brand_guidelines')
       .select('*')
       .eq('company_id', companyId)
       .single(),
-    supabase
-      .from('brand_values')
-      .select('*')
-      .eq('company_id', companyId)
-      .order('sort_order'),
     supabase
       .from('brand_visuals')
       .select('*')
@@ -113,7 +108,6 @@ export default async function CardPage({ params }: Props) {
   ])
 
   const guidelines = guidelinesRes.data
-  const brandValues = valuesRes.data || []
   const visuals = visualsRes.data
 
   // ブランドカラー（brand_visuals テーブルから取得）
@@ -136,9 +130,9 @@ export default async function CardPage({ params }: Props) {
   // ミッション表示用テキスト
   const missionText = mission || ''
 
-  // 提供価値（brand_values テーブルから取得）
-  const providedValues: string[] = brandValues
-    .map((v: { title: string }) => v.title)
+  // バリュー（brand_guidelines.values から取得）
+  const valueNames: string[] = guidelinesValues
+    .map(v => v.name)
     .filter(Boolean)
 
   // QRコードをサーバーサイドで生成
@@ -363,8 +357,8 @@ export default async function CardPage({ params }: Props) {
           </div>
         )}
 
-        {/* 6. 提供価値（カード形式） */}
-        {providedValues.length > 0 && (
+        {/* 6. バリュー（カード形式） */}
+        {valueNames.length > 0 && (
           <div style={{ marginBottom: 16 }}>
             <h3 style={{
               fontSize: 15, fontWeight: 'bold', margin: '0 0 12px',
@@ -377,7 +371,7 @@ export default async function CardPage({ params }: Props) {
               flexWrap: 'wrap',
               gap: 10,
             }}>
-              {providedValues.map((value, i) => (
+              {valueNames.map((value, i) => (
                 <div key={i} style={{
                   flex: '1 1 calc(50% - 5px)',
                   minWidth: 130,
