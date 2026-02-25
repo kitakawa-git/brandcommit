@@ -23,6 +23,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import {
   Users,
   Sparkles,
@@ -63,7 +64,12 @@ const brandItems: NavItem[] = [
 
 export function AppSidebar() {
   const pathname = usePathname()
-  const { user, isSuperAdmin, signOut } = useAuth()
+  const { user, isSuperAdmin, profileName, profilePhotoUrl, signOut } = useAuth()
+
+  // アバターのイニシャル（名前の頭文字）
+  const initials = profileName
+    ? profileName.slice(0, 1)
+    : user?.email?.slice(0, 1)?.toUpperCase() || '?'
 
   return (
     <Sidebar>
@@ -131,8 +137,22 @@ export function AppSidebar() {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <SidebarMenuButton size="lg" className="data-[state=open]:bg-sidebar-accent">
-                  <CircleUser className="size-5 shrink-0" />
-                  <span className="flex-1 truncate text-sm">{user?.email}</span>
+                  <Avatar className="size-8 shrink-0">
+                    {profilePhotoUrl && <AvatarImage src={profilePhotoUrl} alt={profileName || ''} />}
+                    <AvatarFallback className="bg-sidebar-accent text-sidebar-accent-foreground text-xs">
+                      {profilePhotoUrl ? initials : <CircleUser className="size-4" />}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1 min-w-0 leading-tight">
+                    <span className="block truncate text-sm font-semibold">
+                      {profileName || user?.email}
+                    </span>
+                    {profileName && (
+                      <span className="block truncate text-xs opacity-70">
+                        {user?.email}
+                      </span>
+                    )}
+                  </div>
                   <ChevronsUpDown className="ml-auto size-4 shrink-0 opacity-50" />
                 </SidebarMenuButton>
               </DropdownMenuTrigger>

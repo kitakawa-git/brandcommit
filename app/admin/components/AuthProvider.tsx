@@ -15,6 +15,8 @@ type AuthContextType = {
   companyId: string | null
   role: string | null
   isSuperAdmin: boolean
+  profileName: string | null
+  profilePhotoUrl: string | null
   loading: boolean
   signOut: () => Promise<void>
 }
@@ -24,6 +26,8 @@ const AuthContext = createContext<AuthContextType>({
   companyId: null,
   role: null,
   isSuperAdmin: false,
+  profileName: null,
+  profilePhotoUrl: null,
   loading: true,
   signOut: async () => {},
 })
@@ -33,6 +37,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [companyId, setCompanyId] = useState<string | null>(null)
   const [role, setRole] = useState<string | null>(null)
   const [isSuperAdmin, setIsSuperAdmin] = useState(false)
+  const [profileName, setProfileName] = useState<string | null>(null)
+  const [profilePhotoUrl, setProfilePhotoUrl] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [adminError, setAdminError] = useState(false)
   const router = useRouter()
@@ -66,6 +72,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setRole(data.role)
       setIsSuperAdmin(data.is_superadmin === true)
       setAdminError(false)
+
+      // ステップ4: members → profiles からプロフィール情報を取得
+      try {
+        const { data: memberData } = await supabase
+          .from('members')
+          .select('display_name, profile:profiles(name, photo_url)')
+          .eq('auth_id', authId)
+          .single()
+
+        if (memberData) {
+          const profileRaw = memberData.profile as { name: string; photo_url: string } | { name: string; photo_url: string }[] | null
+          const profile = Array.isArray(profileRaw) ? profileRaw[0] ?? null : profileRaw
+          setProfileName(profile?.name || memberData.display_name || null)
+          setProfilePhotoUrl(profile?.photo_url || null)
+        }
+      } catch {
+        // プロフィール取得失敗は無視（表示に影響するだけ）
+      }
+
       return true
     } catch (err) {
       console.error('[AuthProvider] fetchAdminUser例外:', err)
@@ -143,11 +168,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setCompanyId(null)
     setRole(null)
     setIsSuperAdmin(false)
+    setProfileName(null)
+    setProfilePhotoUrl(null)
     setAdminError(false)
     router.push('/admin/login')
   }
 
-  const contextValue = { user, companyId, role, isSuperAdmin, loading, signOut }
+  const contextValue = { user, companyId, role, isSuperAdmin, profileName, profilePhotoUrl, loading, signOut }
 
   // ログインページではそのまま表示（サイドバー・ヘッダーなし）
   if (pathname === '/admin/login') {
