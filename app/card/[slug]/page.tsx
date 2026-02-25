@@ -344,21 +344,21 @@ export default async function CardPage({ params }: Props) {
 
         {/* 7. ブランドストーリー */}
         {brandStory && (
-          <Card className="border-0 shadow-sm">
-            <CardHeader className="pb-0">
-              <CardTitle
-                className="text-sm tracking-wide"
-                style={{ color: primaryColor }}
-              >
-                ブランドストーリー
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="pt-3">
-              <p className="text-[13px] text-foreground/70 leading-[1.8] whitespace-pre-wrap m-0">
-                {brandStory}
-              </p>
-            </CardContent>
-          </Card>
+          <div>
+            <h3
+              className="text-sm font-bold mb-3 tracking-wide"
+              style={{ color: primaryColor }}
+            >
+              ブランドストーリー
+            </h3>
+            <Card className="border-0 shadow-sm">
+              <CardContent className="p-5">
+                <p className="text-[13px] text-foreground/70 leading-[1.8] whitespace-pre-wrap m-0">
+                  {brandStory}
+                </p>
+              </CardContent>
+            </Card>
+          </div>
         )}
 
         {/* 8. コーポレートサイトリンク */}
