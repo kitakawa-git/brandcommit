@@ -230,7 +230,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         <AppSidebar />
         <SidebarInset>
           <AdminHeader />
-          <main className="p-6 bg-muted/30">
+          <main className="p-6">
             {children}
           </main>
         </SidebarInset>
