@@ -205,25 +205,22 @@ export default function PortalGuidelinesPage() {
         </section>
       )}
 
-      {/* 7. バリュー */}
+      {/* 7. バリュー（カードグリッド） */}
       {filteredValues.length > 0 && (
         <section>
           <h2 className="text-sm font-bold text-foreground mb-3 tracking-wide">バリュー</h2>
-          <div className="space-y-2">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {filteredValues.map((v, i) => (
-              <Card key={i} className="bg-muted/50 border shadow-none border-l-2 border-l-blue-600 rounded-lg">
-                <CardContent className="p-4 flex gap-3">
-                  <span className="text-xs font-mono text-muted-foreground tabular-nums pt-0.5">
-                    {String(i + 1).padStart(2, '0')}
-                  </span>
-                  <div className="flex-1 min-w-0">
-                    <span className="text-sm font-semibold text-foreground">{v.name}</span>
-                    {v.description && (
-                      <p className="text-xs text-muted-foreground leading-relaxed mt-1 m-0">
-                        {v.description}
-                      </p>
-                    )}
-                  </div>
+              <Card key={i} className="bg-muted/50 border shadow-none">
+                <CardContent className="p-5">
+                  <p className="text-base font-bold text-foreground mb-1.5 m-0">
+                    {v.name}
+                  </p>
+                  {v.description && (
+                    <p className="text-sm text-muted-foreground leading-relaxed m-0">
+                      {v.description}
+                    </p>
+                  )}
                 </CardContent>
               </Card>
             ))}
@@ -268,22 +265,25 @@ export default function PortalGuidelinesPage() {
         </section>
       )}
 
-      {/* 10. 事業内容（カードグリッド） */}
+      {/* 10. 事業内容（番号付きリスト） */}
       {filteredBusiness.length > 0 && (
         <section>
           <h2 className="text-sm font-bold text-foreground mb-3 tracking-wide">事業内容</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div className="space-y-2">
             {filteredBusiness.map((item, i) => (
-              <Card key={i} className="bg-muted/50 border shadow-none">
-                <CardContent className="p-5">
-                  <p className="text-base font-bold text-foreground mb-1.5 m-0">
-                    {item.title}
-                  </p>
-                  {item.description && (
-                    <p className="text-sm text-muted-foreground leading-relaxed m-0">
-                      {item.description}
-                    </p>
-                  )}
+              <Card key={i} className="bg-muted/50 border shadow-none border-l-2 border-l-blue-600 rounded-lg">
+                <CardContent className="p-4 flex gap-3">
+                  <span className="text-xs font-mono text-muted-foreground tabular-nums pt-0.5">
+                    {String(i + 1).padStart(2, '0')}
+                  </span>
+                  <div className="flex-1 min-w-0">
+                    <span className="text-sm font-semibold text-foreground">{item.title}</span>
+                    {item.description && (
+                      <p className="text-xs text-muted-foreground leading-relaxed mt-1 m-0">
+                        {item.description}
+                      </p>
+                    )}
+                  </div>
                 </CardContent>
               </Card>
             ))}
