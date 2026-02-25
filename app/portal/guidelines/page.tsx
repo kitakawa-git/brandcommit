@@ -187,7 +187,7 @@ export default function PortalGuidelinesPage() {
           <h2 className="text-sm font-bold text-foreground mb-3 tracking-wide">ミッション</h2>
           <Card className="bg-muted/50 border shadow-none">
             <CardContent className="p-5">
-              <p className="text-sm text-foreground/80 leading-[1.8] whitespace-pre-wrap m-0">{data.mission}</p>
+              <p className="text-xl font-bold text-foreground m-0">{data.mission}</p>
             </CardContent>
           </Card>
         </section>
@@ -199,7 +199,7 @@ export default function PortalGuidelinesPage() {
           <h2 className="text-sm font-bold text-foreground mb-3 tracking-wide">ビジョン</h2>
           <Card className="bg-muted/50 border shadow-none">
             <CardContent className="p-5">
-              <p className="text-sm text-foreground/80 leading-[1.8] whitespace-pre-wrap m-0">{data.vision}</p>
+              <p className="text-xl font-bold text-foreground m-0">{data.vision}</p>
             </CardContent>
           </Card>
         </section>
