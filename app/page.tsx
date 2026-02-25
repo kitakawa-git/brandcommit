@@ -1,6 +1,9 @@
 // brandcommit ランディングページ
 import Link from 'next/link'
 import { ContactRound, Palette, Users, type LucideIcon } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent } from '@/components/ui/card'
+import { Separator } from '@/components/ui/separator'
 
 const features: { icon: LucideIcon; title: string; description: string }[] = [
   {
@@ -25,65 +28,63 @@ export default function Home() {
     <div className="min-h-screen font-sans bg-white">
       {/* ヘッダー */}
       <header className="px-6 py-4 flex justify-between items-center max-w-[1080px] mx-auto">
-        <span className="text-xl font-bold text-gray-900">
+        <span className="text-xl font-bold text-foreground">
           brandcommit
         </span>
-        <Link href="/admin/login" className="text-blue-600 no-underline text-sm font-bold">
-          ログイン
-        </Link>
+        <Button asChild variant="ghost" size="sm" className="text-blue-600 font-bold">
+          <Link href="/admin/login">ログイン</Link>
+        </Button>
       </header>
 
       {/* ヒーローセクション */}
       <section className="text-center px-6 pt-20 pb-[60px] max-w-[720px] mx-auto">
-        <h1 className="text-[40px] font-bold text-gray-900 mb-4 leading-[1.3]">
+        <h1 className="text-[40px] font-bold text-foreground mb-4 leading-[1.3]">
           ブランドを、約束にする。
         </h1>
-        <p className="text-lg text-gray-500 mb-10 leading-[1.7]">
+        <p className="text-lg text-muted-foreground mb-10 leading-[1.7]">
           中小企業のためのスマート名刺 × ブランディングSaaS
         </p>
         <div className="flex gap-4 justify-center flex-wrap">
-          <Link
-            href="/signup"
-            className="py-3.5 px-8 bg-blue-600 text-white border-none rounded-lg text-base font-bold no-underline inline-block"
-          >
-            無料で始める
-          </Link>
-          <Link
-            href="/admin/login"
-            className="py-3.5 px-8 bg-transparent text-gray-900 border border-gray-200 rounded-lg text-base no-underline inline-block"
-          >
-            ログイン
-          </Link>
+          <Button asChild size="lg" className="h-12 px-8 text-base font-bold">
+            <Link href="/signup">無料で始める</Link>
+          </Button>
+          <Button asChild variant="outline" size="lg" className="h-12 px-8 text-base">
+            <Link href="/admin/login">ログイン</Link>
+          </Button>
         </div>
       </section>
 
       {/* 特徴セクション */}
       <section className="px-6 pt-[60px] pb-20 max-w-[960px] mx-auto">
-        <h2 className="text-center text-2xl font-bold text-gray-900 mb-12">
+        <h2 className="text-center text-2xl font-bold text-foreground mb-12">
           主な機能
         </h2>
-        <div className="grid grid-cols-[repeat(auto-fit,minmax(260px,1fr))] gap-8">
+        <div className="grid grid-cols-[repeat(auto-fit,minmax(260px,1fr))] gap-6">
           {features.map((feature) => {
             const Icon = feature.icon
             return (
-            <div key={feature.title} className="bg-gray-50 rounded-xl p-8 text-center">
-              <div className="mb-4 flex justify-center text-blue-600">
-                <Icon size={40} strokeWidth={1.5} />
-              </div>
-              <h3 className="text-lg font-bold text-gray-900 mb-3">
-                {feature.title}
-              </h3>
-              <p className="text-sm text-gray-500 m-0 leading-[1.7]">
-                {feature.description}
-              </p>
-            </div>
-          )})}
+              <Card key={feature.title} className="bg-muted/50 border shadow-none">
+                <CardContent className="p-8 text-center">
+                  <div className="mb-4 flex justify-center text-blue-600">
+                    <Icon size={40} strokeWidth={1.5} />
+                  </div>
+                  <h3 className="text-lg font-bold text-foreground mb-3">
+                    {feature.title}
+                  </h3>
+                  <p className="text-sm text-muted-foreground m-0 leading-[1.7]">
+                    {feature.description}
+                  </p>
+                </CardContent>
+              </Card>
+            )
+          })}
         </div>
       </section>
 
       {/* フッター */}
-      <footer className="p-6 text-center border-t border-gray-200">
-        <p className="text-[13px] text-gray-400 m-0">
+      <footer className="px-6 py-4 text-center">
+        <Separator className="mb-4" />
+        <p className="text-xs text-muted-foreground m-0">
           &copy; brandcommit
         </p>
       </footer>

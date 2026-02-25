@@ -5,11 +5,15 @@ import { Suspense, useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { Card, CardContent } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Button } from '@/components/ui/button'
+import { ShieldAlert } from 'lucide-react'
 
 export default function PortalRegisterPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center font-sans text-gray-500">
+      <div className="min-h-screen bg-white flex items-center justify-center font-sans text-muted-foreground">
         読み込み中...
       </div>
     }>
@@ -24,7 +28,7 @@ function PortalRegisterContent() {
   const token = searchParams.get('token')
 
   const [companyName, setCompanyName] = useState('')
-  const [tokenValid, setTokenValid] = useState<boolean | null>(null) // null = 検証中
+  const [tokenValid, setTokenValid] = useState<boolean | null>(null)
 
   const [displayName, setDisplayName] = useState('')
   const [email, setEmail] = useState('')
@@ -33,7 +37,6 @@ function PortalRegisterContent() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
-  // トークン検証
   useEffect(() => {
     if (!token) {
       setTokenValid(false)
@@ -53,7 +56,6 @@ function PortalRegisterContent() {
         return
       }
 
-      // 会社名を取得
       const { data: company } = await supabase
         .from('companies')
         .select('name')
@@ -84,7 +86,6 @@ function PortalRegisterContent() {
     setLoading(true)
 
     try {
-      // API Route経由でサーバーサイドでAuth + profiles + members を一括作成
       const res = await fetch('/api/members/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -99,7 +100,6 @@ function PortalRegisterContent() {
       const result = await res.json()
       if (!res.ok) throw new Error(result.error || '登録に失敗しました')
 
-      // 登録成功 → signInWithPassword でログイン
       const { error: signInError } = await supabase.auth.signInWithPassword({
         email: result.email,
         password: result.password,
@@ -109,7 +109,6 @@ function PortalRegisterContent() {
         throw new Error('ログインに失敗しました: ' + signInError.message)
       }
 
-      // ポータルへリダイレクト
       router.replace('/portal')
     } catch (err) {
       setError(err instanceof Error ? err.message : '登録に失敗しました')
@@ -118,12 +117,10 @@ function PortalRegisterContent() {
     }
   }
 
-  const inputClassName = 'w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500'
-
   // トークン検証中
   if (tokenValid === null) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center font-sans text-gray-500">
+      <div className="min-h-screen bg-white flex items-center justify-center font-sans text-muted-foreground">
         招待リンクを確認中...
       </div>
     )
@@ -132,34 +129,38 @@ function PortalRegisterContent() {
   // 無効なトークン
   if (tokenValid === false) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center font-sans">
-        <div className="bg-white rounded-xl p-10 text-center max-w-[400px] shadow-sm">
-          <div className="text-5xl mb-4">❌</div>
-          <h2 className="text-xl font-bold text-gray-900 mb-3">
-            無効な招待リンク
-          </h2>
-          <p className="text-sm text-gray-500 m-0 leading-relaxed">
-            この招待リンクは無効または期限切れです。管理者に新しいリンクを発行してもらってください。
-          </p>
-        </div>
+      <div className="min-h-screen bg-white flex items-center justify-center font-sans">
+        <Card className="max-w-[400px] w-full mx-5 bg-muted/50 border shadow-none">
+          <CardContent className="p-10 text-center">
+            <div className="mb-4 flex justify-center text-muted-foreground">
+              <ShieldAlert size={48} />
+            </div>
+            <h2 className="text-xl font-bold text-foreground mb-3">
+              無効な招待リンク
+            </h2>
+            <p className="text-sm text-muted-foreground m-0 leading-relaxed">
+              この招待リンクは無効または期限切れです。管理者に新しいリンクを発行してもらってください。
+            </p>
+          </CardContent>
+        </Card>
       </div>
     )
   }
 
   // 登録フォーム
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center font-sans">
-      <Card className="w-full max-w-[400px] border-0 shadow-sm">
+    <div className="min-h-screen bg-white flex items-center justify-center font-sans">
+      <Card className="w-full max-w-[400px] mx-5 bg-muted/50 border shadow-none">
         <CardContent className="p-10">
           <div className="text-center mb-8">
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">
+            <h1 className="text-2xl font-bold text-foreground mb-2">
               brandcommit
             </h1>
-            <p className="text-sm text-gray-500 m-0">
+            <p className="text-sm text-muted-foreground m-0">
               メンバー登録
             </p>
             {companyName && (
-              <p className="text-[13px] text-blue-600 mt-2 font-bold">
+              <p className="text-xs text-blue-600 mt-2 font-bold m-0">
                 {companyName}
               </p>
             )}
@@ -173,69 +174,61 @@ function PortalRegisterContent() {
 
           <form onSubmit={handleRegister}>
             <div className="mb-5">
-              <label className="block text-sm font-bold text-gray-900 mb-1.5">
-                表示名
-              </label>
-              <input
+              <Label className="mb-1.5 font-bold">表示名</Label>
+              <Input
                 type="text"
                 value={displayName}
                 onChange={(e) => setDisplayName(e.target.value)}
                 placeholder="山田太郎"
                 required
-                className={inputClassName}
+                className="h-10"
               />
             </div>
 
             <div className="mb-5">
-              <label className="block text-sm font-bold text-gray-900 mb-1.5">
-                メールアドレス
-              </label>
-              <input
+              <Label className="mb-1.5 font-bold">メールアドレス</Label>
+              <Input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="member@example.com"
                 required
-                className={inputClassName}
+                className="h-10"
               />
             </div>
 
             <div className="mb-5">
-              <label className="block text-sm font-bold text-gray-900 mb-1.5">
-                パスワード（8文字以上）
-              </label>
-              <input
+              <Label className="mb-1.5 font-bold">パスワード（8文字以上）</Label>
+              <Input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="パスワードを入力"
                 required
                 minLength={8}
-                className={inputClassName}
+                className="h-10"
               />
             </div>
 
             <div className="mb-5">
-              <label className="block text-sm font-bold text-gray-900 mb-1.5">
-                パスワード確認
-              </label>
-              <input
+              <Label className="mb-1.5 font-bold">パスワード確認</Label>
+              <Input
                 type="password"
                 value={passwordConfirm}
                 onChange={(e) => setPasswordConfirm(e.target.value)}
                 placeholder="もう一度入力"
                 required
-                className={inputClassName}
+                className="h-10"
               />
             </div>
 
-            <button
+            <Button
               type="submit"
               disabled={loading}
-              className="w-full py-3 px-5 bg-blue-600 text-white border-none rounded-lg text-base font-bold cursor-pointer hover:bg-blue-700 transition-colors disabled:opacity-60"
+              className="w-full h-11 text-base font-bold"
             >
               {loading ? '登録中...' : '登録する'}
-            </button>
+            </Button>
           </form>
         </CardContent>
       </Card>

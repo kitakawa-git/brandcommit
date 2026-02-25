@@ -6,6 +6,9 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import { Card, CardContent } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Button } from '@/components/ui/button'
 
 export default function PortalLoginPage() {
   const [email, setEmail] = useState('')
@@ -20,7 +23,6 @@ export default function PortalLoginPage() {
     setError('')
 
     try {
-      // 1. Supabase Auth でログイン
       const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -31,7 +33,6 @@ export default function PortalLoginPage() {
         return
       }
 
-      // 2. members テーブルで確認
       const { data: memberData, error: memberError } = await supabase
         .from('members')
         .select('*')
@@ -45,7 +46,6 @@ export default function PortalLoginPage() {
         return
       }
 
-      // 3. ポータルトップへ
       router.replace('/portal')
     } catch (err) {
       setError(`ログイン処理中にエラーが発生しました: ${err instanceof Error ? err.message : String(err)}`)
@@ -55,14 +55,14 @@ export default function PortalLoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center font-sans">
-      <Card className="w-full max-w-[400px] border-0 shadow-sm">
+    <div className="min-h-screen bg-white flex items-center justify-center font-sans">
+      <Card className="w-full max-w-[400px] mx-5 bg-muted/50 border shadow-none">
         <CardContent className="p-10">
           <div className="text-center mb-8">
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">
+            <h1 className="text-2xl font-bold text-foreground mb-2">
               brandcommit
             </h1>
-            <p className="text-sm text-gray-500 m-0">
+            <p className="text-sm text-muted-foreground m-0">
               メンバーログイン
             </p>
           </div>
@@ -75,43 +75,39 @@ export default function PortalLoginPage() {
 
           <form onSubmit={handleLogin}>
             <div className="mb-5">
-              <label className="block text-sm font-bold text-gray-900 mb-1.5">
-                メールアドレス
-              </label>
-              <input
+              <Label className="mb-1.5 font-bold">メールアドレス</Label>
+              <Input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="member@example.com"
                 required
-                className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                className="h-10"
               />
             </div>
 
             <div className="mb-5">
-              <label className="block text-sm font-bold text-gray-900 mb-1.5">
-                パスワード
-              </label>
-              <input
+              <Label className="mb-1.5 font-bold">パスワード</Label>
+              <Input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="パスワードを入力"
                 required
-                className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                className="h-10"
               />
             </div>
 
-            <button
+            <Button
               type="submit"
               disabled={loading}
-              className="w-full py-3 px-5 bg-blue-600 text-white border-none rounded-lg text-base font-bold cursor-pointer hover:bg-blue-700 transition-colors disabled:opacity-60"
+              className="w-full h-11 text-base font-bold"
             >
               {loading ? 'ログイン中...' : 'ログイン'}
-            </button>
+            </Button>
           </form>
 
-          <p className="text-center text-[13px] text-gray-500 mt-6 mb-0">
+          <p className="text-center text-xs text-muted-foreground mt-6 mb-0">
             <Link href="/admin/login" className="text-blue-600 no-underline hover:underline">
               管理者ログインはこちら
             </Link>
