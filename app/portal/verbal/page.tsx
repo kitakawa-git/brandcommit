@@ -4,7 +4,8 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { usePortalAuth } from '../components/PortalAuthProvider'
-import { portalColors, portalStyles } from '../components/PortalStyles'
+import { portalStyles } from '../components/PortalStyles'
+import { cn } from '@/lib/utils'
 
 type Personality = {
   tone_of_voice: string | null
@@ -47,65 +48,65 @@ export default function PortalVerbalIdentityPage() {
     })
   }, [companyId])
 
-  if (loading) return <div style={portalStyles.empty}>読み込み中...</div>
+  if (loading) return <div className={portalStyles.empty}>読み込み中...</div>
 
   const hasTone = personality?.tone_of_voice
   const hasStyle = personality?.communication_style
   const hasTerms = terms.length > 0
 
   if (!hasTone && !hasStyle && !hasTerms) {
-    return <div style={portalStyles.empty}>まだ登録されていません</div>
+    return <div className={portalStyles.empty}>まだ登録されていません</div>
   }
 
   return (
-    <div style={portalStyles.pageContainer}>
-      <h1 style={portalStyles.pageTitle}>バーバルアイデンティティ</h1>
-      <p style={portalStyles.pageDescription}>
+    <div className={portalStyles.pageContainer}>
+      <h1 className={portalStyles.pageTitle}>バーバルアイデンティティ</h1>
+      <p className={portalStyles.pageDescription}>
         ブランドのトーン・コミュニケーションスタイル・用語ルール
       </p>
 
       {/* トーン */}
       {hasTone && (
-        <div style={portalStyles.section}>
-          <h2 style={portalStyles.sectionTitle}>トーン・オブ・ボイス</h2>
-          <div style={portalStyles.card}>
-            <div style={portalStyles.value}>{personality!.tone_of_voice}</div>
+        <div className={portalStyles.section}>
+          <h2 className={portalStyles.sectionTitle}>トーン・オブ・ボイス</h2>
+          <div className={portalStyles.card}>
+            <div className={portalStyles.value}>{personality!.tone_of_voice}</div>
           </div>
         </div>
       )}
 
       {/* コミュニケーションスタイル */}
       {hasStyle && (
-        <div style={portalStyles.section}>
-          <h2 style={portalStyles.sectionTitle}>コミュニケーションスタイル</h2>
-          <div style={portalStyles.card}>
-            <div style={portalStyles.value}>{personality!.communication_style}</div>
+        <div className={portalStyles.section}>
+          <h2 className={portalStyles.sectionTitle}>コミュニケーションスタイル</h2>
+          <div className={portalStyles.card}>
+            <div className={portalStyles.value}>{personality!.communication_style}</div>
           </div>
         </div>
       )}
 
       {/* 用語ルール */}
       {hasTerms && (
-        <div style={portalStyles.section}>
-          <h2 style={portalStyles.sectionTitle}>用語ルール</h2>
-          <table style={portalStyles.table}>
+        <div className={portalStyles.section}>
+          <h2 className={portalStyles.sectionTitle}>用語ルール</h2>
+          <table className={portalStyles.table}>
             <thead>
               <tr>
-                <th style={{ ...portalStyles.th, width: '30%' }}>推奨する表現</th>
-                <th style={{ ...portalStyles.th, width: '30%' }}>避ける表現</th>
-                <th style={portalStyles.th}>補足・文脈</th>
+                <th className={cn(portalStyles.th, 'w-[30%]')}>推奨する表現</th>
+                <th className={cn(portalStyles.th, 'w-[30%]')}>避ける表現</th>
+                <th className={portalStyles.th}>補足・文脈</th>
               </tr>
             </thead>
             <tbody>
               {terms.map((term, i) => (
                 <tr key={i}>
-                  <td style={{ ...portalStyles.td, fontWeight: 'bold', color: portalColors.success }}>
+                  <td className={cn(portalStyles.td, 'font-bold text-green-600')}>
                     {term.preferred_term}
                   </td>
-                  <td style={{ ...portalStyles.td, color: portalColors.danger, textDecoration: 'line-through' }}>
+                  <td className={cn(portalStyles.td, 'text-red-600 line-through')}>
                     {term.avoided_term}
                   </td>
-                  <td style={{ ...portalStyles.td, color: portalColors.textSecondary, fontSize: 13 }}>
+                  <td className={cn(portalStyles.td, 'text-gray-500 text-[13px]')}>
                     {term.context || '—'}
                   </td>
                 </tr>

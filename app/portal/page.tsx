@@ -3,7 +3,7 @@
 // ポータルトップ: ブランド要素へのナビゲーションカード
 import Link from 'next/link'
 import { usePortalAuth } from './components/PortalAuthProvider'
-import { portalColors, portalStyles } from './components/PortalStyles'
+import { portalStyles } from './components/PortalStyles'
 
 const cards = [
   {
@@ -36,81 +36,30 @@ export default function PortalTopPage() {
   const { member } = usePortalAuth()
 
   return (
-    <div style={portalStyles.pageContainer}>
-      <div style={{ textAlign: 'center', marginBottom: 40 }}>
-        <h1 style={{ fontSize: 28, fontWeight: 'bold', color: portalColors.textPrimary, margin: '0 0 8px' }}>
+    <div className={portalStyles.pageContainer}>
+      <div className="text-center mb-10">
+        <h1 className="text-[28px] font-bold text-gray-900 mb-2">
           ブランドポータル
         </h1>
         {member && (
-          <p style={{ fontSize: 14, color: portalColors.textSecondary, margin: 0 }}>
+          <p className="text-sm text-gray-500 m-0">
             ようこそ、{member.display_name} さん
           </p>
         )}
       </div>
 
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fill, minmax(280, 1fr))',
-        gap: 16,
-      }}>
-        {/* レスポンシブ用スタイル */}
-        <style>{`
-          .portal-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 16px;
-          }
-          @media (max-width: 768px) {
-            .portal-grid {
-              grid-template-columns: repeat(2, 1fr);
-            }
-          }
-          @media (max-width: 480px) {
-            .portal-grid {
-              grid-template-columns: 1fr;
-            }
-          }
-          .portal-card {
-            transition: box-shadow 0.15s, transform 0.15s;
-          }
-          .portal-card:hover {
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            transform: translateY(-2px);
-          }
-        `}</style>
-      </div>
-
-      <div className="portal-grid">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {cards.map((card) => (
           <Link
             key={card.href}
             href={card.href}
-            className="portal-card"
-            style={{
-              display: 'block',
-              backgroundColor: portalColors.cardBg,
-              border: `1px solid ${portalColors.cardBorder}`,
-              borderRadius: 12,
-              padding: 24,
-              textDecoration: 'none',
-              textAlign: 'center',
-            }}
+            className="block bg-white border border-gray-200 rounded-xl p-6 no-underline text-center hover:shadow-lg hover:-translate-y-0.5 transition-all"
           >
-            <div style={{ fontSize: 40, marginBottom: 12 }}>{card.icon}</div>
-            <h3 style={{
-              fontSize: 16,
-              fontWeight: 'bold',
-              color: portalColors.textPrimary,
-              margin: '0 0 8px',
-            }}>
+            <div className="text-[40px] mb-3">{card.icon}</div>
+            <h3 className="text-base font-bold text-gray-900 mb-2">
               {card.title}
             </h3>
-            <p style={{
-              fontSize: 13,
-              color: portalColors.textSecondary,
-              margin: 0,
-              lineHeight: 1.5,
-            }}>
+            <p className="text-[13px] text-gray-500 m-0 leading-normal">
               {card.description}
             </p>
           </Link>

@@ -3,57 +3,27 @@
 // 管理画面ヘッダー（ログアウトボタン付き）
 import Link from 'next/link'
 import { useAuth } from './AuthProvider'
-import { colors, layout } from './AdminStyles'
 
 export function AdminHeader() {
   const { user, isSuperAdmin, signOut } = useAuth()
 
   return (
-    <header style={{
-      height: layout.headerHeight,
-      backgroundColor: colors.headerBg,
-      borderBottom: `1px solid ${colors.headerBorder}`,
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'flex-end',
-      padding: '0 24px',
-      gap: 16,
-    }}>
+    <header className="h-[60px] bg-white border-b border-gray-200 flex items-center justify-end px-6 gap-4">
       {/* スーパー管理者の場合: スーパー管理画面へのリンク */}
       {isSuperAdmin && (
         <Link
           href="/superadmin/companies"
-          style={{
-            marginRight: 'auto',
-            padding: '6px 14px',
-            backgroundColor: '#1e3a5f',
-            color: '#ffffff',
-            fontSize: 13,
-            fontWeight: 'bold',
-            borderRadius: 6,
-            textDecoration: 'none',
-          }}
+          className="mr-auto px-3.5 py-1.5 bg-[#1e3a5f] text-white text-[13px] font-bold rounded-md no-underline hover:bg-[#152d4a] transition-colors"
         >
           スーパー管理画面へ →
         </Link>
       )}
-      <span style={{
-        fontSize: 14,
-        color: colors.textSecondary,
-      }}>
+      <span className="text-sm text-gray-500">
         {user?.email}
       </span>
       <button
         onClick={signOut}
-        style={{
-          padding: '8px 16px',
-          backgroundColor: 'transparent',
-          border: `1px solid ${colors.border}`,
-          borderRadius: 6,
-          fontSize: 14,
-          cursor: 'pointer',
-          color: colors.textPrimary,
-        }}
+        className="px-4 py-2 bg-transparent border border-gray-200 rounded-md text-sm cursor-pointer text-gray-900 hover:bg-gray-50 transition-colors"
       >
         ログアウト
       </button>

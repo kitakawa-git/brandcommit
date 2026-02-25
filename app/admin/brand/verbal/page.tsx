@@ -3,8 +3,9 @@
 // バーバルアイデンティティ 編集ページ（トーンオブボイス・コミュニケーションスタイル・用語ルール統合）
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
+import { cn } from '@/lib/utils'
 import { useAuth } from '../../components/AuthProvider'
-import { colors, commonStyles } from '../../components/AdminStyles'
+import { commonStyles } from '../../components/AdminStyles'
 
 type Personality = {
   tone_of_voice: string
@@ -247,105 +248,100 @@ export default function VerbalIdentityPage() {
   }
 
   if (loading) {
-    return <p style={{ color: colors.textSecondary, textAlign: 'center', padding: 40 }}>読み込み中...</p>
+    return <p className="text-gray-500 text-center p-10">読み込み中...</p>
   }
 
   if (fetchError) {
     return (
-      <div style={{ textAlign: 'center', padding: 40 }}>
-        <p style={{ color: '#dc2626', fontSize: 14, marginBottom: 12 }}>{fetchError}</p>
-        <button onClick={fetchData} style={{ ...commonStyles.buttonOutline, padding: '8px 16px', fontSize: 13 }}>再読み込み</button>
+      <div className="text-center p-10">
+        <p className="text-red-600 text-sm mb-3">{fetchError}</p>
+        <button onClick={fetchData} className={cn(commonStyles.buttonOutline, 'py-2 px-4 text-[13px]')}>再読み込み</button>
       </div>
     )
   }
 
   return (
     <div>
-      <h2 style={{ fontSize: 20, fontWeight: 'bold', color: colors.textPrimary, margin: '0 0 24px' }}>
+      <h2 className="text-xl font-bold text-gray-900 mb-6">
         バーバルアイデンティティ
       </h2>
 
-      <div style={commonStyles.card}>
+      <div className={commonStyles.card}>
         {message && (
-          <div style={messageType === 'success' ? commonStyles.success : commonStyles.error}>
+          <div className={messageType === 'success' ? commonStyles.success : commonStyles.error}>
             {message}
           </div>
         )}
 
         <form onSubmit={handleSubmit}>
           {/* トーンオブボイス */}
-          <div style={commonStyles.formGroup}>
-            <label style={commonStyles.label}>トーンオブボイス</label>
+          <div className={commonStyles.formGroup}>
+            <label className={commonStyles.label}>トーンオブボイス</label>
             <textarea
               value={personality.tone_of_voice}
               onChange={(e) => handleChange('tone_of_voice', e.target.value)}
               placeholder="フォーマルだが親しみやすい、専門用語は最小限に..."
-              style={{ ...commonStyles.textarea, minHeight: 100 }}
+              className={cn(commonStyles.textarea, 'min-h-[100px]')}
             />
           </div>
 
           {/* コミュニケーションスタイル */}
-          <div style={commonStyles.formGroup}>
-            <label style={commonStyles.label}>コミュニケーションスタイル</label>
+          <div className={commonStyles.formGroup}>
+            <label className={commonStyles.label}>コミュニケーションスタイル</label>
             <textarea
               value={personality.communication_style}
               onChange={(e) => handleChange('communication_style', e.target.value)}
               placeholder="結論から伝える、データで裏付ける..."
-              style={{ ...commonStyles.textarea, minHeight: 100 }}
+              className={cn(commonStyles.textarea, 'min-h-[100px]')}
             />
           </div>
 
           {/* 用語ルール */}
-          <div style={{ marginTop: 8, paddingTop: 20, borderTop: `1px solid ${colors.border}` }}>
-            <h3 style={{ fontSize: 15, fontWeight: 'bold', color: colors.textPrimary, margin: '0 0 8px' }}>
+          <div className="mt-2 pt-5 border-t border-gray-200">
+            <h3 className="text-[15px] font-bold text-gray-900 mb-2">
               用語ルール
             </h3>
-            <p style={{ fontSize: 12, color: colors.textSecondary, margin: '0 0 16px' }}>
+            <p className="text-xs text-gray-500 mb-4">
               ブランドで使用する推奨用語と避けるべき用語を設定します
             </p>
 
             {/* ヘッダー行 */}
             {terms.length > 0 && (
-              <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
-                <span style={{ flex: 1, fontSize: 12, fontWeight: 'bold', color: colors.textSecondary }}>推奨用語</span>
-                <span style={{ flex: 1, fontSize: 12, fontWeight: 'bold', color: colors.textSecondary }}>非推奨用語</span>
-                <span style={{ flex: 1, fontSize: 12, fontWeight: 'bold', color: colors.textSecondary }}>使い分け説明</span>
-                <span style={{ width: 56 }} />
+              <div className="flex gap-2 mb-2">
+                <span className="flex-1 text-xs font-bold text-gray-500">推奨用語</span>
+                <span className="flex-1 text-xs font-bold text-gray-500">非推奨用語</span>
+                <span className="flex-1 text-xs font-bold text-gray-500">使い分け説明</span>
+                <span className="w-14" />
               </div>
             )}
 
             {terms.map((term, index) => (
-              <div key={index} style={{ display: 'flex', gap: 8, marginBottom: 8, alignItems: 'flex-start' }}>
+              <div key={index} className="flex gap-2 mb-2 items-start">
                 <input
                   type="text"
                   value={term.preferred_term}
                   onChange={(e) => updateTerm(index, 'preferred_term', e.target.value)}
                   placeholder="推奨用語"
-                  style={{ ...commonStyles.input, flex: 1 }}
+                  className={cn(commonStyles.input, 'flex-1')}
                 />
                 <input
                   type="text"
                   value={term.avoided_term}
                   onChange={(e) => updateTerm(index, 'avoided_term', e.target.value)}
                   placeholder="非推奨用語"
-                  style={{ ...commonStyles.input, flex: 1 }}
+                  className={cn(commonStyles.input, 'flex-1')}
                 />
                 <input
                   type="text"
                   value={term.context}
                   onChange={(e) => updateTerm(index, 'context', e.target.value)}
                   placeholder="使い分け説明"
-                  style={{ ...commonStyles.input, flex: 1 }}
+                  className={cn(commonStyles.input, 'flex-1')}
                 />
                 <button
                   type="button"
                   onClick={() => removeTerm(index)}
-                  style={{
-                    ...commonStyles.dangerButton,
-                    padding: '8px 14px',
-                    fontSize: 13,
-                    whiteSpace: 'nowrap',
-                  }}
+                  className={cn(commonStyles.dangerButton, 'py-2 px-3.5 text-[13px] whitespace-nowrap')}
                 >
                   削除
                 </button>
@@ -355,12 +351,7 @@ export default function VerbalIdentityPage() {
             <button
               type="button"
               onClick={addTerm}
-              style={{
-                ...commonStyles.buttonOutline,
-                padding: '8px 16px',
-                fontSize: 13,
-                marginBottom: 20,
-              }}
+              className={cn(commonStyles.buttonOutline, 'py-2 px-4 text-[13px] mb-5')}
             >
               + 用語ルールを追加
             </button>
@@ -369,7 +360,7 @@ export default function VerbalIdentityPage() {
           <button
             type="submit"
             disabled={saving}
-            style={{ ...commonStyles.button, marginTop: 8, opacity: saving ? 0.6 : 1 }}
+            className={cn(commonStyles.button, 'mt-2', saving && 'opacity-60')}
           >
             {saving ? '保存中...' : '保存する'}
           </button>

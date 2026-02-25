@@ -1,5 +1,6 @@
-// ポータル専用スタイル定数（閲覧体験重視）
+// ポータル専用スタイル定数（Tailwind CSS版）
 
+// カラー定数（チャート等でHEX値が必要な箇所用）
 export const portalColors = {
   bg: '#ffffff',
   headerBg: '#1f2937',
@@ -23,113 +24,19 @@ export const portalColors = {
   footerText: '#9ca3af',
 } as const
 
+// Tailwind クラス文字列（className で使用）
 export const portalStyles = {
-  // ページコンテナ
-  pageContainer: {
-    maxWidth: 960,
-    margin: '0 auto',
-    padding: '32px 24px',
-  } as React.CSSProperties,
-
-  // ページタイトル
-  pageTitle: {
-    fontSize: 24,
-    fontWeight: 'bold' as const,
-    color: portalColors.textPrimary,
-    margin: '0 0 8px',
-  } as React.CSSProperties,
-
-  // ページ説明
-  pageDescription: {
-    fontSize: 14,
-    color: portalColors.textSecondary,
-    margin: '0 0 32px',
-    lineHeight: 1.6,
-  } as React.CSSProperties,
-
-  // セクション
-  section: {
-    marginBottom: 32,
-  } as React.CSSProperties,
-
-  // セクションタイトル
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: 'bold' as const,
-    color: portalColors.textPrimary,
-    margin: '0 0 16px',
-    paddingBottom: 8,
-    borderBottom: `2px solid ${portalColors.border}`,
-  } as React.CSSProperties,
-
-  // カード
-  card: {
-    backgroundColor: portalColors.cardBg,
-    border: `1px solid ${portalColors.cardBorder}`,
-    borderRadius: 12,
-    padding: 24,
-    marginBottom: 16,
-  } as React.CSSProperties,
-
-  // ラベル
-  label: {
-    fontSize: 12,
-    fontWeight: 'bold' as const,
-    color: portalColors.textSecondary,
-    textTransform: 'uppercase' as const,
-    letterSpacing: 0.5,
-    marginBottom: 4,
-  } as React.CSSProperties,
-
-  // 値テキスト
-  value: {
-    fontSize: 16,
-    color: portalColors.textPrimary,
-    lineHeight: 1.8,
-    whiteSpace: 'pre-wrap' as const,
-  } as React.CSSProperties,
-
-  // 空状態
-  empty: {
-    textAlign: 'center' as const,
-    padding: '60px 20px',
-    color: portalColors.textMuted,
-    fontSize: 15,
-  } as React.CSSProperties,
-
-  // タグ
-  tag: {
-    display: 'inline-block',
-    padding: '4px 12px',
-    backgroundColor: portalColors.sectionBg,
-    border: `1px solid ${portalColors.border}`,
-    borderRadius: 20,
-    fontSize: 13,
-    color: portalColors.textPrimary,
-    marginRight: 8,
-    marginBottom: 8,
-  } as React.CSSProperties,
-
-  // テーブル
-  table: {
-    width: '100%',
-    borderCollapse: 'collapse' as const,
-    fontSize: 14,
-  } as React.CSSProperties,
-
-  th: {
-    textAlign: 'left' as const,
-    padding: '12px 16px',
-    backgroundColor: portalColors.sectionBg,
-    color: portalColors.textSecondary,
-    fontWeight: '600' as const,
-    borderBottom: `1px solid ${portalColors.border}`,
-    fontSize: 13,
-  } as React.CSSProperties,
-
-  td: {
-    padding: '12px 16px',
-    borderBottom: `1px solid ${portalColors.border}`,
-    color: portalColors.textPrimary,
-  } as React.CSSProperties,
+  pageContainer: 'max-w-[960px] mx-auto px-6 py-8',
+  pageTitle: 'text-2xl font-bold text-gray-900 mb-2',
+  pageDescription: 'text-sm text-gray-500 mb-8 leading-relaxed',
+  section: 'mb-8',
+  sectionTitle: 'text-lg font-bold text-gray-900 mb-4 pb-2 border-b-2 border-gray-200',
+  card: 'bg-white border border-gray-200 rounded-xl p-6 mb-4',
+  label: 'text-xs font-bold text-gray-500 uppercase tracking-wide mb-1',
+  value: 'text-base text-gray-900 leading-[1.8] whitespace-pre-wrap',
+  empty: 'text-center py-[60px] px-5 text-gray-400 text-[15px]',
+  tag: 'inline-block px-3 py-1 bg-gray-50 border border-gray-200 rounded-full text-[13px] text-gray-900 mr-2 mb-2',
+  table: 'w-full border-collapse text-sm',
+  th: 'text-left px-4 py-3 bg-gray-50 text-gray-500 font-semibold border-b border-gray-200 text-[13px]',
+  td: 'px-4 py-3 border-b border-gray-200 text-gray-900',
 }

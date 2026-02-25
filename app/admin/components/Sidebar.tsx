@@ -3,7 +3,7 @@
 // サイドバーナビゲーション
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { colors, layout } from './AdminStyles'
+import { cn } from '@/lib/utils'
 import {
   Users,
   Sparkles,
@@ -48,17 +48,12 @@ export function Sidebar() {
       <Link
         key={item.href}
         href={item.href}
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: 10,
-          padding: '12px 20px',
-          color: isActive ? colors.sidebarActiveText : colors.sidebarText,
-          backgroundColor: isActive ? colors.sidebarActiveBg : 'transparent',
-          textDecoration: 'none',
-          fontSize: 14,
-          transition: 'background-color 0.15s',
-        }}
+        className={cn(
+          'flex items-center gap-2.5 px-5 py-3 no-underline text-sm transition-colors',
+          isActive
+            ? 'text-white bg-gray-700'
+            : 'text-gray-300 hover:bg-gray-700/50'
+        )}
       >
         <Icon size={18} />
         {item.label}
@@ -67,32 +62,15 @@ export function Sidebar() {
   }
 
   return (
-    <aside style={{
-      width: layout.sidebarWidth,
-      backgroundColor: colors.sidebarBg,
-      minHeight: '100vh',
-      padding: '24px 0',
-      position: 'fixed',
-      left: 0,
-      top: 0,
-    }}>
+    <aside className="w-[240px] bg-gray-800 min-h-screen py-6 fixed left-0 top-0">
       {/* ロゴ・タイトル */}
-      <div style={{ padding: '0 20px', marginBottom: 32 }}>
-        <Link href="/admin" style={{ textDecoration: 'none' }}>
-          <h1 style={{
-            color: '#ffffff',
-            fontSize: 18,
-            margin: 0,
-            fontWeight: 'bold',
-          }}>
+      <div className="px-5 mb-8">
+        <Link href="/admin" className="no-underline">
+          <h1 className="text-white text-lg m-0 font-bold">
             brandcommit
           </h1>
         </Link>
-        <p style={{
-          color: colors.sidebarText,
-          fontSize: 12,
-          margin: '4px 0 0',
-        }}>
+        <p className="text-gray-300 text-xs mt-1 m-0">
           管理画面
         </p>
       </div>
@@ -102,17 +80,8 @@ export function Sidebar() {
         {navItems.map(renderNavLink)}
 
         {/* 区切り線 + ブランド掲示セクション */}
-        <div style={{
-          borderTop: `1px solid ${colors.sidebarActiveBg}`,
-          margin: '12px 20px',
-        }} />
-        <p style={{
-          padding: '4px 20px 8px',
-          fontSize: 11,
-          color: colors.sidebarText,
-          margin: 0,
-          letterSpacing: 1,
-        }}>
+        <div className="border-t border-gray-700 mx-5 my-3" />
+        <p className="px-5 py-1 pb-2 text-[11px] text-gray-300 m-0 tracking-wider">
           ブランド掲示
         </p>
         {brandItems.map(renderNavLink)}

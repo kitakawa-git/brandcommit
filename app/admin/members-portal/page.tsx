@@ -4,7 +4,8 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '../components/AuthProvider'
-import { colors, commonStyles } from '../components/AdminStyles'
+import { commonStyles } from '../components/AdminStyles'
+import { cn } from '@/lib/utils'
 
 type InviteLink = {
   id: string
@@ -167,7 +168,7 @@ export default function MembersPortalPage() {
 
   if (loading) {
     return (
-      <p style={{ color: colors.textSecondary, textAlign: 'center', padding: 40 }}>
+      <p className="text-gray-500 text-center p-10">
         読み込み中...
       </p>
     )
@@ -175,80 +176,75 @@ export default function MembersPortalPage() {
 
   return (
     <div>
-      <h2 style={{ fontSize: 20, fontWeight: 'bold', color: colors.textPrimary, margin: '0 0 24px' }}>
+      <h2 className="text-xl font-bold text-gray-900 mb-6">
         アカウント作成
       </h2>
 
       {message && (
-        <div style={messageType === 'success' ? commonStyles.success : commonStyles.error}>
+        <div className={messageType === 'success' ? commonStyles.success : commonStyles.error}>
           {message}
         </div>
       )}
 
       {/* ── セクション1: 招待リンク ── */}
-      <div style={{ ...commonStyles.card, marginBottom: 24 }}>
-        <h3 style={{ fontSize: 16, fontWeight: 'bold', color: colors.textPrimary, margin: '0 0 16px' }}>
+      <div className={cn(commonStyles.card, 'mb-6')}>
+        <h3 className="text-base font-bold text-gray-900 mb-4">
           招待リンク
         </h3>
-        <p style={{ fontSize: 12, color: colors.textSecondary, margin: '0 0 12px' }}>
+        <p className="text-xs text-gray-500 mb-3">
           従業員に共有すると、セルフ登録でアカウントを作成できます
         </p>
 
         <button
           onClick={handleGenerateLink}
           disabled={generatingLink}
-          style={{
-            ...commonStyles.button,
-            marginBottom: 16,
-            opacity: generatingLink ? 0.6 : 1,
-          }}
+          className={cn(commonStyles.button, 'mb-4', generatingLink && 'opacity-60')}
         >
           {generatingLink ? '生成中...' : '招待リンクを生成'}
         </button>
 
         {inviteLinks.length > 0 && (
-          <table style={commonStyles.table}>
+          <table className={commonStyles.table}>
             <thead>
               <tr>
-                <th style={commonStyles.th}>リンク</th>
-                <th style={commonStyles.th}>ステータス</th>
-                <th style={commonStyles.th}>作成日</th>
-                <th style={commonStyles.th}>操作</th>
+                <th className={commonStyles.th}>リンク</th>
+                <th className={commonStyles.th}>ステータス</th>
+                <th className={commonStyles.th}>作成日</th>
+                <th className={commonStyles.th}>操作</th>
               </tr>
             </thead>
             <tbody>
               {inviteLinks.map((link) => (
                 <tr key={link.id}>
-                  <td style={{ ...commonStyles.td, fontSize: 12, wordBreak: 'break-all' }}>
+                  <td className={cn(commonStyles.td, 'text-xs break-all')}>
                     /portal/register?token={link.token.substring(0, 8)}...
                   </td>
-                  <td style={commonStyles.td}>
-                    <span style={{
-                      padding: '2px 8px',
-                      borderRadius: 4,
-                      fontSize: 12,
-                      fontWeight: 'bold',
-                      backgroundColor: link.is_active ? '#dcfce7' : '#f3f4f6',
-                      color: link.is_active ? colors.success : colors.textSecondary,
-                    }}>
+                  <td className={commonStyles.td}>
+                    <span
+                      className="py-0.5 px-2 rounded text-xs font-bold"
+                      style={{
+                        backgroundColor: link.is_active ? '#dcfce7' : '#f3f4f6',
+                        color: link.is_active ? '#16a34a' : '#6b7280',
+                      }}
+                    >
                       {link.is_active ? '有効' : '無効'}
                     </span>
                   </td>
-                  <td style={{ ...commonStyles.td, fontSize: 12 }}>
+                  <td className={cn(commonStyles.td, 'text-xs')}>
                     {new Date(link.created_at).toLocaleDateString('ja-JP')}
                   </td>
-                  <td style={commonStyles.td}>
+                  <td className={commonStyles.td}>
                     {link.is_active && (
-                      <div style={{ display: 'flex', gap: 8 }}>
+                      <div className="flex gap-2">
                         <button
                           onClick={() => handleCopyLink(link.token)}
-                          style={{ ...commonStyles.buttonOutline, padding: '4px 10px', fontSize: 12 }}
+                          className={cn(commonStyles.buttonOutline, 'py-1 px-2.5 text-xs')}
                         >
                           コピー
                         </button>
                         <button
                           onClick={() => handleDeactivateLink(link.id)}
-                          style={{ ...commonStyles.dangerButton, padding: '4px 10px', fontSize: 12 }}
+                          className={cn(commonStyles.dangerButton, 'py-1 px-2.5 text-xs')}
                         >
                           無効化
                         </button>
@@ -263,31 +259,31 @@ export default function MembersPortalPage() {
       </div>
 
       {/* ── セクション2: アカウント手動作成 ── */}
-      <div style={{ ...commonStyles.card, marginBottom: 24 }}>
-        <h3 style={{ fontSize: 16, fontWeight: 'bold', color: colors.textPrimary, margin: '0 0 16px' }}>
+      <div className={cn(commonStyles.card, 'mb-6')}>
+        <h3 className="text-base font-bold text-gray-900 mb-4">
           アカウント手動作成
         </h3>
 
-        <p style={{ fontSize: 12, color: colors.textSecondary, margin: '0 0 16px' }}>
+        <p className="text-xs text-gray-500 mb-4">
           名刺プロフィールも同時に作成されます
         </p>
 
         <form onSubmit={handleCreateMember}>
-          <div style={commonStyles.formGroup}>
-            <label style={commonStyles.label}>メールアドレス</label>
+          <div className={commonStyles.formGroup}>
+            <label className={commonStyles.label}>メールアドレス</label>
             <input
               type="email"
               value={newEmail}
               onChange={(e) => setNewEmail(e.target.value)}
               placeholder="member@example.com"
               required
-              style={commonStyles.input}
+              className={commonStyles.input}
             />
           </div>
 
-          <div style={commonStyles.formGroup}>
-            <label style={commonStyles.label}>パスワード</label>
-            <div style={{ display: 'flex', gap: 8 }}>
+          <div className={commonStyles.formGroup}>
+            <label className={commonStyles.label}>パスワード</label>
+            <div className="flex gap-2">
               <input
                 type="text"
                 value={newPassword}
@@ -295,34 +291,34 @@ export default function MembersPortalPage() {
                 placeholder="8文字以上"
                 required
                 minLength={8}
-                style={{ ...commonStyles.input, flex: 1 }}
+                className={cn(commonStyles.input, 'flex-1')}
               />
               <button
                 type="button"
                 onClick={() => setNewPassword(generatePassword())}
-                style={{ ...commonStyles.buttonOutline, padding: '8px 12px', fontSize: 12, whiteSpace: 'nowrap' }}
+                className={cn(commonStyles.buttonOutline, 'py-2 px-3 text-xs whitespace-nowrap')}
               >
                 自動生成
               </button>
             </div>
           </div>
 
-          <div style={commonStyles.formGroup}>
-            <label style={commonStyles.label}>名前</label>
+          <div className={commonStyles.formGroup}>
+            <label className={commonStyles.label}>名前</label>
             <input
               type="text"
               value={newDisplayName}
               onChange={(e) => setNewDisplayName(e.target.value)}
               placeholder="山田太郎"
               required
-              style={commonStyles.input}
+              className={commonStyles.input}
             />
           </div>
 
           <button
             type="submit"
             disabled={creating}
-            style={{ ...commonStyles.button, opacity: creating ? 0.6 : 1 }}
+            className={cn(commonStyles.button, creating && 'opacity-60')}
           >
             {creating ? '作成中...' : 'アカウントを作成'}
           </button>

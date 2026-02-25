@@ -21,139 +21,56 @@ const features = [
 
 export default function Home() {
   return (
-    <div style={{
-      minHeight: '100vh',
-      fontFamily: 'sans-serif',
-      backgroundColor: '#ffffff',
-    }}>
+    <div className="min-h-screen font-sans bg-white">
       {/* ヘッダー */}
-      <header style={{
-        padding: '16px 24px',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        maxWidth: 1080,
-        margin: '0 auto',
-      }}>
-        <span style={{
-          fontSize: 20,
-          fontWeight: 'bold',
-          color: '#111827',
-        }}>
+      <header className="px-6 py-4 flex justify-between items-center max-w-[1080px] mx-auto">
+        <span className="text-xl font-bold text-gray-900">
           brandcommit
         </span>
-        <Link href="/admin/login" style={{
-          color: '#2563eb',
-          textDecoration: 'none',
-          fontSize: 14,
-          fontWeight: 'bold',
-        }}>
+        <Link href="/admin/login" className="text-blue-600 no-underline text-sm font-bold">
           ログイン
         </Link>
       </header>
 
       {/* ヒーローセクション */}
-      <section style={{
-        textAlign: 'center',
-        padding: '80px 24px 60px',
-        maxWidth: 720,
-        margin: '0 auto',
-      }}>
-        <h1 style={{
-          fontSize: 40,
-          fontWeight: 'bold',
-          color: '#111827',
-          margin: '0 0 16px',
-          lineHeight: 1.3,
-        }}>
+      <section className="text-center px-6 pt-20 pb-[60px] max-w-[720px] mx-auto">
+        <h1 className="text-[40px] font-bold text-gray-900 mb-4 leading-[1.3]">
           ブランドを、約束にする。
         </h1>
-        <p style={{
-          fontSize: 18,
-          color: '#6b7280',
-          margin: '0 0 40px',
-          lineHeight: 1.7,
-        }}>
+        <p className="text-lg text-gray-500 mb-10 leading-[1.7]">
           中小企業のためのスマート名刺 × ブランディングSaaS
         </p>
-        <div style={{
-          display: 'flex',
-          gap: 16,
-          justifyContent: 'center',
-          flexWrap: 'wrap',
-        }}>
-          <Link href="/signup" style={{
-            padding: '14px 32px',
-            backgroundColor: '#2563eb',
-            color: '#ffffff',
-            border: 'none',
-            borderRadius: 8,
-            fontSize: 16,
-            fontWeight: 'bold',
-            textDecoration: 'none',
-            display: 'inline-block',
-          }}>
+        <div className="flex gap-4 justify-center flex-wrap">
+          <Link
+            href="/signup"
+            className="py-3.5 px-8 bg-blue-600 text-white border-none rounded-lg text-base font-bold no-underline inline-block"
+          >
             無料で始める
           </Link>
-          <Link href="/admin/login" style={{
-            padding: '14px 32px',
-            backgroundColor: 'transparent',
-            color: '#111827',
-            border: '1px solid #e5e7eb',
-            borderRadius: 8,
-            fontSize: 16,
-            textDecoration: 'none',
-            display: 'inline-block',
-          }}>
+          <Link
+            href="/admin/login"
+            className="py-3.5 px-8 bg-transparent text-gray-900 border border-gray-200 rounded-lg text-base no-underline inline-block"
+          >
             ログイン
           </Link>
         </div>
       </section>
 
       {/* 特徴セクション */}
-      <section style={{
-        padding: '60px 24px 80px',
-        maxWidth: 960,
-        margin: '0 auto',
-      }}>
-        <h2 style={{
-          textAlign: 'center',
-          fontSize: 24,
-          fontWeight: 'bold',
-          color: '#111827',
-          margin: '0 0 48px',
-        }}>
+      <section className="px-6 pt-[60px] pb-20 max-w-[960px] mx-auto">
+        <h2 className="text-center text-2xl font-bold text-gray-900 mb-12">
           主な機能
         </h2>
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
-          gap: 32,
-        }}>
+        <div className="grid grid-cols-[repeat(auto-fit,minmax(260px,1fr))] gap-8">
           {features.map((feature) => (
-            <div key={feature.title} style={{
-              backgroundColor: '#f9fafb',
-              borderRadius: 12,
-              padding: 32,
-              textAlign: 'center',
-            }}>
-              <div style={{ fontSize: 36, marginBottom: 16 }}>
+            <div key={feature.title} className="bg-gray-50 rounded-xl p-8 text-center">
+              <div className="text-4xl mb-4">
                 {feature.icon}
               </div>
-              <h3 style={{
-                fontSize: 18,
-                fontWeight: 'bold',
-                color: '#111827',
-                margin: '0 0 12px',
-              }}>
+              <h3 className="text-lg font-bold text-gray-900 mb-3">
                 {feature.title}
               </h3>
-              <p style={{
-                fontSize: 14,
-                color: '#6b7280',
-                margin: 0,
-                lineHeight: 1.7,
-              }}>
+              <p className="text-sm text-gray-500 m-0 leading-[1.7]">
                 {feature.description}
               </p>
             </div>
@@ -162,16 +79,8 @@ export default function Home() {
       </section>
 
       {/* フッター */}
-      <footer style={{
-        padding: '24px',
-        textAlign: 'center',
-        borderTop: '1px solid #e5e7eb',
-      }}>
-        <p style={{
-          fontSize: 13,
-          color: '#9ca3af',
-          margin: 0,
-        }}>
+      <footer className="p-6 text-center border-t border-gray-200">
+        <p className="text-[13px] text-gray-400 m-0">
           &copy; brandcommit
         </p>
       </footer>

@@ -5,7 +5,8 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
-import { colors, commonStyles } from '../../../admin/components/AdminStyles'
+import { commonStyles } from '../../../admin/components/AdminStyles'
+import { cn } from '@/lib/utils'
 
 export default function NewCompanyPage() {
   const router = useRouter()
@@ -120,185 +121,139 @@ export default function NewCompanyPage() {
   return (
     <div>
       {/* ヘッダー */}
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: 16,
-        marginBottom: 24,
-      }}>
+      <div className="flex items-center gap-4 mb-6">
         <Link
           href="/superadmin/companies"
-          style={{
-            color: colors.textSecondary,
-            textDecoration: 'none',
-            fontSize: 14,
-          }}
+          className="text-gray-500 no-underline text-sm"
         >
           ← 企業一覧に戻る
         </Link>
       </div>
 
-      <h2 style={{
-        fontSize: 20,
-        fontWeight: 'bold',
-        color: colors.textPrimary,
-        margin: '0 0 24px',
-      }}>
+      <h2 className="text-xl font-bold text-gray-900 mb-6">
         新規企業を登録
       </h2>
 
-      <div style={{ ...commonStyles.card, maxWidth: 600 }}>
+      <div className={cn(commonStyles.card, 'max-w-[600px]')}>
         {/* 成功メッセージ */}
         {successMessage && (
-          <div style={commonStyles.success}>
+          <div className={commonStyles.success}>
             {successMessage}
           </div>
         )}
 
         {/* エラーメッセージ */}
         {error && (
-          <div style={{
-            ...commonStyles.error,
-            whiteSpace: 'pre-wrap',
-            wordBreak: 'break-word',
-          }}>
+          <div className={cn(commonStyles.error, 'whitespace-pre-wrap break-words')}>
             {error}
           </div>
         )}
 
         <form onSubmit={handleSubmit}>
           {/* === 企業情報セクション === */}
-          <h3 style={{
-            fontSize: 16,
-            fontWeight: 'bold',
-            color: colors.textPrimary,
-            margin: '0 0 16px',
-            paddingBottom: 8,
-            borderBottom: `1px solid ${colors.border}`,
-          }}>
+          <h3 className="text-base font-bold text-gray-900 mb-4 pb-2 border-b border-gray-200">
             企業情報
           </h3>
 
-          <div style={commonStyles.formGroup}>
-            <label style={commonStyles.label}>企業名 *</label>
+          <div className={commonStyles.formGroup}>
+            <label className={commonStyles.label}>企業名 *</label>
             <input
               type="text"
               value={companyName}
               onChange={(e) => setCompanyName(e.target.value)}
               placeholder="株式会社○○"
               required
-              style={commonStyles.input}
+              className={commonStyles.input}
             />
           </div>
 
-          <div style={commonStyles.formGroup}>
-            <label style={commonStyles.label}>スローガン</label>
+          <div className={commonStyles.formGroup}>
+            <label className={commonStyles.label}>スローガン</label>
             <input
               type="text"
               value={slogan}
               onChange={(e) => setSlogan(e.target.value)}
               placeholder="企業のスローガン"
-              style={commonStyles.input}
+              className={commonStyles.input}
             />
           </div>
 
-          <div style={commonStyles.formGroup}>
-            <label style={commonStyles.label}>ミッション・ビジョン・バリュー</label>
+          <div className={commonStyles.formGroup}>
+            <label className={commonStyles.label}>ミッション・ビジョン・バリュー</label>
             <textarea
               value={mvv}
               onChange={(e) => setMvv(e.target.value)}
               placeholder="企業のMVVを入力"
-              style={{ ...commonStyles.textarea, minHeight: 100 }}
+              className={cn(commonStyles.textarea, 'min-h-[100px]')}
             />
           </div>
 
-          <div style={commonStyles.formGroup}>
-            <label style={commonStyles.label}>ブランドカラー（プライマリ）</label>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <div className={commonStyles.formGroup}>
+            <label className={commonStyles.label}>ブランドカラー（プライマリ）</label>
+            <div className="flex items-center gap-3">
               <input
                 type="color"
                 value={brandColorPrimary}
                 onChange={(e) => setBrandColorPrimary(e.target.value)}
-                style={{
-                  width: 48,
-                  height: 48,
-                  border: `1px solid ${colors.inputBorder}`,
-                  borderRadius: 8,
-                  cursor: 'pointer',
-                  padding: 2,
-                }}
+                className="w-12 h-12 border border-gray-300 rounded-lg cursor-pointer p-0.5"
               />
               <input
                 type="text"
                 value={brandColorPrimary}
                 onChange={(e) => setBrandColorPrimary(e.target.value)}
-                style={{ ...commonStyles.input, width: 140 }}
+                className={cn(commonStyles.input, 'w-[140px]')}
               />
             </div>
           </div>
 
-          <div style={commonStyles.formGroup}>
-            <label style={commonStyles.label}>ブランドカラー（セカンダリ）</label>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <div className={commonStyles.formGroup}>
+            <label className={commonStyles.label}>ブランドカラー（セカンダリ）</label>
+            <div className="flex items-center gap-3">
               <input
                 type="color"
                 value={brandColorSecondary}
                 onChange={(e) => setBrandColorSecondary(e.target.value)}
-                style={{
-                  width: 48,
-                  height: 48,
-                  border: `1px solid ${colors.inputBorder}`,
-                  borderRadius: 8,
-                  cursor: 'pointer',
-                  padding: 2,
-                }}
+                className="w-12 h-12 border border-gray-300 rounded-lg cursor-pointer p-0.5"
               />
               <input
                 type="text"
                 value={brandColorSecondary}
                 onChange={(e) => setBrandColorSecondary(e.target.value)}
-                style={{ ...commonStyles.input, width: 140 }}
+                className={cn(commonStyles.input, 'w-[140px]')}
               />
             </div>
           </div>
 
-          <div style={commonStyles.formGroup}>
-            <label style={commonStyles.label}>Webサイト URL</label>
+          <div className={commonStyles.formGroup}>
+            <label className={commonStyles.label}>Webサイト URL</label>
             <input
               type="url"
               value={websiteUrl}
               onChange={(e) => setWebsiteUrl(e.target.value)}
               placeholder="https://example.com"
-              style={commonStyles.input}
+              className={commonStyles.input}
             />
           </div>
 
           {/* === 管理者アカウントセクション === */}
-          <h3 style={{
-            fontSize: 16,
-            fontWeight: 'bold',
-            color: colors.textPrimary,
-            margin: '24px 0 16px',
-            paddingBottom: 8,
-            borderBottom: `1px solid ${colors.border}`,
-          }}>
+          <h3 className="text-base font-bold text-gray-900 mt-6 mb-4 pb-2 border-b border-gray-200">
             管理者アカウント
           </h3>
 
-          <div style={commonStyles.formGroup}>
-            <label style={commonStyles.label}>メールアドレス *</label>
+          <div className={commonStyles.formGroup}>
+            <label className={commonStyles.label}>メールアドレス *</label>
             <input
               type="email"
               value={adminEmail}
               onChange={(e) => setAdminEmail(e.target.value)}
               placeholder="admin@company.com"
               required
-              style={commonStyles.input}
+              className={commonStyles.input}
             />
           </div>
 
-          <div style={commonStyles.formGroup}>
-            <label style={commonStyles.label}>パスワード *</label>
+          <div className={commonStyles.formGroup}>
+            <label className={commonStyles.label}>パスワード *</label>
             <input
               type="password"
               value={adminPassword}
@@ -306,33 +261,25 @@ export default function NewCompanyPage() {
               placeholder="8文字以上の安全なパスワード"
               required
               minLength={8}
-              style={commonStyles.input}
+              className={commonStyles.input}
             />
-            <p style={{
-              fontSize: 12,
-              color: colors.textSecondary,
-              margin: '4px 0 0',
-            }}>
+            <p className="text-xs text-gray-500 mt-1">
               ※ このメールアドレスとパスワードで管理画面にログインできます
             </p>
           </div>
 
           {/* ボタン */}
-          <div style={{ display: 'flex', gap: 12, marginTop: 24 }}>
+          <div className="flex gap-3 mt-6">
             <button
               type="submit"
               disabled={saving}
-              style={{
-                ...commonStyles.button,
-                backgroundColor: '#1e3a5f',
-                opacity: saving ? 0.6 : 1,
-              }}
+              className={cn(commonStyles.button, 'bg-[#1e3a5f] hover:bg-[#2a4a6f]', saving && 'opacity-60')}
             >
               {saving ? '作成中...' : '企業+管理者を作成'}
             </button>
             <Link
               href="/superadmin/companies"
-              style={commonStyles.buttonOutline}
+              className={commonStyles.buttonOutline}
             >
               キャンセル
             </Link>

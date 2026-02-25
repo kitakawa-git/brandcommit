@@ -5,7 +5,8 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { ImageUpload } from './ImageUpload'
-import { colors, commonStyles } from './AdminStyles'
+import { commonStyles } from './AdminStyles'
+import { cn } from '@/lib/utils'
 
 type ProfileData = {
   id?: string
@@ -84,7 +85,6 @@ export function MemberForm({ initialData, companyId }: Props) {
     }
 
     if (isEdit) {
-      // 更新
       const { error: updateError } = await supabase
         .from('profiles')
         .update(payload)
@@ -96,7 +96,6 @@ export function MemberForm({ initialData, companyId }: Props) {
         return
       }
     } else {
-      // 新規追加
       const { error: insertError } = await supabase
         .from('profiles')
         .insert(payload)
@@ -112,14 +111,14 @@ export function MemberForm({ initialData, companyId }: Props) {
   }
 
   return (
-    <div style={commonStyles.card}>
+    <div className={commonStyles.card}>
       {/* エラーメッセージ */}
-      {error && <div style={commonStyles.error}>{error}</div>}
+      {error && <div className={commonStyles.error}>{error}</div>}
 
       <form onSubmit={handleSubmit}>
         {/* プロフィール写真 */}
-        <div style={commonStyles.formGroup}>
-          <label style={commonStyles.label}>プロフィール写真</label>
+        <div className={commonStyles.formGroup}>
+          <label className={commonStyles.label}>プロフィール写真</label>
           <ImageUpload
             bucket="avatars"
             folder="profiles"
@@ -129,170 +128,157 @@ export function MemberForm({ initialData, companyId }: Props) {
         </div>
 
         {/* 名前 */}
-        <div style={commonStyles.formGroup}>
-          <label style={commonStyles.label}>名前 *</label>
+        <div className={commonStyles.formGroup}>
+          <label className={commonStyles.label}>名前 *</label>
           <input
             type="text"
             value={form.name}
             onChange={(e) => handleChange('name', e.target.value)}
             placeholder="山田太郎"
             required
-            style={commonStyles.input}
+            className={commonStyles.input}
           />
         </div>
 
         {/* 役職 */}
-        <div style={commonStyles.formGroup}>
-          <label style={commonStyles.label}>役職</label>
+        <div className={commonStyles.formGroup}>
+          <label className={commonStyles.label}>役職</label>
           <input
             type="text"
             value={form.position}
             onChange={(e) => handleChange('position', e.target.value)}
             placeholder="代表取締役"
-            style={commonStyles.input}
+            className={commonStyles.input}
           />
         </div>
 
         {/* 部署 */}
-        <div style={commonStyles.formGroup}>
-          <label style={commonStyles.label}>部署</label>
+        <div className={commonStyles.formGroup}>
+          <label className={commonStyles.label}>部署</label>
           <input
             type="text"
             value={form.department}
             onChange={(e) => handleChange('department', e.target.value)}
             placeholder="経営企画部"
-            style={commonStyles.input}
+            className={commonStyles.input}
           />
         </div>
 
         {/* 自己紹介 */}
-        <div style={commonStyles.formGroup}>
-          <label style={commonStyles.label}>自己紹介</label>
+        <div className={commonStyles.formGroup}>
+          <label className={commonStyles.label}>自己紹介</label>
           <textarea
             value={form.bio}
             onChange={(e) => handleChange('bio', e.target.value)}
             placeholder="自己紹介を入力してください"
-            style={commonStyles.textarea}
+            className={commonStyles.textarea}
           />
         </div>
 
         {/* メール */}
-        <div style={commonStyles.formGroup}>
-          <label style={commonStyles.label}>メールアドレス</label>
+        <div className={commonStyles.formGroup}>
+          <label className={commonStyles.label}>メールアドレス</label>
           <input
             type="email"
             value={form.email}
             onChange={(e) => handleChange('email', e.target.value)}
             placeholder="taro@example.com"
-            style={commonStyles.input}
+            className={commonStyles.input}
           />
         </div>
 
         {/* 電話番号 */}
-        <div style={commonStyles.formGroup}>
-          <label style={commonStyles.label}>電話番号</label>
+        <div className={commonStyles.formGroup}>
+          <label className={commonStyles.label}>電話番号</label>
           <input
             type="tel"
             value={form.phone}
             onChange={(e) => handleChange('phone', e.target.value)}
             placeholder="090-1234-5678"
-            style={commonStyles.input}
+            className={commonStyles.input}
           />
         </div>
 
         {/* === SNSリンクセクション === */}
-        <div style={{
-          marginTop: 8,
-          marginBottom: 20,
-          paddingTop: 20,
-          borderTop: `1px solid ${colors.border}`,
-        }}>
-          <h3 style={{
-            fontSize: 15,
-            fontWeight: 'bold',
-            color: colors.textPrimary,
-            margin: '0 0 16px',
-          }}>
+        <div className="mt-2 mb-5 pt-5 border-t border-gray-200">
+          <h3 className="text-[15px] font-bold text-gray-900 mb-4">
             SNSリンク
           </h3>
 
-          <div style={commonStyles.formGroup}>
-            <label style={commonStyles.label}>X (Twitter)</label>
+          <div className={commonStyles.formGroup}>
+            <label className={commonStyles.label}>X (Twitter)</label>
             <input
               type="url"
               value={form.sns_x}
               onChange={(e) => handleChange('sns_x', e.target.value)}
               placeholder="https://x.com/username"
-              style={commonStyles.input}
+              className={commonStyles.input}
             />
           </div>
 
-          <div style={commonStyles.formGroup}>
-            <label style={commonStyles.label}>LinkedIn</label>
+          <div className={commonStyles.formGroup}>
+            <label className={commonStyles.label}>LinkedIn</label>
             <input
               type="url"
               value={form.sns_linkedin}
               onChange={(e) => handleChange('sns_linkedin', e.target.value)}
               placeholder="https://linkedin.com/in/username"
-              style={commonStyles.input}
+              className={commonStyles.input}
             />
           </div>
 
-          <div style={commonStyles.formGroup}>
-            <label style={commonStyles.label}>Facebook</label>
+          <div className={commonStyles.formGroup}>
+            <label className={commonStyles.label}>Facebook</label>
             <input
               type="url"
               value={form.sns_facebook}
               onChange={(e) => handleChange('sns_facebook', e.target.value)}
               placeholder="https://facebook.com/username"
-              style={commonStyles.input}
+              className={commonStyles.input}
             />
           </div>
 
-          <div style={commonStyles.formGroup}>
-            <label style={commonStyles.label}>Instagram</label>
+          <div className={commonStyles.formGroup}>
+            <label className={commonStyles.label}>Instagram</label>
             <input
               type="url"
               value={form.sns_instagram}
               onChange={(e) => handleChange('sns_instagram', e.target.value)}
               placeholder="https://instagram.com/username"
-              style={commonStyles.input}
+              className={commonStyles.input}
             />
           </div>
         </div>
 
         {/* スラッグ */}
-        <div style={commonStyles.formGroup}>
-          <label style={commonStyles.label}>スラッグ（URL） *</label>
+        <div className={commonStyles.formGroup}>
+          <label className={commonStyles.label}>スラッグ（URL） *</label>
           <input
             type="text"
             value={form.slug}
             onChange={(e) => handleChange('slug', e.target.value)}
             placeholder="taro-yamada"
             required
-            style={commonStyles.input}
+            className={commonStyles.input}
           />
-          <p style={{ fontSize: 12, color: colors.textSecondary, marginTop: 4 }}>
+          <p className="text-xs text-gray-500 mt-1">
             名刺ページURL: brandcommit.vercel.app/card/{form.slug || '...'}
           </p>
         </div>
 
         {/* ボタン */}
-        <div style={{ display: 'flex', gap: 12, marginTop: 24 }}>
+        <div className="flex gap-3 mt-6">
           <button
             type="submit"
             disabled={saving}
-            style={{
-              ...commonStyles.button,
-              opacity: saving ? 0.6 : 1,
-            }}
+            className={cn(commonStyles.button, saving && 'opacity-60')}
           >
             {saving ? '保存中...' : (isEdit ? '更新する' : '追加する')}
           </button>
           <button
             type="button"
             onClick={() => router.push('/admin/members')}
-            style={commonStyles.buttonOutline}
+            className={commonStyles.buttonOutline}
           >
             キャンセル
           </button>

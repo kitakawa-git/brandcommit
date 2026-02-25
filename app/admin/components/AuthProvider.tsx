@@ -8,7 +8,6 @@ import { supabase } from '@/lib/supabase'
 import type { User } from '@supabase/supabase-js'
 import { Sidebar } from './Sidebar'
 import { AdminHeader } from './AdminHeader'
-import { colors, layout } from './AdminStyles'
 
 type AuthContextType = {
   user: User | null
@@ -34,12 +33,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [role, setRole] = useState<string | null>(null)
   const [isSuperAdmin, setIsSuperAdmin] = useState(false)
   const [loading, setLoading] = useState(true)
-  const [adminError, setAdminError] = useState(false) // admin_users未登録エラー
+  const [adminError, setAdminError] = useState(false)
   const router = useRouter()
   const pathname = usePathname()
 
-  // admin_usersテーブルからcompany_idとroleを取得
-  // select('*') を使用: is_superadminカラムが未追加でもエラーにならない
   const fetchAdminUser = async (authId: string) => {
     try {
       console.log('[AuthProvider] ステップ1: admin_users検索中... authId:', authId)
@@ -55,7 +52,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       })
 
       if (error || !data) {
-        // admin_usersに未登録またはRLSでブロック
         console.warn('[AuthProvider] admin_user見つからず:', error?.message || '該当レコードなし')
         setAdminError(true)
         setCompanyId(null)
@@ -80,12 +76,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
-  // 初回マウント時: getSession() で直接セッション確認 + 10秒タイムアウト
   useEffect(() => {
     let timeoutId: NodeJS.Timeout
 
     const init = async () => {
-      // 10秒経っても完了しなければ強制リダイレクト
       timeoutId = setTimeout(() => {
         console.warn('[AuthProvider] 10秒タイムアウト: ログインページへリダイレクト')
         setLoading(false)
@@ -122,7 +116,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     init()
 
-    // onAuthStateChange は SIGNED_OUT 監視用のみ
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event) => {
         console.log('[AuthProvider] onAuthStateChange:', event)
@@ -168,15 +161,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   if (loading) {
     return (
       <AuthContext.Provider value={contextValue}>
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          minHeight: '100vh',
-          backgroundColor: colors.pageBg,
-          fontSize: 16,
-          color: colors.textSecondary,
-        }}>
+        <div className="flex items-center justify-center min-h-screen bg-gray-50 text-base text-gray-500">
           読み込み中...
         </div>
       </AuthContext.Provider>
@@ -192,57 +177,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   if (adminError || !companyId) {
     return (
       <AuthContext.Provider value={contextValue}>
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          minHeight: '100vh',
-          backgroundColor: colors.pageBg,
-          fontFamily: 'sans-serif',
-        }}>
-          <div style={{
-            backgroundColor: colors.white,
-            borderRadius: 12,
-            padding: 40,
-            textAlign: 'center',
-            maxWidth: 400,
-            boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-          }}>
-            <div style={{
-              fontSize: 48,
-              marginBottom: 16,
-            }}>
-              🚫
-            </div>
-            <h2 style={{
-              fontSize: 20,
-              fontWeight: 'bold',
-              color: colors.textPrimary,
-              margin: '0 0 12px',
-            }}>
+        <div className="flex items-center justify-center min-h-screen bg-gray-50 font-sans">
+          <div className="bg-white rounded-xl p-10 text-center max-w-[400px] shadow-sm">
+            <div className="text-5xl mb-4">🚫</div>
+            <h2 className="text-xl font-bold text-gray-900 mb-3">
               アクセス権限がありません
             </h2>
-            <p style={{
-              fontSize: 14,
-              color: colors.textSecondary,
-              margin: '0 0 24px',
-              lineHeight: 1.6,
-            }}>
+            <p className="text-sm text-gray-500 mb-6 leading-relaxed">
               このアカウント（{user.email}）は管理者として登録されていません。
               管理者に連絡してください。
             </p>
             <button
               onClick={signOut}
-              style={{
-                padding: '10px 24px',
-                backgroundColor: colors.primary,
-                color: '#ffffff',
-                border: 'none',
-                borderRadius: 8,
-                fontSize: 14,
-                fontWeight: 'bold',
-                cursor: 'pointer',
-              }}
+              className="px-6 py-2.5 bg-blue-600 text-white border-none rounded-lg text-sm font-bold cursor-pointer hover:bg-blue-700 transition-colors"
             >
               ログアウト
             </button>
@@ -255,27 +202,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // 認証済み + admin_users登録済み: サイドバー + ヘッダー + コンテンツ
   return (
     <AuthContext.Provider value={contextValue}>
-      {/* レスポンシブ対応: モバイルでサイドバー非表示 */}
-      <style>{`
-        @media (max-width: 768px) {
-          .admin-sidebar { display: none !important; }
-          .admin-main { margin-left: 0 !important; }
-        }
-      `}</style>
-      <div style={{ display: 'flex', minHeight: '100vh' }}>
-        <div className="admin-sidebar">
+      <div className="flex min-h-screen">
+        <div className="hidden md:block">
           <Sidebar />
         </div>
-        <div className="admin-main" style={{
-          flex: 1,
-          marginLeft: layout.sidebarWidth,
-        }}>
+        <div className="flex-1 ml-0 md:ml-[240px]">
           <AdminHeader />
-          <main style={{
-            padding: 24,
-            backgroundColor: colors.pageBg,
-            minHeight: `calc(100vh - ${layout.headerHeight}px)`,
-          }}>
+          <main className="p-6 bg-gray-50 min-h-[calc(100vh-60px)]">
             {children}
           </main>
         </div>

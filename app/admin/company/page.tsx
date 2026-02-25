@@ -7,7 +7,8 @@ import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '../components/AuthProvider'
 import { ImageUpload } from '../components/ImageUpload'
-import { colors, commonStyles } from '../components/AdminStyles'
+import { commonStyles } from '../components/AdminStyles'
+import { cn } from '@/lib/utils'
 
 type Company = {
   id: string
@@ -156,7 +157,7 @@ export default function CompanyPage() {
 
   if (loading) {
     return (
-      <p style={{ color: colors.textSecondary, textAlign: 'center', padding: 40 }}>
+      <p className="text-gray-500 text-center p-10">
         読み込み中...
       </p>
     )
@@ -164,9 +165,9 @@ export default function CompanyPage() {
 
   if (fetchError) {
     return (
-      <div style={{ textAlign: 'center', padding: 40 }}>
-        <p style={{ color: '#dc2626', fontSize: 14, marginBottom: 12 }}>{fetchError}</p>
-        <button onClick={fetchCompany} style={{ ...commonStyles.buttonOutline, padding: '8px 16px', fontSize: 13 }}>
+      <div className="text-center p-10">
+        <p className="text-red-600 text-sm mb-3">{fetchError}</p>
+        <button onClick={fetchCompany} className={cn(commonStyles.buttonOutline, 'py-2 px-4 text-[13px]')}>
           再読み込み
         </button>
       </div>
@@ -175,7 +176,7 @@ export default function CompanyPage() {
 
   if (!company) {
     return (
-      <p style={{ color: colors.textSecondary, textAlign: 'center', padding: 40 }}>
+      <p className="text-gray-500 text-center p-10">
         企業データが見つかりません
       </p>
     )
@@ -183,27 +184,22 @@ export default function CompanyPage() {
 
   return (
     <div>
-      <h2 style={{
-        fontSize: 20,
-        fontWeight: 'bold',
-        color: colors.textPrimary,
-        margin: '0 0 24px',
-      }}>
+      <h2 className="text-xl font-bold text-gray-900 mb-6">
         ブランド基本情報
       </h2>
 
-      <div style={commonStyles.card}>
+      <div className={commonStyles.card}>
         {/* メッセージ */}
         {message && (
-          <div style={messageType === 'success' ? commonStyles.success : commonStyles.error}>
+          <div className={messageType === 'success' ? commonStyles.success : commonStyles.error}>
             {message}
           </div>
         )}
 
         <form onSubmit={handleSubmit}>
           {/* ロゴ */}
-          <div style={commonStyles.formGroup}>
-            <label style={commonStyles.label}>ロゴ</label>
+          <div className={commonStyles.formGroup}>
+            <label className={commonStyles.label}>ロゴ</label>
             <ImageUpload
               bucket="avatars"
               folder="logos"
@@ -213,29 +209,29 @@ export default function CompanyPage() {
           </div>
 
           {/* 企業名 */}
-          <div style={commonStyles.formGroup}>
-            <label style={commonStyles.label}>ブランド名</label>
+          <div className={commonStyles.formGroup}>
+            <label className={commonStyles.label}>ブランド名</label>
             <input
               type="text"
               value={company.name}
               onChange={(e) => handleChange('name', e.target.value)}
               placeholder="株式会社○○"
-              style={commonStyles.input}
+              className={commonStyles.input}
             />
-            <p style={{ fontSize: 13, color: colors.textSecondary, margin: '6px 0 0' }}>
+            <p className="text-[13px] text-gray-500 mt-1.5">
               企業名・サービス名・個人名など、ブランディングの対象となる名称を入力してください
             </p>
           </div>
 
           {/* WebサイトURL */}
-          <div style={commonStyles.formGroup}>
-            <label style={commonStyles.label}>ウェブサイトURL</label>
+          <div className={commonStyles.formGroup}>
+            <label className={commonStyles.label}>ウェブサイトURL</label>
             <input
               type="text"
               value={company.website_url}
               onChange={(e) => handleChange('website_url', e.target.value)}
               placeholder="https://example.com"
-              style={commonStyles.input}
+              className={commonStyles.input}
             />
           </div>
 
@@ -243,11 +239,7 @@ export default function CompanyPage() {
           <button
             type="submit"
             disabled={saving}
-            style={{
-              ...commonStyles.button,
-              marginTop: 8,
-              opacity: saving ? 0.6 : 1,
-            }}
+            className={cn(commonStyles.button, 'mt-2', saving && 'opacity-60')}
           >
             {saving ? '保存中...' : '保存する'}
           </button>

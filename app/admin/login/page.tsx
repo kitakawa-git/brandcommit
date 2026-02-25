@@ -5,7 +5,8 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
-import { colors, commonStyles } from '../components/AdminStyles'
+import { commonStyles } from '../components/AdminStyles'
+import { cn } from '@/lib/utils'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -92,70 +93,27 @@ export default function LoginPage() {
   // スーパー管理者用の遷移先選択画面
   if (loggedIn && isSuperAdmin) {
     return (
-      <div style={{
-        minHeight: '100vh',
-        backgroundColor: colors.pageBg,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        fontFamily: 'sans-serif',
-      }}>
-        <div style={{
-          backgroundColor: colors.white,
-          borderRadius: 12,
-          padding: 40,
-          width: '100%',
-          maxWidth: 400,
-          boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-        }}>
-          <div style={{ textAlign: 'center', marginBottom: 24 }}>
-            <h1 style={{
-              fontSize: 24,
-              fontWeight: 'bold',
-              color: colors.textPrimary,
-              margin: '0 0 8px',
-            }}>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center font-sans">
+        <div className="bg-white rounded-xl p-10 w-full max-w-[400px] shadow-sm">
+          <div className="text-center mb-6">
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">
               brandcommit
             </h1>
-            <p style={{
-              fontSize: 14,
-              color: colors.textSecondary,
-              margin: 0,
-            }}>
+            <p className="text-sm text-gray-500 m-0">
               ログイン成功 — 遷移先を選択
             </p>
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <div className="flex flex-col gap-3">
             <Link
               href="/superadmin/companies"
-              style={{
-                display: 'block',
-                padding: '16px 20px',
-                backgroundColor: '#1e3a5f',
-                color: '#ffffff',
-                borderRadius: 8,
-                textDecoration: 'none',
-                fontSize: 15,
-                fontWeight: 'bold',
-                textAlign: 'center',
-              }}
+              className="block py-4 px-5 bg-[#1e3a5f] text-white rounded-lg no-underline text-[15px] font-bold text-center"
             >
               スーパー管理画面
             </Link>
             <Link
               href="/admin/members"
-              style={{
-                display: 'block',
-                padding: '16px 20px',
-                backgroundColor: colors.primary,
-                color: '#ffffff',
-                borderRadius: 8,
-                textDecoration: 'none',
-                fontSize: 15,
-                fontWeight: 'bold',
-                textAlign: 'center',
-              }}
+              className="block py-4 px-5 bg-blue-600 text-white rounded-lg no-underline text-[15px] font-bold text-center"
             >
               通常管理画面
             </Link>
@@ -166,104 +124,64 @@ export default function LoginPage() {
   }
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      backgroundColor: colors.pageBg,
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      fontFamily: 'sans-serif',
-    }}>
-      <div style={{
-        backgroundColor: colors.white,
-        borderRadius: 12,
-        padding: 40,
-        width: '100%',
-        maxWidth: 400,
-        boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-      }}>
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center font-sans">
+      <div className="bg-white rounded-xl p-10 w-full max-w-[400px] shadow-sm">
         {/* タイトル */}
-        <div style={{ textAlign: 'center', marginBottom: 32 }}>
-          <h1 style={{
-            fontSize: 24,
-            fontWeight: 'bold',
-            color: colors.textPrimary,
-            margin: '0 0 8px',
-          }}>
+        <div className="text-center mb-8">
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">
             brandcommit
           </h1>
-          <p style={{
-            fontSize: 14,
-            color: colors.textSecondary,
-            margin: 0,
-          }}>
+          <p className="text-sm text-gray-500 m-0">
             管理画面にログイン
           </p>
         </div>
 
         {/* エラーメッセージ */}
         {error && (
-          <div style={{
-            ...commonStyles.error,
-            whiteSpace: 'pre-wrap',
-            wordBreak: 'break-word',
-          }}>
+          <div className={cn(commonStyles.error, 'whitespace-pre-wrap break-words')}>
             {error}
           </div>
         )}
 
         {/* ログインフォーム */}
         <form onSubmit={handleLogin}>
-          <div style={commonStyles.formGroup}>
-            <label style={commonStyles.label}>メールアドレス</label>
+          <div className={commonStyles.formGroup}>
+            <label className={commonStyles.label}>メールアドレス</label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="admin@example.com"
               required
-              style={commonStyles.input}
+              className={commonStyles.input}
             />
           </div>
 
-          <div style={commonStyles.formGroup}>
-            <label style={commonStyles.label}>パスワード</label>
+          <div className={commonStyles.formGroup}>
+            <label className={commonStyles.label}>パスワード</label>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="パスワードを入力"
               required
-              style={commonStyles.input}
+              className={commonStyles.input}
             />
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            style={{
-              ...commonStyles.button,
-              width: '100%',
-              padding: '12px 20px',
-              fontSize: 16,
-              opacity: loading ? 0.6 : 1,
-              textAlign: 'center' as const,
-            }}
+            className={cn(commonStyles.button, 'w-full py-3 px-5 text-base text-center', loading && 'opacity-60')}
           >
             {loading ? 'ログイン中...' : 'ログイン'}
           </button>
         </form>
 
         {/* サインアップリンク */}
-        <p style={{
-          textAlign: 'center',
-          fontSize: 13,
-          color: colors.textSecondary,
-          marginTop: 24,
-          marginBottom: 0,
-        }}>
+        <p className="text-center text-[13px] text-gray-500 mt-6 mb-0">
           アカウントをお持ちでない方は{' '}
-          <Link href="/signup" style={{ color: colors.primary, textDecoration: 'none', fontWeight: 'bold' }}>
+          <Link href="/signup" className="text-blue-600 no-underline font-bold">
             こちら
           </Link>
           {' '}から登録

@@ -4,7 +4,8 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
-import { colors, commonStyles } from '../../admin/components/AdminStyles'
+import { commonStyles } from '../../admin/components/AdminStyles'
+import { cn } from '@/lib/utils'
 
 type CompanyWithCount = {
   id: string
@@ -74,7 +75,7 @@ export default function CompaniesPage() {
 
   if (loading) {
     return (
-      <p style={{ color: colors.textSecondary, textAlign: 'center', padding: 40 }}>
+      <p className="text-gray-500 text-center p-10">
         読み込み中...
       </p>
     )
@@ -83,103 +84,71 @@ export default function CompaniesPage() {
   return (
     <div>
       {/* ヘッダー */}
-      <div style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: 24,
-      }}>
-        <h2 style={{
-          fontSize: 20,
-          fontWeight: 'bold',
-          color: colors.textPrimary,
-          margin: 0,
-        }}>
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-xl font-bold text-gray-900">
           企業一覧
         </h2>
         <Link
           href="/superadmin/companies/new"
-          style={{
-            ...commonStyles.button,
-            backgroundColor: '#1e3a5f',
-          }}
+          className={cn(commonStyles.button, 'bg-[#1e3a5f] hover:bg-[#2a4a6f]')}
         >
           ＋ 新規企業を登録
         </Link>
       </div>
 
       {/* テーブル */}
-      <div style={commonStyles.card}>
+      <div className={commonStyles.card}>
         {companies.length === 0 ? (
-          <p style={{ color: colors.textSecondary, textAlign: 'center', padding: 40 }}>
+          <p className="text-gray-500 text-center p-10">
             企業データがありません
           </p>
         ) : (
-          <table style={commonStyles.table}>
+          <table className={commonStyles.table}>
             <thead>
               <tr>
-                <th style={commonStyles.th}>企業名</th>
-                <th style={commonStyles.th}>スローガン</th>
-                <th style={{ ...commonStyles.th, textAlign: 'center' }}>従業員数</th>
-                <th style={{ ...commonStyles.th, textAlign: 'center' }}>管理者</th>
-                <th style={commonStyles.th}>作成日</th>
-                <th style={commonStyles.th}></th>
+                <th className={commonStyles.th}>企業名</th>
+                <th className={commonStyles.th}>スローガン</th>
+                <th className={cn(commonStyles.th, 'text-center')}>従業員数</th>
+                <th className={cn(commonStyles.th, 'text-center')}>管理者</th>
+                <th className={commonStyles.th}>作成日</th>
+                <th className={commonStyles.th}></th>
               </tr>
             </thead>
             <tbody>
               {companies.map((company) => (
                 <tr key={company.id}>
-                  <td style={commonStyles.td}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <td className={commonStyles.td}>
+                    <div className="flex items-center gap-2.5">
                       {company.logo_url ? (
                         <img
                           src={company.logo_url}
                           alt=""
-                          style={{
-                            width: 32,
-                            height: 32,
-                            borderRadius: 6,
-                            objectFit: 'cover',
-                          }}
+                          className="w-8 h-8 rounded-md object-cover"
                         />
                       ) : (
-                        <div style={{
-                          width: 32,
-                          height: 32,
-                          borderRadius: 6,
-                          backgroundColor: '#e5e7eb',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          fontSize: 14,
-                        }}>
+                        <div className="w-8 h-8 rounded-md bg-gray-200 flex items-center justify-center text-sm">
                           🏢
                         </div>
                       )}
-                      <span style={{ fontWeight: '600' }}>{company.name}</span>
+                      <span className="font-semibold">{company.name}</span>
                     </div>
                   </td>
-                  <td style={{ ...commonStyles.td, color: colors.textSecondary, fontSize: 13 }}>
+                  <td className={cn(commonStyles.td, 'text-gray-500 text-[13px]')}>
                     {company.slogan || '—'}
                   </td>
-                  <td style={{ ...commonStyles.td, textAlign: 'center' }}>
+                  <td className={cn(commonStyles.td, 'text-center')}>
                     {company.member_count}名
                   </td>
-                  <td style={{ ...commonStyles.td, textAlign: 'center' }}>
+                  <td className={cn(commonStyles.td, 'text-center')}>
                     {company.admin_count}名
                   </td>
-                  <td style={{ ...commonStyles.td, color: colors.textSecondary, fontSize: 13 }}>
+                  <td className={cn(commonStyles.td, 'text-gray-500 text-[13px]')}>
                     {new Date(company.created_at).toLocaleDateString('ja-JP')}
                   </td>
-                  <td style={commonStyles.td}>
+                  <td className={commonStyles.td}>
                     <Link
                       href={`/superadmin/companies/${company.id}`}
-                      style={{
-                        color: colors.primary,
-                        textDecoration: 'none',
-                        fontSize: 14,
-                        fontWeight: '600',
-                      }}
+                      className="text-blue-600 no-underline text-sm font-semibold"
                     >
                       詳細
                     </Link>
@@ -192,12 +161,7 @@ export default function CompaniesPage() {
       </div>
 
       {/* 統計サマリー */}
-      <div style={{
-        marginTop: 16,
-        fontSize: 13,
-        color: colors.textSecondary,
-        textAlign: 'right',
-      }}>
+      <div className="mt-4 text-[13px] text-gray-500 text-right">
         全{companies.length}社
       </div>
     </div>

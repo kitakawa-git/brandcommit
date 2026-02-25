@@ -5,7 +5,6 @@ import { createContext, useContext, useEffect, useState } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import type { User } from '@supabase/supabase-js'
-import { portalColors } from './PortalStyles'
 
 type MemberInfo = {
   id: string
@@ -156,16 +155,7 @@ export function PortalAuthProvider({ children }: { children: React.ReactNode }) 
   if (loading) {
     return (
       <PortalAuthContext.Provider value={contextValue}>
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          minHeight: '100vh',
-          backgroundColor: portalColors.bg,
-          fontSize: 16,
-          color: portalColors.textSecondary,
-          fontFamily: 'sans-serif',
-        }}>
+        <div className="flex items-center justify-center min-h-screen bg-white text-base text-gray-500 font-sans">
           読み込み中...
         </div>
       </PortalAuthContext.Provider>
@@ -181,41 +171,18 @@ export function PortalAuthProvider({ children }: { children: React.ReactNode }) 
   if (!member || !companyId) {
     return (
       <PortalAuthContext.Provider value={contextValue}>
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          minHeight: '100vh',
-          backgroundColor: portalColors.bg,
-          fontFamily: 'sans-serif',
-        }}>
-          <div style={{
-            backgroundColor: '#fff',
-            borderRadius: 12,
-            padding: 40,
-            textAlign: 'center',
-            maxWidth: 400,
-            boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-          }}>
-            <div style={{ fontSize: 48, marginBottom: 16 }}>🚫</div>
-            <h2 style={{ fontSize: 20, fontWeight: 'bold', color: portalColors.textPrimary, margin: '0 0 12px' }}>
+        <div className="flex items-center justify-center min-h-screen bg-white font-sans">
+          <div className="bg-white rounded-xl p-10 text-center max-w-[400px] shadow-sm">
+            <div className="text-5xl mb-4">🚫</div>
+            <h2 className="text-xl font-bold text-gray-900 mb-3">
               アクセス権限がありません
             </h2>
-            <p style={{ fontSize: 14, color: portalColors.textSecondary, margin: '0 0 24px', lineHeight: 1.6 }}>
+            <p className="text-sm text-gray-500 mb-6 leading-relaxed">
               このアカウントはメンバーとして登録されていません。管理者に連絡してください。
             </p>
             <button
               onClick={signOut}
-              style={{
-                padding: '10px 24px',
-                backgroundColor: portalColors.primary,
-                color: '#ffffff',
-                border: 'none',
-                borderRadius: 8,
-                fontSize: 14,
-                fontWeight: 'bold',
-                cursor: 'pointer',
-              }}
+              className="px-6 py-2.5 bg-blue-600 text-white border-none rounded-lg text-sm font-bold cursor-pointer hover:bg-blue-700 transition-colors"
             >
               ログアウト
             </button>

@@ -6,7 +6,8 @@ import { useParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '../../../components/AuthProvider'
 import { MemberForm } from '../../../components/MemberForm'
-import { colors, commonStyles } from '../../../components/AdminStyles'
+import { commonStyles } from '../../../components/AdminStyles'
+import { cn } from '@/lib/utils'
 import { downloadQRCode, generatePreviewQRDataURL, getCardUrl } from '@/lib/qr-download'
 
 export default function EditMemberPage() {
@@ -45,7 +46,7 @@ export default function EditMemberPage() {
 
   if (loading) {
     return (
-      <p style={{ color: colors.textSecondary, textAlign: 'center', padding: 40 }}>
+      <p className="text-gray-500 text-center p-10">
         読み込み中...
       </p>
     )
@@ -53,7 +54,7 @@ export default function EditMemberPage() {
 
   if (!profile) {
     return (
-      <p style={{ color: colors.textSecondary, textAlign: 'center', padding: 40 }}>
+      <p className="text-gray-500 text-center p-10">
         従業員データが見つかりません
       </p>
     )
@@ -61,12 +62,7 @@ export default function EditMemberPage() {
 
   return (
     <div>
-      <h2 style={{
-        fontSize: 20,
-        fontWeight: 'bold',
-        color: colors.textPrimary,
-        margin: '0 0 24px',
-      }}>
+      <h2 className="text-xl font-bold text-gray-900 mb-6">
         アカウント編集
       </h2>
       <MemberForm
@@ -91,17 +87,8 @@ export default function EditMemberPage() {
 
       {/* QRコードプレビュー */}
       {profile.slug && (
-        <div style={{
-          ...commonStyles.card,
-          marginTop: 24,
-          textAlign: 'center' as const,
-        }}>
-          <h3 style={{
-            fontSize: 16,
-            fontWeight: 'bold',
-            color: colors.textPrimary,
-            margin: '0 0 16px',
-          }}>
+        <div className={cn(commonStyles.card, 'mt-6 text-center')}>
+          <h3 className="text-base font-bold text-gray-900 mb-4">
             QRコード
           </h3>
           {qrPreview && (
@@ -110,10 +97,10 @@ export default function EditMemberPage() {
               alt="QRコード"
               width={160}
               height={160}
-              style={{ display: 'block', margin: '0 auto 12px' }}
+              className="block mx-auto mb-3"
             />
           )}
-          <p style={{ fontSize: 12, color: colors.textSecondary, margin: '0 0 16px' }}>
+          <p className="text-xs text-gray-500 mb-4">
             {getCardUrl(profile.slug)}
           </p>
           <button
@@ -127,10 +114,7 @@ export default function EditMemberPage() {
               setDownloading(false)
             }}
             disabled={downloading}
-            style={{
-              ...commonStyles.button,
-              opacity: downloading ? 0.6 : 1,
-            }}
+            className={cn(commonStyles.button, downloading && 'opacity-60')}
           >
             {downloading ? '生成中...' : 'QRコードをダウンロード（印刷用）'}
           </button>

@@ -6,16 +6,6 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 
-const pageBg = '#f9fafb'
-const white = '#ffffff'
-const primary = '#2563eb'
-const textPrimary = '#111827'
-const textSecondary = '#6b7280'
-const inputBorder = '#d1d5db'
-const border = '#e5e7eb'
-const danger = '#dc2626'
-const success = '#16a34a'
-
 export default function SignupPage() {
   const router = useRouter()
   const [step, setStep] = useState(1)
@@ -137,90 +127,48 @@ export default function SignupPage() {
 
   const stepLabels = ['アカウント', '企業情報', '個人情報']
 
+  const inputClassName = 'w-full py-2.5 px-3 border border-gray-300 rounded-lg text-sm outline-none box-border focus:border-blue-500 focus:ring-1 focus:ring-blue-500'
+  const labelClassName = 'block text-sm font-bold text-gray-900 mb-1.5'
+
   return (
-    <div style={{
-      minHeight: '100vh',
-      backgroundColor: pageBg,
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      fontFamily: 'sans-serif',
-      padding: '20px',
-    }}>
-      <div style={{
-        backgroundColor: white,
-        borderRadius: 12,
-        padding: 40,
-        width: '100%',
-        maxWidth: 460,
-        boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-      }}>
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center font-sans p-5">
+      <div className="bg-white rounded-xl p-10 w-full max-w-[460px] shadow-sm">
         {/* タイトル */}
-        <div style={{ textAlign: 'center', marginBottom: 24 }}>
-          <Link href="/" style={{ textDecoration: 'none' }}>
-            <h1 style={{
-              fontSize: 24,
-              fontWeight: 'bold',
-              color: textPrimary,
-              margin: '0 0 8px',
-            }}>
+        <div className="text-center mb-6">
+          <Link href="/" className="no-underline">
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">
               brandcommit
             </h1>
           </Link>
-          <p style={{
-            fontSize: 14,
-            color: textSecondary,
-            margin: 0,
-          }}>
+          <p className="text-sm text-gray-500 m-0">
             無料アカウント登録
           </p>
         </div>
 
         {/* ステップインジケーター */}
-        <div style={{
-          display: 'flex',
-          justifyContent: 'center',
-          gap: 8,
-          marginBottom: 28,
-        }}>
+        <div className="flex justify-center gap-2 mb-7">
           {stepLabels.map((label, i) => {
             const stepNum = i + 1
             const isActive = stepNum === step
             const isDone = stepNum < step
             return (
-              <div key={stepNum} style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 6,
-              }}>
-                <div style={{
-                  width: 28,
-                  height: 28,
-                  borderRadius: '50%',
-                  backgroundColor: isDone ? success : isActive ? primary : border,
-                  color: isDone || isActive ? '#fff' : textSecondary,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: 13,
-                  fontWeight: 'bold',
-                }}>
+              <div key={stepNum} className="flex items-center gap-1.5">
+                <div
+                  className="w-7 h-7 rounded-full flex items-center justify-center text-[13px] font-bold"
+                  style={{
+                    backgroundColor: isDone ? '#16a34a' : isActive ? '#2563eb' : '#e5e7eb',
+                    color: isDone || isActive ? '#fff' : '#6b7280',
+                  }}
+                >
                   {isDone ? '✓' : stepNum}
                 </div>
-                <span style={{
-                  fontSize: 12,
-                  color: isActive ? textPrimary : textSecondary,
-                  fontWeight: isActive ? 'bold' : 'normal',
-                }}>
+                <span
+                  className={`text-xs ${isActive ? 'text-gray-900 font-bold' : 'text-gray-500 font-normal'}`}
+                >
                   {label}
                 </span>
                 {i < stepLabels.length - 1 && (
-                  <div style={{
-                    width: 24,
-                    height: 1,
-                    backgroundColor: border,
-                    marginLeft: 4,
-                  }} />
+                  <div className="w-6 h-px bg-gray-200 ml-1" />
                 )}
               </div>
             )
@@ -229,14 +177,7 @@ export default function SignupPage() {
 
         {/* エラーメッセージ */}
         {error && (
-          <div style={{
-            backgroundColor: '#fef2f2',
-            color: danger,
-            padding: '12px 16px',
-            borderRadius: 8,
-            fontSize: 14,
-            marginBottom: 16,
-          }}>
+          <div className="bg-red-50 text-red-600 py-3 px-4 rounded-lg text-sm mb-4">
             {error}
           </div>
         )}
@@ -245,14 +186,8 @@ export default function SignupPage() {
           {/* ステップ1: アカウント情報 */}
           {step === 1 && (
             <>
-              <div style={{ marginBottom: 20 }}>
-                <label style={{
-                  display: 'block',
-                  fontSize: 14,
-                  fontWeight: 'bold',
-                  color: textPrimary,
-                  marginBottom: 6,
-                }}>
+              <div className="mb-5">
+                <label className={labelClassName}>
                   メールアドレス *
                 </label>
                 <input
@@ -261,26 +196,12 @@ export default function SignupPage() {
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="admin@example.com"
                   required
-                  style={{
-                    width: '100%',
-                    padding: '10px 12px',
-                    border: `1px solid ${inputBorder}`,
-                    borderRadius: 8,
-                    fontSize: 14,
-                    outline: 'none',
-                    boxSizing: 'border-box',
-                  }}
+                  className={inputClassName}
                 />
               </div>
 
-              <div style={{ marginBottom: 20 }}>
-                <label style={{
-                  display: 'block',
-                  fontSize: 14,
-                  fontWeight: 'bold',
-                  color: textPrimary,
-                  marginBottom: 6,
-                }}>
+              <div className="mb-5">
+                <label className={labelClassName}>
                   パスワード *
                 </label>
                 <input
@@ -290,26 +211,12 @@ export default function SignupPage() {
                   placeholder="6文字以上"
                   required
                   minLength={6}
-                  style={{
-                    width: '100%',
-                    padding: '10px 12px',
-                    border: `1px solid ${inputBorder}`,
-                    borderRadius: 8,
-                    fontSize: 14,
-                    outline: 'none',
-                    boxSizing: 'border-box',
-                  }}
+                  className={inputClassName}
                 />
               </div>
 
-              <div style={{ marginBottom: 20 }}>
-                <label style={{
-                  display: 'block',
-                  fontSize: 14,
-                  fontWeight: 'bold',
-                  color: textPrimary,
-                  marginBottom: 6,
-                }}>
+              <div className="mb-5">
+                <label className={labelClassName}>
                   パスワード（確認） *
                 </label>
                 <input
@@ -319,33 +226,14 @@ export default function SignupPage() {
                   placeholder="パスワードを再入力"
                   required
                   minLength={6}
-                  style={{
-                    width: '100%',
-                    padding: '10px 12px',
-                    border: `1px solid ${inputBorder}`,
-                    borderRadius: 8,
-                    fontSize: 14,
-                    outline: 'none',
-                    boxSizing: 'border-box',
-                  }}
+                  className={inputClassName}
                 />
               </div>
 
               <button
                 type="button"
                 onClick={handleNext}
-                style={{
-                  width: '100%',
-                  padding: '12px 20px',
-                  backgroundColor: primary,
-                  color: '#fff',
-                  border: 'none',
-                  borderRadius: 8,
-                  fontSize: 16,
-                  fontWeight: 'bold',
-                  cursor: 'pointer',
-                  textAlign: 'center',
-                }}
+                className="w-full py-3 px-5 bg-blue-600 text-white border-none rounded-lg text-base font-bold cursor-pointer text-center"
               >
                 次へ
               </button>
@@ -355,14 +243,8 @@ export default function SignupPage() {
           {/* ステップ2: 企業情報 */}
           {step === 2 && (
             <>
-              <div style={{ marginBottom: 20 }}>
-                <label style={{
-                  display: 'block',
-                  fontSize: 14,
-                  fontWeight: 'bold',
-                  color: textPrimary,
-                  marginBottom: 6,
-                }}>
+              <div className="mb-5">
+                <label className={labelClassName}>
                   企業名 *
                 </label>
                 <input
@@ -371,54 +253,25 @@ export default function SignupPage() {
                   onChange={(e) => setCompanyName(e.target.value)}
                   placeholder="株式会社○○"
                   required
-                  style={{
-                    width: '100%',
-                    padding: '10px 12px',
-                    border: `1px solid ${inputBorder}`,
-                    borderRadius: 8,
-                    fontSize: 14,
-                    outline: 'none',
-                    boxSizing: 'border-box',
-                  }}
+                  className={inputClassName}
                 />
-                <p style={{ fontSize: 12, color: textSecondary, marginTop: 4 }}>
+                <p className="text-xs text-gray-500 mt-1">
                   後から管理画面で詳細情報を追加できます
                 </p>
               </div>
 
-              <div style={{ display: 'flex', gap: 12 }}>
+              <div className="flex gap-3">
                 <button
                   type="button"
                   onClick={handleBack}
-                  style={{
-                    flex: 1,
-                    padding: '12px 20px',
-                    backgroundColor: 'transparent',
-                    color: textPrimary,
-                    border: `1px solid ${border}`,
-                    borderRadius: 8,
-                    fontSize: 16,
-                    cursor: 'pointer',
-                    textAlign: 'center',
-                  }}
+                  className="flex-1 py-3 px-5 bg-transparent text-gray-900 border border-gray-200 rounded-lg text-base cursor-pointer text-center"
                 >
                   戻る
                 </button>
                 <button
                   type="button"
                   onClick={handleNext}
-                  style={{
-                    flex: 1,
-                    padding: '12px 20px',
-                    backgroundColor: primary,
-                    color: '#fff',
-                    border: 'none',
-                    borderRadius: 8,
-                    fontSize: 16,
-                    fontWeight: 'bold',
-                    cursor: 'pointer',
-                    textAlign: 'center',
-                  }}
+                  className="flex-1 py-3 px-5 bg-blue-600 text-white border-none rounded-lg text-base font-bold cursor-pointer text-center"
                 >
                   次へ
                 </button>
@@ -429,14 +282,8 @@ export default function SignupPage() {
           {/* ステップ3: 個人情報 */}
           {step === 3 && (
             <>
-              <div style={{ marginBottom: 20 }}>
-                <label style={{
-                  display: 'block',
-                  fontSize: 14,
-                  fontWeight: 'bold',
-                  color: textPrimary,
-                  marginBottom: 6,
-                }}>
+              <div className="mb-5">
+                <label className={labelClassName}>
                   氏名 *
                 </label>
                 <input
@@ -445,26 +292,12 @@ export default function SignupPage() {
                   onChange={(e) => setUserName(e.target.value)}
                   placeholder="山田太郎"
                   required
-                  style={{
-                    width: '100%',
-                    padding: '10px 12px',
-                    border: `1px solid ${inputBorder}`,
-                    borderRadius: 8,
-                    fontSize: 14,
-                    outline: 'none',
-                    boxSizing: 'border-box',
-                  }}
+                  className={inputClassName}
                 />
               </div>
 
-              <div style={{ marginBottom: 20 }}>
-                <label style={{
-                  display: 'block',
-                  fontSize: 14,
-                  fontWeight: 'bold',
-                  color: textPrimary,
-                  marginBottom: 6,
-                }}>
+              <div className="mb-5">
+                <label className={labelClassName}>
                   役職
                 </label>
                 <input
@@ -472,26 +305,12 @@ export default function SignupPage() {
                   value={position}
                   onChange={(e) => setPosition(e.target.value)}
                   placeholder="代表取締役（任意）"
-                  style={{
-                    width: '100%',
-                    padding: '10px 12px',
-                    border: `1px solid ${inputBorder}`,
-                    borderRadius: 8,
-                    fontSize: 14,
-                    outline: 'none',
-                    boxSizing: 'border-box',
-                  }}
+                  className={inputClassName}
                 />
               </div>
 
-              <div style={{ marginBottom: 20 }}>
-                <label style={{
-                  display: 'block',
-                  fontSize: 14,
-                  fontWeight: 'bold',
-                  color: textPrimary,
-                  marginBottom: 6,
-                }}>
+              <div className="mb-5">
+                <label className={labelClassName}>
                   部署
                 </label>
                 <input
@@ -499,52 +318,22 @@ export default function SignupPage() {
                   value={department}
                   onChange={(e) => setDepartment(e.target.value)}
                   placeholder="経営企画部（任意）"
-                  style={{
-                    width: '100%',
-                    padding: '10px 12px',
-                    border: `1px solid ${inputBorder}`,
-                    borderRadius: 8,
-                    fontSize: 14,
-                    outline: 'none',
-                    boxSizing: 'border-box',
-                  }}
+                  className={inputClassName}
                 />
               </div>
 
-              <div style={{ display: 'flex', gap: 12 }}>
+              <div className="flex gap-3">
                 <button
                   type="button"
                   onClick={handleBack}
-                  style={{
-                    flex: 1,
-                    padding: '12px 20px',
-                    backgroundColor: 'transparent',
-                    color: textPrimary,
-                    border: `1px solid ${border}`,
-                    borderRadius: 8,
-                    fontSize: 16,
-                    cursor: 'pointer',
-                    textAlign: 'center',
-                  }}
+                  className="flex-1 py-3 px-5 bg-transparent text-gray-900 border border-gray-200 rounded-lg text-base cursor-pointer text-center"
                 >
                   戻る
                 </button>
                 <button
                   type="submit"
                   disabled={loading}
-                  style={{
-                    flex: 1,
-                    padding: '12px 20px',
-                    backgroundColor: primary,
-                    color: '#fff',
-                    border: 'none',
-                    borderRadius: 8,
-                    fontSize: 16,
-                    fontWeight: 'bold',
-                    cursor: loading ? 'default' : 'pointer',
-                    textAlign: 'center',
-                    opacity: loading ? 0.6 : 1,
-                  }}
+                  className={`flex-1 py-3 px-5 bg-blue-600 text-white border-none rounded-lg text-base font-bold text-center ${loading ? 'cursor-default opacity-60' : 'cursor-pointer'}`}
                 >
                   {loading ? '登録中...' : '登録する'}
                 </button>
@@ -554,15 +343,9 @@ export default function SignupPage() {
         </form>
 
         {/* ログインリンク */}
-        <p style={{
-          textAlign: 'center',
-          fontSize: 13,
-          color: textSecondary,
-          marginTop: 24,
-          marginBottom: 0,
-        }}>
+        <p className="text-center text-[13px] text-gray-500 mt-6 mb-0">
           既にアカウントをお持ちの方は{' '}
-          <Link href="/admin/login" style={{ color: primary, textDecoration: 'none', fontWeight: 'bold' }}>
+          <Link href="/admin/login" className="text-blue-600 no-underline font-bold">
             ログイン
           </Link>
         </p>

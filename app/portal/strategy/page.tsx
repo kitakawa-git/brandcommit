@@ -4,7 +4,8 @@
 import { useEffect, useState, useCallback } from 'react'
 import { supabase } from '@/lib/supabase'
 import { usePortalAuth } from '../components/PortalAuthProvider'
-import { portalColors, portalStyles } from '../components/PortalStyles'
+import { portalStyles } from '../components/PortalStyles'
+import { cn } from '@/lib/utils'
 
 type Persona = {
   name: string
@@ -65,80 +66,71 @@ export default function PortalStrategyPage() {
       })
   }, [companyId])
 
-  if (loading) return <div style={portalStyles.empty}>読み込み中...</div>
+  if (loading) return <div className={portalStyles.empty}>読み込み中...</div>
 
   const hasContent = target || personas.some(p => p.name) || positioningMapUrl || actionGuidelines.length > 0
-  if (!hasContent) return <div style={portalStyles.empty}>まだ登録されていません</div>
+  if (!hasContent) return <div className={portalStyles.empty}>まだ登録されていません</div>
 
   // ペルソナは名前があるものだけ表示
   const validPersonas = personas.filter(p => p.name)
 
   return (
-    <div style={portalStyles.pageContainer}>
-      <h1 style={portalStyles.pageTitle}>ブランド戦略</h1>
-      <p style={portalStyles.pageDescription}>
+    <div className={portalStyles.pageContainer}>
+      <h1 className={portalStyles.pageTitle}>ブランド戦略</h1>
+      <p className={portalStyles.pageDescription}>
         ターゲット・ペルソナ・ポジショニング・行動指針
       </p>
 
       {/* ===== ターゲット ===== */}
       {target && (
-        <div style={portalStyles.section}>
-          <h2 style={portalStyles.sectionTitle}>ターゲット</h2>
-          <div style={portalStyles.card}>
-            <div style={{ ...portalStyles.value, whiteSpace: 'pre-wrap' }}>{target}</div>
+        <div className={portalStyles.section}>
+          <h2 className={portalStyles.sectionTitle}>ターゲット</h2>
+          <div className={portalStyles.card}>
+            <div className={cn(portalStyles.value, 'whitespace-pre-wrap')}>{target}</div>
           </div>
         </div>
       )}
 
       {/* ===== ペルソナ ===== */}
       {validPersonas.length > 0 && (
-        <div style={portalStyles.section}>
-          <h2 style={portalStyles.sectionTitle}>ペルソナ</h2>
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
-            gap: 16,
-          }}>
+        <div className={portalStyles.section}>
+          <h2 className={portalStyles.sectionTitle}>ペルソナ</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {validPersonas.map((persona, i) => (
-              <div key={i} style={portalStyles.card}>
-                <div style={{ marginBottom: 12 }}>
-                  <div style={{ fontSize: 16, fontWeight: 'bold', color: portalColors.textPrimary, marginBottom: 4 }}>
+              <div key={i} className={portalStyles.card}>
+                <div className="mb-3">
+                  <div className="text-base font-bold text-gray-900 mb-1">
                     {persona.name}
                   </div>
-                  <div style={{ fontSize: 13, color: portalColors.textSecondary }}>
+                  <div className="text-[13px] text-gray-500">
                     {[persona.age_range, persona.occupation].filter(Boolean).join(' / ')}
                   </div>
                 </div>
 
                 {persona.description && (
-                  <div style={{ fontSize: 14, color: portalColors.textSecondary, lineHeight: 1.6, marginBottom: 16 }}>
+                  <div className="text-sm text-gray-500 leading-relaxed mb-4">
                     {persona.description}
                   </div>
                 )}
 
                 {persona.needs.length > 0 && (
-                  <div style={{ marginBottom: 12 }}>
-                    <div style={{ ...portalStyles.label, marginBottom: 8 }}>ニーズ</div>
+                  <div className="mb-3">
+                    <div className={cn(portalStyles.label, 'mb-2')}>ニーズ</div>
                     {persona.needs.map((need, ni) => (
-                      <div key={ni} style={portalStyles.tag}>
+                      <span key={ni} className={portalStyles.tag}>
                         {need}
-                      </div>
+                      </span>
                     ))}
                   </div>
                 )}
 
                 {persona.pain_points.length > 0 && (
                   <div>
-                    <div style={{ ...portalStyles.label, marginBottom: 8 }}>課題</div>
+                    <div className={cn(portalStyles.label, 'mb-2')}>課題</div>
                     {persona.pain_points.map((point, pi) => (
-                      <div key={pi} style={{
-                        ...portalStyles.tag,
-                        backgroundColor: '#fef2f2',
-                        borderColor: '#fecaca',
-                        color: portalColors.danger,
-                      }}>
+                      <span key={pi} className="inline-block px-3 py-1 bg-red-50 border border-red-200 rounded-full text-[13px] text-red-600 mr-2 mb-2">
                         {point}
-                      </div>
+                      </span>
                     ))}
                   </div>
                 )}
@@ -150,20 +142,14 @@ export default function PortalStrategyPage() {
 
       {/* ===== ポジショニングマップ ===== */}
       {positioningMapUrl && (
-        <div style={portalStyles.section}>
-          <h2 style={portalStyles.sectionTitle}>ポジショニングマップ</h2>
-          <div style={portalStyles.card}>
+        <div className={portalStyles.section}>
+          <h2 className={portalStyles.sectionTitle}>ポジショニングマップ</h2>
+          <div className={portalStyles.card}>
             <img
               src={positioningMapUrl}
               alt="ポジショニングマップ"
               onClick={() => setModalImage(positioningMapUrl)}
-              style={{
-                maxWidth: '100%',
-                maxHeight: 400,
-                borderRadius: 8,
-                border: `1px solid ${portalColors.cardBorder}`,
-                cursor: 'pointer',
-              }}
+              className="max-w-full max-h-[400px] rounded-lg border border-gray-200 cursor-pointer"
             />
           </div>
         </div>
@@ -171,19 +157,15 @@ export default function PortalStrategyPage() {
 
       {/* ===== 行動指針 ===== */}
       {actionGuidelines.length > 0 && (
-        <div style={portalStyles.section}>
-          <h2 style={portalStyles.sectionTitle}>行動指針</h2>
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-            gap: 16,
-          }}>
+        <div className={portalStyles.section}>
+          <h2 className={portalStyles.sectionTitle}>行動指針</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {actionGuidelines.map((g, i) => (
-              <div key={i} style={portalStyles.card}>
-                <div style={{ fontSize: 16, fontWeight: 'bold', color: portalColors.textPrimary, marginBottom: 8 }}>
+              <div key={i} className={portalStyles.card}>
+                <div className="text-base font-bold text-gray-900 mb-2">
                   {g.title}
                 </div>
-                <div style={{ fontSize: 14, color: portalColors.textSecondary, lineHeight: 1.6 }}>
+                <div className="text-sm text-gray-500 leading-relaxed">
                   {g.description}
                 </div>
               </div>
@@ -196,48 +178,17 @@ export default function PortalStrategyPage() {
       {modalImage && (
         <div
           onClick={closeModal}
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            width: '100vw',
-            height: '100vh',
-            backgroundColor: 'rgba(0,0,0,0.7)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 9999,
-            cursor: 'pointer',
-          }}
+          className="fixed inset-0 bg-black/70 flex items-center justify-center z-[9999] cursor-pointer"
         >
-          <div style={{ position: 'relative' }} onClick={(e) => e.stopPropagation()}>
+          <div className="relative" onClick={(e) => e.stopPropagation()}>
             <img
               src={modalImage}
               alt="拡大表示"
-              style={{
-                maxWidth: '90vw',
-                maxHeight: '90vh',
-                borderRadius: 8,
-              }}
+              className="max-w-[90vw] max-h-[90vh] rounded-lg"
             />
             <button
               onClick={closeModal}
-              style={{
-                position: 'absolute',
-                top: -12,
-                right: -12,
-                width: 32,
-                height: 32,
-                borderRadius: '50%',
-                backgroundColor: '#fff',
-                border: '1px solid #d1d5db',
-                fontSize: 18,
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                lineHeight: 1,
-              }}
+              className="absolute -top-3 -right-3 w-8 h-8 rounded-full bg-white border border-gray-300 text-lg cursor-pointer flex items-center justify-center leading-none"
             >
               ×
             </button>

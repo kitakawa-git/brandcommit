@@ -4,7 +4,8 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '../components/AuthProvider'
-import { colors, commonStyles } from '../components/AdminStyles'
+import { commonStyles } from '../components/AdminStyles'
+import { cn } from '@/lib/utils'
 
 type ViewRecord = {
   id: string
@@ -141,7 +142,7 @@ export default function AnalyticsPage() {
 
   if (loading) {
     return (
-      <p style={{ color: colors.textSecondary, textAlign: 'center', padding: 40 }}>
+      <p className="text-gray-500 text-center p-10">
         読み込み中...
       </p>
     )
@@ -152,75 +153,47 @@ export default function AnalyticsPage() {
 
   return (
     <div>
-      <h2 style={{
-        fontSize: 20,
-        fontWeight: 'bold',
-        color: colors.textPrimary,
-        margin: '0 0 24px',
-      }}>
+      <h2 className="text-xl font-bold text-gray-900 mb-6">
         アクセス解析
       </h2>
 
       {/* === 全体サマリー === */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
-        gap: 16,
-        marginBottom: 24,
-      }}>
+      <div className="grid grid-cols-[repeat(auto-fit,minmax(180px,1fr))] gap-4 mb-6">
         <SummaryCard label="総閲覧数" value={totalViews} color="#2563eb" />
         <SummaryCard label="今月の閲覧数" value={monthViews} color="#16a34a" />
         <SummaryCard label="今週の閲覧数" value={weekViews} color="#f59e0b" />
       </div>
 
       {/* === 日別推移（過去30日） === */}
-      <div style={{ ...commonStyles.card, marginBottom: 24 }}>
-        <h3 style={{
-          fontSize: 16,
-          fontWeight: 'bold',
-          color: colors.textPrimary,
-          margin: '0 0 16px',
-        }}>
+      <div className={cn(commonStyles.card, 'mb-6')}>
+        <h3 className="text-base font-bold text-gray-900 mb-4">
           日別推移（過去30日）
         </h3>
-        <div style={{
-          display: 'flex',
-          alignItems: 'flex-end',
-          gap: 2,
-          height: 160,
-          padding: '0 4px',
-        }}>
+        <div className="flex items-end gap-0.5 h-40 px-1">
           {dailyCounts.map((d) => {
             const barHeight = maxDaily > 0 ? (d.count / maxDaily) * 140 : 0
             const dateLabel = d.date.slice(5) // MM-DD
             return (
               <div
                 key={d.date}
-                style={{
-                  flex: 1,
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  gap: 2,
-                }}
+                className="flex-1 flex flex-col items-center gap-0.5"
                 title={`${d.date}: ${d.count}件`}
               >
                 {d.count > 0 && (
-                  <span style={{ fontSize: 9, color: colors.textSecondary }}>
+                  <span className="text-[9px] text-gray-500">
                     {d.count}
                   </span>
                 )}
-                <div style={{
-                  width: '100%',
-                  maxWidth: 20,
-                  height: Math.max(barHeight, d.count > 0 ? 4 : 1),
-                  backgroundColor: d.count > 0 ? '#2563eb' : '#e5e7eb',
-                  borderRadius: '2px 2px 0 0',
-                  transition: 'height 0.3s',
-                }} />
+                <div
+                  className="w-full max-w-5 rounded-t-sm transition-[height] duration-300"
+                  style={{
+                    height: Math.max(barHeight, d.count > 0 ? 4 : 1),
+                    backgroundColor: d.count > 0 ? '#2563eb' : '#e5e7eb',
+                  }}
+                />
                 {/* 5日ごとにラベル表示 */}
                 {dailyCounts.indexOf(d) % 5 === 0 && (
-                  <span style={{ fontSize: 9, color: colors.textSecondary, whiteSpace: 'nowrap' }}>
+                  <span className="text-[9px] text-gray-500 whitespace-nowrap">
                     {dateLabel}
                   </span>
                 )}
@@ -231,70 +204,45 @@ export default function AnalyticsPage() {
       </div>
 
       {/* 2カラム: ランキング + 最近のアクセス */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))',
-        gap: 24,
-      }}>
+      <div className="grid grid-cols-[repeat(auto-fit,minmax(360px,1fr))] gap-6">
         {/* === 社員別ランキング === */}
-        <div style={commonStyles.card}>
-          <h3 style={{
-            fontSize: 16,
-            fontWeight: 'bold',
-            color: colors.textPrimary,
-            margin: '0 0 16px',
-          }}>
+        <div className={commonStyles.card}>
+          <h3 className="text-base font-bold text-gray-900 mb-4">
             アクセスランキング
           </h3>
           {ranking.length === 0 ? (
-            <p style={{ color: colors.textSecondary, fontSize: 14 }}>
+            <p className="text-gray-500 text-sm">
               まだアクセスデータがありません
             </p>
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <div className="flex flex-col gap-2.5">
               {ranking.map((member, i) => {
                 const maxCount = ranking[0]?.count || 1
                 const barWidth = (member.count / maxCount) * 100
                 return (
                   <div key={member.slug}>
-                    <div style={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                      marginBottom: 4,
-                    }}>
-                      <span style={{ fontSize: 14, color: colors.textPrimary }}>
-                        <span style={{
-                          display: 'inline-block',
-                          width: 24,
-                          fontWeight: 'bold',
-                          color: i < 3 ? '#f59e0b' : colors.textSecondary,
-                        }}>
+                    <div className="flex justify-between items-center mb-1">
+                      <span className="text-sm text-gray-900">
+                        <span
+                          className="inline-block w-6 font-bold"
+                          style={{ color: i < 3 ? '#f59e0b' : undefined }}
+                        >
                           {i + 1}.
                         </span>
                         {member.name}
                       </span>
-                      <span style={{
-                        fontSize: 14,
-                        fontWeight: 'bold',
-                        color: colors.primary,
-                      }}>
+                      <span className="text-sm font-bold text-blue-600">
                         {member.count}件
                       </span>
                     </div>
-                    <div style={{
-                      height: 8,
-                      backgroundColor: '#f3f4f6',
-                      borderRadius: 4,
-                      overflow: 'hidden',
-                    }}>
-                      <div style={{
-                        height: '100%',
-                        width: `${barWidth}%`,
-                        backgroundColor: i === 0 ? '#f59e0b' : i === 1 ? '#94a3b8' : i === 2 ? '#cd7f32' : '#2563eb',
-                        borderRadius: 4,
-                        transition: 'width 0.5s',
-                      }} />
+                    <div className="h-2 bg-gray-100 rounded overflow-hidden">
+                      <div
+                        className="h-full rounded transition-[width] duration-500"
+                        style={{
+                          width: `${barWidth}%`,
+                          backgroundColor: i === 0 ? '#f59e0b' : i === 1 ? '#94a3b8' : i === 2 ? '#cd7f32' : '#2563eb',
+                        }}
+                      />
                     </div>
                   </div>
                 )
@@ -304,26 +252,21 @@ export default function AnalyticsPage() {
         </div>
 
         {/* === 最近のアクセス === */}
-        <div style={commonStyles.card}>
-          <h3 style={{
-            fontSize: 16,
-            fontWeight: 'bold',
-            color: colors.textPrimary,
-            margin: '0 0 16px',
-          }}>
+        <div className={commonStyles.card}>
+          <h3 className="text-base font-bold text-gray-900 mb-4">
             最近のアクセス
           </h3>
           {recentViews.length === 0 ? (
-            <p style={{ color: colors.textSecondary, fontSize: 14 }}>
+            <p className="text-gray-500 text-sm">
               まだアクセスデータがありません
             </p>
           ) : (
-            <table style={{ ...commonStyles.table, fontSize: 13 }}>
+            <table className={cn(commonStyles.table, 'text-[13px]')}>
               <thead>
                 <tr>
-                  <th style={{ ...commonStyles.th, fontSize: 12 }}>日時</th>
-                  <th style={{ ...commonStyles.th, fontSize: 12 }}>名前</th>
-                  <th style={{ ...commonStyles.th, fontSize: 12 }}>地域</th>
+                  <th className={cn(commonStyles.th, 'text-xs')}>日時</th>
+                  <th className={cn(commonStyles.th, 'text-xs')}>名前</th>
+                  <th className={cn(commonStyles.th, 'text-xs')}>地域</th>
                 </tr>
               </thead>
               <tbody>
@@ -333,13 +276,13 @@ export default function AnalyticsPage() {
                   const location = [view.city, view.country].filter(Boolean).join(', ') || '—'
                   return (
                     <tr key={view.id}>
-                      <td style={{ ...commonStyles.td, whiteSpace: 'nowrap', fontSize: 12 }}>
+                      <td className={cn(commonStyles.td, 'whitespace-nowrap text-xs')}>
                         {dateStr}
                       </td>
-                      <td style={{ ...commonStyles.td, fontWeight: '600' }}>
+                      <td className={cn(commonStyles.td, 'font-semibold')}>
                         {view.profiles?.name || '—'}
                       </td>
-                      <td style={{ ...commonStyles.td, color: colors.textSecondary, fontSize: 12 }}>
+                      <td className={cn(commonStyles.td, 'text-gray-500 text-xs')}>
                         {location}
                       </td>
                     </tr>
@@ -357,26 +300,11 @@ export default function AnalyticsPage() {
 // サマリーカードコンポーネント
 function SummaryCard({ label, value, color }: { label: string; value: number; color: string }) {
   return (
-    <div style={{
-      backgroundColor: '#ffffff',
-      borderRadius: 12,
-      border: `1px solid ${colors.border}`,
-      padding: 24,
-      textAlign: 'center',
-    }}>
-      <p style={{
-        fontSize: 13,
-        color: colors.textSecondary,
-        margin: '0 0 8px',
-      }}>
+    <div className="bg-white rounded-xl border border-gray-200 p-6 text-center">
+      <p className="text-[13px] text-gray-500 mb-2">
         {label}
       </p>
-      <p style={{
-        fontSize: 32,
-        fontWeight: 'bold',
-        color: color,
-        margin: 0,
-      }}>
+      <p className="text-[32px] font-bold m-0" style={{ color }}>
         {value.toLocaleString()}
       </p>
     </div>

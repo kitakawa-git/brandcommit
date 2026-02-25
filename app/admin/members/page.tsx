@@ -5,7 +5,8 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '../components/AuthProvider'
-import { colors, commonStyles } from '../components/AdminStyles'
+import { commonStyles } from '../components/AdminStyles'
+import { cn } from '@/lib/utils'
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
 const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
@@ -142,52 +143,42 @@ export default function MembersPage() {
   return (
     <div>
       {/* ページヘッダー */}
-      <div style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: 24,
-      }}>
-        <h2 style={{
-          fontSize: 20,
-          fontWeight: 'bold',
-          color: colors.textPrimary,
-          margin: 0,
-        }}>
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-xl font-bold text-gray-900">
           アカウント一覧
         </h2>
-        <Link href="/admin/members-portal" style={commonStyles.button}>
+        <Link href="/admin/members-portal" className={commonStyles.button}>
           ＋ 新規追加
         </Link>
       </div>
 
       {/* テーブル */}
-      <div style={commonStyles.card}>
+      <div className={commonStyles.card}>
         {loading ? (
-          <p style={{ color: colors.textSecondary, textAlign: 'center', padding: 40 }}>
+          <p className="text-gray-500 text-center p-10">
             読み込み中...
           </p>
         ) : fetchError ? (
-          <div style={{ textAlign: 'center', padding: 40 }}>
-            <p style={{ color: '#dc2626', fontSize: 14, marginBottom: 12 }}>{fetchError}</p>
-            <button onClick={fetchMembers} style={{ ...commonStyles.buttonOutline, padding: '8px 16px', fontSize: 13 }}>
+          <div className="text-center p-10">
+            <p className="text-red-600 text-sm mb-3">{fetchError}</p>
+            <button onClick={fetchMembers} className={cn(commonStyles.buttonOutline, 'py-2 px-4 text-[13px]')}>
               再読み込み
             </button>
           </div>
         ) : members.length === 0 ? (
-          <p style={{ color: colors.textSecondary, textAlign: 'center', padding: 40 }}>
+          <p className="text-gray-500 text-center p-10">
             アカウントが登録されていません
           </p>
         ) : (
-          <table style={commonStyles.table}>
+          <table className={commonStyles.table}>
             <thead>
               <tr>
-                <th style={commonStyles.th}>名前</th>
-                <th style={commonStyles.th}>メール</th>
-                <th style={{ ...commonStyles.th, textAlign: 'center' as const }}>名刺</th>
-                <th style={{ ...commonStyles.th, textAlign: 'center' as const }}>ステータス</th>
-                <th style={commonStyles.th}>登録日</th>
-                <th style={{ ...commonStyles.th, textAlign: 'center' as const }}>操作</th>
+                <th className={commonStyles.th}>名前</th>
+                <th className={commonStyles.th}>メール</th>
+                <th className={cn(commonStyles.th, 'text-center')}>名刺</th>
+                <th className={cn(commonStyles.th, 'text-center')}>ステータス</th>
+                <th className={commonStyles.th}>登録日</th>
+                <th className={cn(commonStyles.th, 'text-center')}>操作</th>
               </tr>
             </thead>
             <tbody>
@@ -197,27 +188,23 @@ export default function MembersPage() {
                 return (
                   <tr key={member.id}>
                     {/* 表示名 */}
-                    <td style={commonStyles.td}>
-                      <span style={{ fontWeight: '500' }}>{member.display_name}</span>
+                    <td className={commonStyles.td}>
+                      <span className="font-medium">{member.display_name}</span>
                     </td>
 
                     {/* メール */}
-                    <td style={{ ...commonStyles.td, fontSize: 13 }}>
+                    <td className={cn(commonStyles.td, 'text-[13px]')}>
                       {member.email}
                     </td>
 
                     {/* 名刺 ON/OFF */}
-                    <td style={{ ...commonStyles.td, textAlign: 'center' as const }}>
+                    <td className={cn(commonStyles.td, 'text-center')}>
                       {profileId ? (
                         <button
                           onClick={() => toggleCard(profileId, cardEnabled)}
                           disabled={togglingId === profileId}
+                          className="py-1 px-3 rounded-xl border-none text-xs font-bold"
                           style={{
-                            padding: '4px 12px',
-                            borderRadius: 12,
-                            border: 'none',
-                            fontSize: 12,
-                            fontWeight: 'bold',
                             cursor: togglingId === profileId ? 'default' : 'pointer',
                             opacity: togglingId === profileId ? 0.5 : 1,
                             backgroundColor: cardEnabled ? '#dcfce7' : '#f3f4f6',
@@ -227,65 +214,47 @@ export default function MembersPage() {
                           {cardEnabled ? '✅ ON' : 'OFF'}
                         </button>
                       ) : (
-                        <span style={{ color: '#9ca3af', fontSize: 12 }}>-</span>
+                        <span className="text-gray-400 text-xs">-</span>
                       )}
                     </td>
 
                     {/* ステータス */}
-                    <td style={{ ...commonStyles.td, textAlign: 'center' as const }}>
-                      <span style={{
-                        padding: '2px 8px',
-                        borderRadius: 4,
-                        fontSize: 12,
-                        fontWeight: 'bold',
-                        backgroundColor: member.is_active ? '#dcfce7' : '#fee2e2',
-                        color: member.is_active ? '#16a34a' : '#dc2626',
-                      }}>
+                    <td className={cn(commonStyles.td, 'text-center')}>
+                      <span
+                        className="py-0.5 px-2 rounded text-xs font-bold"
+                        style={{
+                          backgroundColor: member.is_active ? '#dcfce7' : '#fee2e2',
+                          color: member.is_active ? '#16a34a' : '#dc2626',
+                        }}
+                      >
                         {member.is_active ? '有効' : '無効'}
                       </span>
                     </td>
 
                     {/* 登録日 */}
-                    <td style={{ ...commonStyles.td, fontSize: 12, color: colors.textSecondary }}>
+                    <td className={cn(commonStyles.td, 'text-xs text-gray-500')}>
                       {new Date(member.created_at).toLocaleDateString('ja-JP')}
                     </td>
 
                     {/* 操作 */}
-                    <td style={{ ...commonStyles.td, textAlign: 'center' as const }}>
-                      <div style={{ display: 'flex', gap: 12, justifyContent: 'center' }}>
+                    <td className={cn(commonStyles.td, 'text-center')}>
+                      <div className="flex gap-3 justify-center">
                         {profileId && cardEnabled ? (
                           <Link
                             href={`/admin/members/${profileId}/edit`}
-                            style={{
-                              color: colors.primary,
-                              textDecoration: 'none',
-                              fontSize: 14,
-                              fontWeight: '500',
-                            }}
+                            className="text-blue-600 no-underline text-sm font-medium"
                           >
                             編集
                           </Link>
                         ) : (
-                          <span style={{
-                            color: '#d1d5db',
-                            fontSize: 14,
-                            fontWeight: '500',
-                          }}>
+                          <span className="text-gray-300 text-sm font-medium">
                             編集
                           </span>
                         )}
                         {member.is_active && (
                           <button
                             onClick={() => handleDeactivate(member.id)}
-                            style={{
-                              color: '#dc2626',
-                              background: 'none',
-                              border: 'none',
-                              fontSize: 14,
-                              fontWeight: '500',
-                              cursor: 'pointer',
-                              padding: 0,
-                            }}
+                            className="text-red-600 bg-transparent border-none text-sm font-medium cursor-pointer p-0"
                           >
                             無効化
                           </button>

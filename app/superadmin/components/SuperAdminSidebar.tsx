@@ -3,15 +3,6 @@
 // スーパー管理画面サイドバー（紺色: 通常管理画面と区別）
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { layout } from '../../admin/components/AdminStyles'
-
-// スーパー管理画面専用カラー（紺色ベース）
-const superAdminColors = {
-  sidebarBg: '#1e3a5f',
-  sidebarText: '#94b8d9',
-  sidebarActiveText: '#ffffff',
-  sidebarActiveBg: '#2a4a6f',
-} as const
 
 const navItems = [
   { href: '/superadmin/companies', label: '企業一覧', icon: '🏢' },
@@ -21,38 +12,15 @@ export function SuperAdminSidebar() {
   const pathname = usePathname()
 
   return (
-    <aside style={{
-      width: layout.sidebarWidth,
-      backgroundColor: superAdminColors.sidebarBg,
-      minHeight: '100vh',
-      padding: '24px 0',
-      position: 'fixed',
-      left: 0,
-      top: 0,
-    }}>
+    <aside className="w-[240px] bg-[#1e3a5f] min-h-screen py-6 fixed left-0 top-0">
       {/* ロゴ・タイトル */}
-      <div style={{ padding: '0 20px', marginBottom: 32 }}>
-        <Link href="/superadmin" style={{ textDecoration: 'none' }}>
-          <h1 style={{
-            color: '#ffffff',
-            fontSize: 18,
-            margin: 0,
-            fontWeight: 'bold',
-          }}>
+      <div className="px-5 mb-8">
+        <Link href="/superadmin" className="no-underline">
+          <h1 className="text-white text-lg m-0 font-bold">
             brandcommit
           </h1>
         </Link>
-        <div style={{
-          display: 'inline-block',
-          marginTop: 6,
-          padding: '2px 8px',
-          backgroundColor: '#f59e0b',
-          color: '#1e3a5f',
-          fontSize: 10,
-          fontWeight: 'bold',
-          borderRadius: 4,
-          letterSpacing: '0.05em',
-        }}>
+        <div className="inline-block mt-1.5 py-0.5 px-2 bg-amber-500 text-[#1e3a5f] text-[10px] font-bold rounded tracking-wide">
           SUPER ADMIN
         </div>
       </div>
@@ -65,15 +33,11 @@ export function SuperAdminSidebar() {
             <Link
               key={item.href}
               href={item.href}
-              style={{
-                display: 'block',
-                padding: '12px 20px',
-                color: isActive ? superAdminColors.sidebarActiveText : superAdminColors.sidebarText,
-                backgroundColor: isActive ? superAdminColors.sidebarActiveBg : 'transparent',
-                textDecoration: 'none',
-                fontSize: 14,
-                transition: 'background-color 0.15s',
-              }}
+              className={`block py-3 px-5 no-underline text-sm transition-colors duration-150 ${
+                isActive
+                  ? 'text-white bg-[#2a4a6f]'
+                  : 'text-[#94b8d9] bg-transparent'
+              }`}
             >
               {item.icon}　{item.label}
             </Link>
@@ -82,16 +46,10 @@ export function SuperAdminSidebar() {
       </nav>
 
       {/* 通常管理画面へのリンク */}
-      <div style={{ padding: '24px 20px 0', borderTop: '1px solid #2a4a6f', marginTop: 24 }}>
+      <div className="px-5 pt-6 border-t border-[#2a4a6f] mt-6">
         <Link
           href="/admin"
-          style={{
-            display: 'block',
-            padding: '10px 0',
-            color: superAdminColors.sidebarText,
-            textDecoration: 'none',
-            fontSize: 13,
-          }}
+          className="block py-2.5 text-[#94b8d9] no-underline text-[13px]"
         >
           ← 通常管理画面へ
         </Link>

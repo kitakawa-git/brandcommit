@@ -1,5 +1,6 @@
-// 管理画面のスタイル定数
+// 管理画面のスタイル定数（Tailwind CSS版）
 
+// カラー定数（動的参照が必要な箇所用）
 export const colors = {
   sidebarBg: '#1f2937',
   sidebarText: '#d1d5db',
@@ -24,117 +25,19 @@ export const layout = {
   headerHeight: 60,
 } as const
 
-// 共通スタイルオブジェクト
+// Tailwind クラス文字列（className で使用）
 export const commonStyles = {
-  // ボタン
-  button: {
-    padding: '10px 20px',
-    backgroundColor: colors.primary,
-    color: '#ffffff',
-    border: 'none',
-    borderRadius: 8,
-    fontSize: 14,
-    fontWeight: 'bold' as const,
-    cursor: 'pointer',
-    textDecoration: 'none',
-    display: 'inline-block',
-  },
-  buttonOutline: {
-    padding: '10px 20px',
-    backgroundColor: 'transparent',
-    color: colors.textPrimary,
-    border: `1px solid ${colors.border}`,
-    borderRadius: 8,
-    fontSize: 14,
-    cursor: 'pointer',
-    textDecoration: 'none',
-    display: 'inline-block',
-  },
-  dangerButton: {
-    padding: '10px 20px',
-    backgroundColor: colors.danger,
-    color: '#ffffff',
-    border: 'none',
-    borderRadius: 8,
-    fontSize: 14,
-    fontWeight: 'bold' as const,
-    cursor: 'pointer',
-  },
-  // 入力フィールド
-  input: {
-    width: '100%',
-    padding: '10px 12px',
-    border: `1px solid ${colors.inputBorder}`,
-    borderRadius: 8,
-    fontSize: 14,
-    outline: 'none',
-    boxSizing: 'border-box' as const,
-  },
-  textarea: {
-    width: '100%',
-    padding: '10px 12px',
-    border: `1px solid ${colors.inputBorder}`,
-    borderRadius: 8,
-    fontSize: 14,
-    outline: 'none',
-    boxSizing: 'border-box' as const,
-    resize: 'vertical' as const,
-    minHeight: 100,
-  },
-  // ラベル
-  label: {
-    display: 'block',
-    fontSize: 14,
-    fontWeight: 'bold' as const,
-    color: colors.textPrimary,
-    marginBottom: 6,
-  },
-  // フォームグループ
-  formGroup: {
-    marginBottom: 20,
-  },
-  // カード
-  card: {
-    backgroundColor: colors.white,
-    borderRadius: 12,
-    border: `1px solid ${colors.border}`,
-    padding: 24,
-  },
-  // テーブル
-  table: {
-    width: '100%',
-    borderCollapse: 'collapse' as const,
-    fontSize: 14,
-  },
-  th: {
-    textAlign: 'left' as const,
-    padding: '12px 16px',
-    backgroundColor: '#f3f4f6',
-    color: colors.textSecondary,
-    fontWeight: '600' as const,
-    borderBottom: `1px solid ${colors.border}`,
-  },
-  td: {
-    padding: '12px 16px',
-    borderBottom: `1px solid ${colors.border}`,
-    color: colors.textPrimary,
-  },
-  // エラーメッセージ
-  error: {
-    backgroundColor: '#fef2f2',
-    color: colors.danger,
-    padding: '12px 16px',
-    borderRadius: 8,
-    fontSize: 14,
-    marginBottom: 16,
-  },
-  // 成功メッセージ
-  success: {
-    backgroundColor: '#f0fdf4',
-    color: colors.success,
-    padding: '12px 16px',
-    borderRadius: 8,
-    fontSize: 14,
-    marginBottom: 16,
-  },
+  button: 'inline-block px-5 py-2.5 bg-blue-600 text-white border-none rounded-lg text-sm font-bold cursor-pointer no-underline hover:bg-blue-700 transition-colors',
+  buttonOutline: 'inline-block px-5 py-2.5 bg-transparent text-gray-900 border border-gray-200 rounded-lg text-sm cursor-pointer no-underline hover:bg-gray-50 transition-colors',
+  dangerButton: 'px-5 py-2.5 bg-red-600 text-white border-none rounded-lg text-sm font-bold cursor-pointer hover:bg-red-700 transition-colors',
+  input: 'w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500',
+  textarea: 'w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm outline-none resize-y min-h-[100px] focus:border-blue-500 focus:ring-1 focus:ring-blue-500',
+  label: 'block text-sm font-bold text-gray-900 mb-1.5',
+  formGroup: 'mb-5',
+  card: 'bg-white rounded-xl border border-gray-200 p-6',
+  table: 'w-full border-collapse text-sm',
+  th: 'text-left px-4 py-3 bg-gray-100 text-gray-500 font-semibold border-b border-gray-200',
+  td: 'px-4 py-3 border-b border-gray-200 text-gray-900',
+  error: 'bg-red-50 text-red-600 px-4 py-3 rounded-lg text-sm mb-4',
+  success: 'bg-green-50 text-green-600 px-4 py-3 rounded-lg text-sm mb-4',
 }

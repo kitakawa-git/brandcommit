@@ -4,20 +4,12 @@
 import { Suspense, useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
-import { portalColors } from '../components/PortalStyles'
+import { Card, CardContent } from '@/components/ui/card'
 
 export default function PortalRegisterPage() {
   return (
     <Suspense fallback={
-      <div style={{
-        minHeight: '100vh',
-        backgroundColor: '#f9fafb',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        fontFamily: 'sans-serif',
-        color: '#6b7280',
-      }}>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center font-sans text-gray-500">
         読み込み中...
       </div>
     }>
@@ -126,28 +118,12 @@ function PortalRegisterContent() {
     }
   }
 
-  const inputStyle = {
-    width: '100%',
-    padding: '10px 12px',
-    border: `1px solid #d1d5db`,
-    borderRadius: 8,
-    fontSize: 14,
-    outline: 'none',
-    boxSizing: 'border-box' as const,
-  }
+  const inputClassName = 'w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500'
 
   // トークン検証中
   if (tokenValid === null) {
     return (
-      <div style={{
-        minHeight: '100vh',
-        backgroundColor: '#f9fafb',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        fontFamily: 'sans-serif',
-        color: portalColors.textSecondary,
-      }}>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center font-sans text-gray-500">
         招待リンクを確認中...
       </div>
     )
@@ -156,27 +132,13 @@ function PortalRegisterContent() {
   // 無効なトークン
   if (tokenValid === false) {
     return (
-      <div style={{
-        minHeight: '100vh',
-        backgroundColor: '#f9fafb',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        fontFamily: 'sans-serif',
-      }}>
-        <div style={{
-          backgroundColor: '#fff',
-          borderRadius: 12,
-          padding: 40,
-          textAlign: 'center',
-          maxWidth: 400,
-          boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-        }}>
-          <div style={{ fontSize: 48, marginBottom: 16 }}>❌</div>
-          <h2 style={{ fontSize: 20, fontWeight: 'bold', color: portalColors.textPrimary, margin: '0 0 12px' }}>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center font-sans">
+        <div className="bg-white rounded-xl p-10 text-center max-w-[400px] shadow-sm">
+          <div className="text-5xl mb-4">❌</div>
+          <h2 className="text-xl font-bold text-gray-900 mb-3">
             無効な招待リンク
           </h2>
-          <p style={{ fontSize: 14, color: portalColors.textSecondary, margin: 0, lineHeight: 1.6 }}>
+          <p className="text-sm text-gray-500 m-0 leading-relaxed">
             この招待リンクは無効または期限切れです。管理者に新しいリンクを発行してもらってください。
           </p>
         </div>
@@ -186,133 +148,97 @@ function PortalRegisterContent() {
 
   // 登録フォーム
   return (
-    <div style={{
-      minHeight: '100vh',
-      backgroundColor: '#f9fafb',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      fontFamily: 'sans-serif',
-    }}>
-      <div style={{
-        backgroundColor: '#fff',
-        borderRadius: 12,
-        padding: 40,
-        width: '100%',
-        maxWidth: 400,
-        boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-      }}>
-        <div style={{ textAlign: 'center', marginBottom: 32 }}>
-          <h1 style={{ fontSize: 24, fontWeight: 'bold', color: portalColors.textPrimary, margin: '0 0 8px' }}>
-            brandcommit
-          </h1>
-          <p style={{ fontSize: 14, color: portalColors.textSecondary, margin: 0 }}>
-            メンバー登録
-          </p>
-          {companyName && (
-            <p style={{
-              fontSize: 13,
-              color: portalColors.primary,
-              margin: '8px 0 0',
-              fontWeight: 'bold',
-            }}>
-              {companyName}
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center font-sans">
+      <Card className="w-full max-w-[400px] border-0 shadow-sm">
+        <CardContent className="p-10">
+          <div className="text-center mb-8">
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">
+              brandcommit
+            </h1>
+            <p className="text-sm text-gray-500 m-0">
+              メンバー登録
             </p>
+            {companyName && (
+              <p className="text-[13px] text-blue-600 mt-2 font-bold">
+                {companyName}
+              </p>
+            )}
+          </div>
+
+          {error && (
+            <div className="bg-red-50 text-red-600 px-4 py-3 rounded-lg text-sm mb-4">
+              {error}
+            </div>
           )}
-        </div>
 
-        {error && (
-          <div style={{
-            backgroundColor: '#fef2f2',
-            color: portalColors.danger,
-            padding: '12px 16px',
-            borderRadius: 8,
-            fontSize: 14,
-            marginBottom: 16,
-          }}>
-            {error}
-          </div>
-        )}
+          <form onSubmit={handleRegister}>
+            <div className="mb-5">
+              <label className="block text-sm font-bold text-gray-900 mb-1.5">
+                表示名
+              </label>
+              <input
+                type="text"
+                value={displayName}
+                onChange={(e) => setDisplayName(e.target.value)}
+                placeholder="山田太郎"
+                required
+                className={inputClassName}
+              />
+            </div>
 
-        <form onSubmit={handleRegister}>
-          <div style={{ marginBottom: 20 }}>
-            <label style={{ display: 'block', fontSize: 14, fontWeight: 'bold', color: portalColors.textPrimary, marginBottom: 6 }}>
-              表示名
-            </label>
-            <input
-              type="text"
-              value={displayName}
-              onChange={(e) => setDisplayName(e.target.value)}
-              placeholder="山田太郎"
-              required
-              style={inputStyle}
-            />
-          </div>
+            <div className="mb-5">
+              <label className="block text-sm font-bold text-gray-900 mb-1.5">
+                メールアドレス
+              </label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="member@example.com"
+                required
+                className={inputClassName}
+              />
+            </div>
 
-          <div style={{ marginBottom: 20 }}>
-            <label style={{ display: 'block', fontSize: 14, fontWeight: 'bold', color: portalColors.textPrimary, marginBottom: 6 }}>
-              メールアドレス
-            </label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="member@example.com"
-              required
-              style={inputStyle}
-            />
-          </div>
+            <div className="mb-5">
+              <label className="block text-sm font-bold text-gray-900 mb-1.5">
+                パスワード（8文字以上）
+              </label>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="パスワードを入力"
+                required
+                minLength={8}
+                className={inputClassName}
+              />
+            </div>
 
-          <div style={{ marginBottom: 20 }}>
-            <label style={{ display: 'block', fontSize: 14, fontWeight: 'bold', color: portalColors.textPrimary, marginBottom: 6 }}>
-              パスワード（8文字以上）
-            </label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="パスワードを入力"
-              required
-              minLength={8}
-              style={inputStyle}
-            />
-          </div>
+            <div className="mb-5">
+              <label className="block text-sm font-bold text-gray-900 mb-1.5">
+                パスワード確認
+              </label>
+              <input
+                type="password"
+                value={passwordConfirm}
+                onChange={(e) => setPasswordConfirm(e.target.value)}
+                placeholder="もう一度入力"
+                required
+                className={inputClassName}
+              />
+            </div>
 
-          <div style={{ marginBottom: 20 }}>
-            <label style={{ display: 'block', fontSize: 14, fontWeight: 'bold', color: portalColors.textPrimary, marginBottom: 6 }}>
-              パスワード確認
-            </label>
-            <input
-              type="password"
-              value={passwordConfirm}
-              onChange={(e) => setPasswordConfirm(e.target.value)}
-              placeholder="もう一度入力"
-              required
-              style={inputStyle}
-            />
-          </div>
-
-          <button
-            type="submit"
-            disabled={loading}
-            style={{
-              width: '100%',
-              padding: '12px 20px',
-              backgroundColor: portalColors.primary,
-              color: '#ffffff',
-              border: 'none',
-              borderRadius: 8,
-              fontSize: 16,
-              fontWeight: 'bold',
-              cursor: 'pointer',
-              opacity: loading ? 0.6 : 1,
-              textAlign: 'center' as const,
-            }}
-          >
-            {loading ? '登録中...' : '登録する'}
-          </button>
-        </form>
-      </div>
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full py-3 px-5 bg-blue-600 text-white border-none rounded-lg text-base font-bold cursor-pointer hover:bg-blue-700 transition-colors disabled:opacity-60"
+            >
+              {loading ? '登録中...' : '登録する'}
+            </button>
+          </form>
+        </CardContent>
+      </Card>
     </div>
   )
 }

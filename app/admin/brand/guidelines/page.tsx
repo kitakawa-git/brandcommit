@@ -4,9 +4,10 @@
 // スローガン・コンセプトビジュアル・動画・メッセージ・MVV・ストーリー・沿革・事業内容・特性
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
+import { cn } from '@/lib/utils'
 import { useAuth } from '../../components/AuthProvider'
 import { ImageUpload } from '../../components/ImageUpload'
-import { colors, commonStyles } from '../../components/AdminStyles'
+import { commonStyles } from '../../components/AdminStyles'
 
 type ValueItem = { name: string; description: string }
 type HistoryItem = { year: string; event: string }
@@ -296,47 +297,47 @@ export default function BrandGuidelinesPage() {
   }
 
   if (loading) {
-    return <p style={{ color: colors.textSecondary, textAlign: 'center', padding: 40 }}>読み込み中...</p>
+    return <p className="text-gray-500 text-center p-10">読み込み中...</p>
   }
 
   if (fetchError) {
     return (
-      <div style={{ textAlign: 'center', padding: 40 }}>
-        <p style={{ color: '#dc2626', fontSize: 14, marginBottom: 12 }}>{fetchError}</p>
-        <button onClick={fetchGuidelines} style={{ ...commonStyles.buttonOutline, padding: '8px 16px', fontSize: 13 }}>再読み込み</button>
+      <div className="text-center p-10">
+        <p className="text-red-600 text-sm mb-3">{fetchError}</p>
+        <button onClick={fetchGuidelines} className={cn(commonStyles.buttonOutline, 'py-2 px-4 text-[13px]')}>再読み込み</button>
       </div>
     )
   }
 
   return (
     <div>
-      <h2 style={{ fontSize: 20, fontWeight: 'bold', color: colors.textPrimary, margin: '0 0 24px' }}>
+      <h2 className="text-xl font-bold text-gray-900 mb-6">
         ブランド方針
       </h2>
 
-      <div style={commonStyles.card}>
+      <div className={commonStyles.card}>
         {message && (
-          <div style={messageType === 'success' ? commonStyles.success : commonStyles.error}>
+          <div className={messageType === 'success' ? commonStyles.success : commonStyles.error}>
             {message}
           </div>
         )}
 
         <form onSubmit={handleSubmit}>
           {/* 1. スローガン */}
-          <div style={commonStyles.formGroup}>
-            <label style={commonStyles.label}>スローガン</label>
+          <div className={commonStyles.formGroup}>
+            <label className={commonStyles.label}>スローガン</label>
             <input
               type="text"
               value={guidelines.slogan}
               onChange={(e) => handleChange('slogan', e.target.value)}
               placeholder="企業スローガン"
-              style={commonStyles.input}
+              className={commonStyles.input}
             />
           </div>
 
           {/* 2. コンセプトビジュアル */}
-          <div style={commonStyles.formGroup}>
-            <label style={commonStyles.label}>コンセプトビジュアル</label>
+          <div className={commonStyles.formGroup}>
+            <label className={commonStyles.label}>コンセプトビジュアル</label>
             <ImageUpload
               bucket="avatars"
               folder="concept-visuals"
@@ -346,146 +347,141 @@ export default function BrandGuidelinesPage() {
           </div>
 
           {/* 3. ブランド動画URL */}
-          <div style={commonStyles.formGroup}>
-            <label style={commonStyles.label}>ブランド動画URL</label>
+          <div className={commonStyles.formGroup}>
+            <label className={commonStyles.label}>ブランド動画URL</label>
             <input
               type="text"
               value={guidelines.brand_video_url}
               onChange={(e) => handleChange('brand_video_url', e.target.value)}
               placeholder="https://youtube.com/..."
-              style={commonStyles.input}
+              className={commonStyles.input}
             />
           </div>
 
           {/* 4. メッセージ（旧ブランドステートメント） */}
-          <div style={commonStyles.formGroup}>
-            <label style={commonStyles.label}>メッセージ</label>
+          <div className={commonStyles.formGroup}>
+            <label className={commonStyles.label}>メッセージ</label>
             <textarea
               value={guidelines.brand_statement}
               onChange={(e) => handleChange('brand_statement', e.target.value)}
               placeholder="ブランドとしてのメッセージ"
-              style={{ ...commonStyles.textarea, minHeight: 100 }}
+              className={cn(commonStyles.textarea, 'min-h-[100px]')}
             />
           </div>
 
           {/* 5. ミッション */}
-          <div style={commonStyles.formGroup}>
-            <label style={commonStyles.label}>ミッション</label>
+          <div className={commonStyles.formGroup}>
+            <label className={commonStyles.label}>ミッション</label>
             <textarea
               value={guidelines.mission}
               onChange={(e) => handleChange('mission', e.target.value)}
               placeholder="私たちの使命は..."
-              style={{ ...commonStyles.textarea, minHeight: 100 }}
+              className={cn(commonStyles.textarea, 'min-h-[100px]')}
             />
           </div>
 
           {/* 6. ビジョン */}
-          <div style={commonStyles.formGroup}>
-            <label style={commonStyles.label}>ビジョン</label>
+          <div className={commonStyles.formGroup}>
+            <label className={commonStyles.label}>ビジョン</label>
             <textarea
               value={guidelines.vision}
               onChange={(e) => handleChange('vision', e.target.value)}
               placeholder="私たちが目指す未来は..."
-              style={{ ...commonStyles.textarea, minHeight: 100 }}
+              className={cn(commonStyles.textarea, 'min-h-[100px]')}
             />
           </div>
 
           {/* 7. バリュー */}
-          <div style={commonStyles.formGroup}>
-            <label style={commonStyles.label}>バリュー（最大10個）</label>
-            <p style={{ fontSize: 12, color: colors.textSecondary, margin: '0 0 8px' }}>
+          <div className={commonStyles.formGroup}>
+            <label className={commonStyles.label}>バリュー（最大10個）</label>
+            <p className="text-xs text-gray-500 mb-2">
               企業が大切にする価値観を設定します
             </p>
             {guidelines.values.map((value, index) => (
-              <div key={index} style={{ display: 'flex', gap: 8, marginBottom: 8, alignItems: 'flex-start' }}>
+              <div key={index} className="flex gap-2 mb-2 items-start">
                 <input
                   type="text"
                   value={value.name}
                   onChange={(e) => updateValue(index, 'name', e.target.value)}
                   placeholder={`バリュー名 ${index + 1}`}
-                  style={{ ...commonStyles.input, flex: 1 }}
+                  className={cn(commonStyles.input, 'flex-1')}
                 />
                 <input
                   type="text"
                   value={value.description}
                   onChange={(e) => updateValue(index, 'description', e.target.value)}
                   placeholder="説明"
-                  style={{ ...commonStyles.input, flex: 2 }}
+                  className={cn(commonStyles.input, 'flex-[2]')}
                 />
-                <button type="button" onClick={() => removeValue(index)} style={{ ...commonStyles.dangerButton, padding: '8px 14px', fontSize: 13, whiteSpace: 'nowrap' }}>
+                <button type="button" onClick={() => removeValue(index)} className={cn(commonStyles.dangerButton, 'py-2 px-3.5 text-[13px] whitespace-nowrap')}>
                   削除
                 </button>
               </div>
             ))}
             {guidelines.values.length < 10 && (
-              <button type="button" onClick={addValue} style={{ ...commonStyles.buttonOutline, padding: '8px 16px', fontSize: 13 }}>
+              <button type="button" onClick={addValue} className={cn(commonStyles.buttonOutline, 'py-2 px-4 text-[13px]')}>
                 + バリューを追加
               </button>
             )}
           </div>
 
           {/* 8. ブランドストーリー */}
-          <div style={commonStyles.formGroup}>
-            <label style={commonStyles.label}>ブランドストーリー</label>
+          <div className={commonStyles.formGroup}>
+            <label className={commonStyles.label}>ブランドストーリー</label>
             <textarea
               value={guidelines.brand_story}
               onChange={(e) => handleChange('brand_story', e.target.value)}
               placeholder="企業の成り立ちや想いを物語として..."
-              style={{ ...commonStyles.textarea, minHeight: 200 }}
+              className={cn(commonStyles.textarea, 'min-h-[200px]')}
             />
           </div>
 
           {/* 9. 沿革 */}
-          <div style={commonStyles.formGroup}>
-            <label style={commonStyles.label}>沿革</label>
-            <p style={{ fontSize: 12, color: colors.textSecondary, margin: '0 0 8px' }}>
+          <div className={commonStyles.formGroup}>
+            <label className={commonStyles.label}>沿革</label>
+            <p className="text-xs text-gray-500 mb-2">
               企業の歩みを年と出来事で記録します
             </p>
             {guidelines.history.map((item, index) => (
-              <div key={index} style={{ display: 'flex', gap: 8, marginBottom: 8, alignItems: 'center' }}>
+              <div key={index} className="flex gap-2 mb-2 items-center">
                 <input
                   type="text"
                   value={item.year}
                   onChange={(e) => updateHistory(index, 'year', e.target.value)}
                   placeholder="年"
-                  style={{ ...commonStyles.input, width: 80, flexShrink: 0 }}
+                  className={cn(commonStyles.input, 'w-20 shrink-0')}
                 />
                 <input
                   type="text"
                   value={item.event}
                   onChange={(e) => updateHistory(index, 'event', e.target.value)}
                   placeholder="出来事"
-                  style={{ ...commonStyles.input, flex: 1 }}
+                  className={cn(commonStyles.input, 'flex-1')}
                 />
-                <button type="button" onClick={() => removeHistory(index)} style={{ ...commonStyles.dangerButton, padding: '8px 14px', fontSize: 13, whiteSpace: 'nowrap' }}>
+                <button type="button" onClick={() => removeHistory(index)} className={cn(commonStyles.dangerButton, 'py-2 px-3.5 text-[13px] whitespace-nowrap')}>
                   削除
                 </button>
               </div>
             ))}
-            <button type="button" onClick={addHistory} style={{ ...commonStyles.buttonOutline, padding: '8px 16px', fontSize: 13 }}>
+            <button type="button" onClick={addHistory} className={cn(commonStyles.buttonOutline, 'py-2 px-4 text-[13px]')}>
               + 沿革を追加
             </button>
           </div>
 
           {/* 10. 事業内容 */}
-          <div style={commonStyles.formGroup}>
-            <label style={commonStyles.label}>事業内容</label>
+          <div className={commonStyles.formGroup}>
+            <label className={commonStyles.label}>事業内容</label>
             {guidelines.business_content.map((item, index) => (
-              <div key={index} style={{
-                border: `1px solid ${colors.border}`,
-                borderRadius: 8,
-                padding: 12,
-                marginBottom: 8,
-              }}>
-                <div style={{ display: 'flex', gap: 8, marginBottom: 8, alignItems: 'center' }}>
+              <div key={index} className="border border-gray-200 rounded-lg p-3 mb-2">
+                <div className="flex gap-2 mb-2 items-center">
                   <input
                     type="text"
                     value={item.title}
                     onChange={(e) => updateBusiness(index, 'title', e.target.value)}
                     placeholder="事業タイトル"
-                    style={{ ...commonStyles.input, flex: 1 }}
+                    className={cn(commonStyles.input, 'flex-1')}
                   />
-                  <button type="button" onClick={() => removeBusiness(index)} style={{ ...commonStyles.dangerButton, padding: '8px 14px', fontSize: 13, whiteSpace: 'nowrap' }}>
+                  <button type="button" onClick={() => removeBusiness(index)} className={cn(commonStyles.dangerButton, 'py-2 px-3.5 text-[13px] whitespace-nowrap')}>
                     削除
                   </button>
                 </div>
@@ -493,29 +489,29 @@ export default function BrandGuidelinesPage() {
                   value={item.description}
                   onChange={(e) => updateBusiness(index, 'description', e.target.value)}
                   placeholder="事業の説明"
-                  style={{ ...commonStyles.textarea, minHeight: 60 }}
+                  className={cn(commonStyles.textarea, 'min-h-[60px]')}
                 />
               </div>
             ))}
-            <button type="button" onClick={addBusiness} style={{ ...commonStyles.buttonOutline, padding: '8px 16px', fontSize: 13 }}>
+            <button type="button" onClick={addBusiness} className={cn(commonStyles.buttonOutline, 'py-2 px-4 text-[13px]')}>
               + 事業内容を追加
             </button>
           </div>
 
           {/* 11. ブランド特性 */}
-          <div style={commonStyles.formGroup}>
-            <label style={commonStyles.label}>ブランド特性（最大5つ）</label>
-            <p style={{ fontSize: 12, color: colors.textSecondary, margin: '0 0 8px' }}>
+          <div className={commonStyles.formGroup}>
+            <label className={commonStyles.label}>ブランド特性（最大5つ）</label>
+            <p className="text-xs text-gray-500 mb-2">
               ブランドの性格を表す特性とスコア（1〜10）を設定します
             </p>
             {guidelines.traits.map((trait, index) => (
-              <div key={index} style={{ display: 'flex', gap: 8, marginBottom: 8, alignItems: 'center' }}>
+              <div key={index} className="flex gap-2 mb-2 items-center">
                 <input
                   type="text"
                   value={trait.name}
                   onChange={(e) => updateTrait(index, 'name', e.target.value)}
                   placeholder="特性名"
-                  style={{ ...commonStyles.input, flex: 1 }}
+                  className={cn(commonStyles.input, 'flex-1')}
                 />
                 <input
                   type="number"
@@ -523,22 +519,22 @@ export default function BrandGuidelinesPage() {
                   max={10}
                   value={trait.score}
                   onChange={(e) => updateTrait(index, 'score', parseInt(e.target.value) || 5)}
-                  style={{ ...commonStyles.input, width: 70, textAlign: 'center' }}
+                  className={cn(commonStyles.input, 'w-[70px] text-center')}
                 />
                 <input
                   type="text"
                   value={trait.description}
                   onChange={(e) => updateTrait(index, 'description', e.target.value)}
                   placeholder="この特性の説明"
-                  style={{ ...commonStyles.input, flex: 2 }}
+                  className={cn(commonStyles.input, 'flex-[2]')}
                 />
-                <button type="button" onClick={() => removeTrait(index)} style={{ ...commonStyles.dangerButton, padding: '8px 14px', fontSize: 13, whiteSpace: 'nowrap' }}>
+                <button type="button" onClick={() => removeTrait(index)} className={cn(commonStyles.dangerButton, 'py-2 px-3.5 text-[13px] whitespace-nowrap')}>
                   削除
                 </button>
               </div>
             ))}
             {guidelines.traits.length < 5 && (
-              <button type="button" onClick={addTrait} style={{ ...commonStyles.buttonOutline, padding: '8px 16px', fontSize: 13 }}>
+              <button type="button" onClick={addTrait} className={cn(commonStyles.buttonOutline, 'py-2 px-4 text-[13px]')}>
                 + 特性を追加
               </button>
             )}
@@ -548,7 +544,7 @@ export default function BrandGuidelinesPage() {
           <button
             type="submit"
             disabled={saving}
-            style={{ ...commonStyles.button, marginTop: 8, opacity: saving ? 0.6 : 1 }}
+            className={cn(commonStyles.button, 'mt-2', saving && 'opacity-60')}
           >
             {saving ? '保存中...' : '保存する'}
           </button>

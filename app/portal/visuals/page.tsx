@@ -4,7 +4,8 @@
 import { useEffect, useState, useCallback } from 'react'
 import { supabase } from '@/lib/supabase'
 import { usePortalAuth } from '../components/PortalAuthProvider'
-import { portalColors, portalStyles } from '../components/PortalStyles'
+import { portalStyles } from '../components/PortalStyles'
+import { cn } from '@/lib/utils'
 
 type LogoItem = { url: string; caption: string }
 type LogoSection = { title: string; items: LogoItem[] }
@@ -57,8 +58,8 @@ export default function PortalVisualsPage() {
       })
   }, [companyId])
 
-  if (loading) return <div style={portalStyles.empty}>読み込み中...</div>
-  if (!data) return <div style={portalStyles.empty}>まだ登録されていません</div>
+  if (loading) return <div className={portalStyles.empty}>読み込み中...</div>
+  if (!data) return <div className={portalStyles.empty}>まだ登録されていません</div>
 
   // 画像があるセクションのみ表示
   const validSections = data.logo_sections.filter(s => s.items && s.items.length > 0)
@@ -88,96 +89,72 @@ export default function PortalVisualsPage() {
   const colorSwatch = (color: string, label: string) => {
     const { r, g, b } = hexToRgb(color)
     const { h, s, l } = rgbToHsl(r, g, b)
-    const monoStyle: React.CSSProperties = { fontSize: 13, color: portalColors.textSecondary, fontFamily: 'monospace' }
     return (
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
-        <div style={{
-          width: 48, height: 48, borderRadius: 8,
-          backgroundColor: color,
-          border: `1px solid ${portalColors.border}`,
-          flexShrink: 0,
-        }} />
+      <div className="flex items-center gap-3 mb-4">
+        <div
+          className="w-12 h-12 rounded-lg border border-gray-200 shrink-0"
+          style={{ backgroundColor: color }}
+        />
         <div>
-          <div style={{ fontSize: 14, fontWeight: 'bold', color: portalColors.textPrimary, marginBottom: 2 }}>{label}</div>
-          <div style={monoStyle}>HEX: {color.toUpperCase()}</div>
-          <div style={monoStyle}>RGB: {r}, {g}, {b}</div>
-          <div style={monoStyle}>HSL: {h}°, {s}%, {l}%</div>
+          <div className="text-sm font-bold text-gray-900 mb-0.5">{label}</div>
+          <div className="text-[13px] text-gray-500 font-mono">HEX: {color.toUpperCase()}</div>
+          <div className="text-[13px] text-gray-500 font-mono">RGB: {r}, {g}, {b}</div>
+          <div className="text-[13px] text-gray-500 font-mono">HSL: {h}°, {s}%, {l}%</div>
         </div>
       </div>
     )
   }
 
   return (
-    <div style={portalStyles.pageContainer}>
-      <h1 style={portalStyles.pageTitle}>ビジュアルアイデンティティ</h1>
-      <p style={portalStyles.pageDescription}>
+    <div className={portalStyles.pageContainer}>
+      <h1 className={portalStyles.pageTitle}>ビジュアルアイデンティティ</h1>
+      <p className={portalStyles.pageDescription}>
         ロゴガイドライン・ブランドカラー・フォント規定
       </p>
 
       {/* ロゴコンセプト */}
       {data.logo_concept && (
-        <div style={portalStyles.section}>
-          <h2 style={portalStyles.sectionTitle}>ロゴコンセプト</h2>
-          <div style={portalStyles.card}>
-            <div style={portalStyles.value}>{data.logo_concept}</div>
+        <div className={portalStyles.section}>
+          <h2 className={portalStyles.sectionTitle}>ロゴコンセプト</h2>
+          <div className={portalStyles.card}>
+            <div className={portalStyles.value}>{data.logo_concept}</div>
           </div>
         </div>
       )}
 
       {/* ロゴガイドライン */}
       {validSections.length > 0 && (
-        <div style={portalStyles.section}>
-          <h2 style={portalStyles.sectionTitle}>ロゴガイドライン</h2>
+        <div className={portalStyles.section}>
+          <h2 className={portalStyles.sectionTitle}>ロゴガイドライン</h2>
 
-          <div style={portalStyles.card}>
+          <div className={portalStyles.card}>
             {validSections.map((section, sIdx) => (
-              <div key={sIdx} style={{
-                paddingBottom: sIdx < validSections.length - 1 ? 20 : 0,
-                marginBottom: sIdx < validSections.length - 1 ? 20 : 0,
-                borderBottom: sIdx < validSections.length - 1 ? `1px solid ${portalColors.border}` : 'none',
-              }}>
+              <div key={sIdx} className={cn(
+                sIdx < validSections.length - 1 && 'pb-5 mb-5 border-b border-gray-200'
+              )}>
                 {/* セクションタイトル */}
                 {section.title && (
-                  <h3 style={{
-                    fontSize: 15,
-                    fontWeight: 'bold',
-                    color: portalColors.textPrimary,
-                    margin: '0 0 12px',
-                  }}>
+                  <h3 className="text-[15px] font-bold text-gray-900 mb-3">
                     {section.title}
                   </h3>
                 )}
 
                 {/* 画像グリッド */}
-                <div style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(3, 1fr)',
-                  gap: 16,
-                }}>
+                <div className="grid grid-cols-3 gap-4">
                   {section.items.map((item, iIdx) => (
-                    <div key={iIdx} style={{ textAlign: 'center' }}>
+                    <div key={iIdx} className="text-center">
                       <div
                         onClick={() => setModalImage(item.url)}
-                        style={{
-                          padding: 16,
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          minHeight: 120,
-                          cursor: 'pointer',
-                        }}
+                        className="p-4 flex items-center justify-center min-h-[120px] cursor-pointer"
                       >
                         <img
                           src={item.url}
                           alt={item.caption || ''}
-                          style={{ maxWidth: '100%', maxHeight: 140, objectFit: 'contain' }}
+                          className="max-w-full max-h-[140px] object-contain"
                         />
                       </div>
                       {item.caption && (
-                        <div style={{
-                          fontSize: 13,
-                          color: portalColors.textSecondary,
-                        }}>
+                        <div className="text-[13px] text-gray-500">
                           {item.caption}
                         </div>
                       )}
@@ -191,9 +168,9 @@ export default function PortalVisualsPage() {
       )}
 
       {/* ブランドカラー */}
-      <div style={portalStyles.section}>
-        <h2 style={portalStyles.sectionTitle}>ブランドカラー</h2>
-        <div style={portalStyles.card}>
+      <div className={portalStyles.section}>
+        <h2 className={portalStyles.sectionTitle}>ブランドカラー</h2>
+        <div className={portalStyles.card}>
           {colorSwatch(data.primary_color, 'プライマリカラー')}
           {colorSwatch(data.secondary_color, 'セカンダリカラー')}
           {colorSwatch(data.accent_color, 'アクセントカラー')}
@@ -202,19 +179,19 @@ export default function PortalVisualsPage() {
 
       {/* フォント */}
       {(data.fonts.primary || data.fonts.secondary) && (
-        <div style={portalStyles.section}>
-          <h2 style={portalStyles.sectionTitle}>フォント</h2>
-          <div style={portalStyles.card}>
+        <div className={portalStyles.section}>
+          <h2 className={portalStyles.sectionTitle}>フォント</h2>
+          <div className={portalStyles.card}>
             {data.fonts.primary && (
-              <div style={{ marginBottom: data.fonts.secondary ? 12 : 0 }}>
-                <div style={portalStyles.label}>プライマリフォント</div>
-                <div style={{ ...portalStyles.value, fontFamily: data.fonts.primary }}>{data.fonts.primary}</div>
+              <div className={data.fonts.secondary ? 'mb-3' : ''}>
+                <div className={portalStyles.label}>プライマリフォント</div>
+                <div className={portalStyles.value} style={{ fontFamily: data.fonts.primary }}>{data.fonts.primary}</div>
               </div>
             )}
             {data.fonts.secondary && (
               <div>
-                <div style={portalStyles.label}>セカンダリフォント</div>
-                <div style={{ ...portalStyles.value, fontFamily: data.fonts.secondary }}>{data.fonts.secondary}</div>
+                <div className={portalStyles.label}>セカンダリフォント</div>
+                <div className={portalStyles.value} style={{ fontFamily: data.fonts.secondary }}>{data.fonts.secondary}</div>
               </div>
             )}
           </div>
@@ -223,10 +200,10 @@ export default function PortalVisualsPage() {
 
       {/* ビジュアルガイドライン */}
       {data.visual_guidelines && (
-        <div style={portalStyles.section}>
-          <h2 style={portalStyles.sectionTitle}>ビジュアルガイドライン</h2>
-          <div style={portalStyles.card}>
-            <div style={portalStyles.value}>{data.visual_guidelines}</div>
+        <div className={portalStyles.section}>
+          <h2 className={portalStyles.sectionTitle}>ビジュアルガイドライン</h2>
+          <div className={portalStyles.card}>
+            <div className={portalStyles.value}>{data.visual_guidelines}</div>
           </div>
         </div>
       )}
@@ -235,28 +212,11 @@ export default function PortalVisualsPage() {
       {modalImage && (
         <div
           onClick={closeModal}
-          style={{
-            position: 'fixed',
-            top: 0, left: 0, right: 0, bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.7)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 9999,
-          }}
+          className="fixed inset-0 bg-black/70 flex items-center justify-center z-[9999]"
         >
           <button
             onClick={closeModal}
-            style={{
-              position: 'absolute',
-              top: 16, right: 16,
-              background: 'none',
-              border: 'none',
-              color: '#ffffff',
-              fontSize: 32,
-              cursor: 'pointer',
-              lineHeight: 1,
-            }}
+            className="absolute top-4 right-4 bg-transparent border-none text-white text-[32px] cursor-pointer leading-none"
           >
             ×
           </button>
@@ -264,11 +224,7 @@ export default function PortalVisualsPage() {
             src={modalImage}
             alt=""
             onClick={(e) => e.stopPropagation()}
-            style={{
-              maxWidth: '90vw',
-              maxHeight: '90vh',
-              objectFit: 'contain',
-            }}
+            className="max-w-[90vw] max-h-[90vh] object-contain"
           />
         </div>
       )}

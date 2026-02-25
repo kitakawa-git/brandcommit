@@ -4,7 +4,7 @@
 import { usePathname } from 'next/navigation'
 import Link from 'next/link'
 import { PortalAuthProvider, usePortalAuth } from './components/PortalAuthProvider'
-import { portalColors } from './components/PortalStyles'
+import { cn } from '@/lib/utils'
 
 const navLinks = [
   { href: '/portal/guidelines', label: 'ブランド方針' },
@@ -20,39 +20,18 @@ function PortalHeader() {
   const { member, signOut } = usePortalAuth()
 
   return (
-    <header style={{
-      backgroundColor: portalColors.headerBg,
-      color: portalColors.headerText,
-      padding: '0 24px',
-      height: 56,
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-    }}>
-      <Link href="/portal" style={{
-        color: '#fff',
-        textDecoration: 'none',
-        fontSize: 18,
-        fontWeight: 'bold',
-      }}>
+    <header className="bg-gray-800 text-white px-6 h-14 flex items-center justify-between">
+      <Link href="/portal" className="text-white no-underline text-lg font-bold">
         brandcommit
       </Link>
       {member && (
-        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-          <span style={{ fontSize: 13, color: '#d1d5db' }}>
+        <div className="flex items-center gap-4">
+          <span className="text-[13px] text-gray-300">
             {member.display_name}
           </span>
           <button
             onClick={signOut}
-            style={{
-              padding: '6px 14px',
-              backgroundColor: 'transparent',
-              color: '#d1d5db',
-              border: '1px solid #4b5563',
-              borderRadius: 6,
-              fontSize: 12,
-              cursor: 'pointer',
-            }}
+            className="px-3.5 py-1.5 bg-transparent text-gray-300 border border-gray-600 rounded-md text-xs cursor-pointer hover:bg-gray-700 transition-colors"
           >
             ログアウト
           </button>
@@ -66,29 +45,19 @@ function PortalNav() {
   const pathname = usePathname()
 
   return (
-    <nav style={{
-      backgroundColor: portalColors.navBg,
-      borderBottom: `1px solid ${portalColors.navBorder}`,
-      padding: '0 24px',
-      display: 'flex',
-      gap: 0,
-      overflowX: 'auto',
-    }}>
+    <nav className="bg-gray-50 border-b border-gray-200 px-6 flex overflow-x-auto">
       {navLinks.map((link) => {
         const isActive = pathname === link.href
         return (
           <Link
             key={link.href}
             href={link.href}
-            style={{
-              padding: '12px 16px',
-              fontSize: 13,
-              fontWeight: isActive ? 'bold' : 'normal',
-              color: isActive ? portalColors.navActiveText : portalColors.navText,
-              textDecoration: 'none',
-              borderBottom: isActive ? `2px solid ${portalColors.navActiveBorder}` : '2px solid transparent',
-              whiteSpace: 'nowrap',
-            }}
+            className={cn(
+              'px-4 py-3 text-[13px] no-underline whitespace-nowrap border-b-2',
+              isActive
+                ? 'font-bold text-blue-600 border-blue-600'
+                : 'font-normal text-gray-700 border-transparent hover:text-blue-600'
+            )}
           >
             {link.label}
           </Link>
@@ -100,14 +69,7 @@ function PortalNav() {
 
 function PortalFooter() {
   return (
-    <footer style={{
-      backgroundColor: portalColors.footerBg,
-      borderTop: `1px solid ${portalColors.navBorder}`,
-      padding: '16px 24px',
-      textAlign: 'center',
-      fontSize: 12,
-      color: portalColors.footerText,
-    }}>
+    <footer className="bg-gray-50 border-t border-gray-200 px-6 py-4 text-center text-xs text-gray-400">
       Powered by brandcommit
     </footer>
   )
@@ -123,18 +85,10 @@ function PortalLayoutInner({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div style={{
-      display: 'flex',
-      flexDirection: 'column',
-      minHeight: '100vh',
-      fontFamily: 'sans-serif',
-    }}>
+    <div className="flex flex-col min-h-screen font-sans">
       <PortalHeader />
       <PortalNav />
-      <main style={{
-        flex: 1,
-        backgroundColor: portalColors.bg,
-      }}>
+      <main className="flex-1 bg-white">
         {children}
       </main>
       <PortalFooter />

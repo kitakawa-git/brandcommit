@@ -3,7 +3,6 @@
 // 画像アップロードコンポーネント（Supabase Storage）
 import { useState } from 'react'
 import { supabase } from '@/lib/supabase'
-import { colors } from './AdminStyles'
 
 type Props = {
   bucket: string            // Storageバケット名（'avatars'）
@@ -53,15 +52,7 @@ export function ImageUpload({ bucket, currentUrl, onUpload, folder = '' }: Props
         <img
           src={preview}
           alt="プレビュー"
-          style={{
-            width: 100,
-            height: 100,
-            objectFit: 'cover',
-            borderRadius: 8,
-            marginBottom: 8,
-            display: 'block',
-            border: `1px solid ${colors.border}`,
-          }}
+          className="w-[100px] h-[100px] object-cover rounded-lg mb-2 block border border-gray-200"
         />
       )}
 
@@ -71,11 +62,11 @@ export function ImageUpload({ bucket, currentUrl, onUpload, folder = '' }: Props
         accept="image/*"
         onChange={handleUpload}
         disabled={uploading}
-        style={{ fontSize: 14 }}
+        className="text-sm"
       />
 
       {uploading && (
-        <p style={{ fontSize: 12, color: colors.textSecondary, marginTop: 4 }}>
+        <p className="text-xs text-gray-500 mt-1">
           アップロード中...
         </p>
       )}

@@ -7,7 +7,6 @@ import { supabase } from '@/lib/supabase'
 import type { User } from '@supabase/supabase-js'
 import { SuperAdminSidebar } from './SuperAdminSidebar'
 import { SuperAdminHeader } from './SuperAdminHeader'
-import { colors, layout } from '../../admin/components/AdminStyles'
 
 type SuperAdminContextType = {
   user: User | null
@@ -106,15 +105,7 @@ export function SuperAdminProvider({ children }: { children: React.ReactNode }) 
   if (loading) {
     return (
       <SuperAdminContext.Provider value={contextValue}>
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          minHeight: '100vh',
-          backgroundColor: colors.pageBg,
-          fontSize: 16,
-          color: colors.textSecondary,
-        }}>
+        <div className="flex items-center justify-center min-h-screen bg-gray-50 text-base text-gray-500">
           読み込み中...
         </div>
       </SuperAdminContext.Provider>
@@ -130,66 +121,25 @@ export function SuperAdminProvider({ children }: { children: React.ReactNode }) 
   if (accessDenied || !isSuperAdmin) {
     return (
       <SuperAdminContext.Provider value={contextValue}>
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          minHeight: '100vh',
-          backgroundColor: colors.pageBg,
-          fontFamily: 'sans-serif',
-        }}>
-          <div style={{
-            backgroundColor: colors.white,
-            borderRadius: 12,
-            padding: 40,
-            textAlign: 'center',
-            maxWidth: 400,
-            boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-          }}>
-            <div style={{ fontSize: 48, marginBottom: 16 }}>🔒</div>
-            <h2 style={{
-              fontSize: 20,
-              fontWeight: 'bold',
-              color: colors.textPrimary,
-              margin: '0 0 12px',
-            }}>
+        <div className="flex items-center justify-center min-h-screen bg-gray-50 font-sans">
+          <div className="bg-white rounded-xl p-10 text-center max-w-[400px] shadow-sm">
+            <div className="text-5xl mb-4">🔒</div>
+            <h2 className="text-xl font-bold text-gray-900 mb-3">
               アクセス権限がありません
             </h2>
-            <p style={{
-              fontSize: 14,
-              color: colors.textSecondary,
-              margin: '0 0 24px',
-              lineHeight: 1.6,
-            }}>
+            <p className="text-sm text-gray-500 mb-6 leading-relaxed">
               スーパー管理画面はID INC.スタッフのみアクセスできます。
             </p>
-            <div style={{ display: 'flex', gap: 12, justifyContent: 'center' }}>
+            <div className="flex gap-3 justify-center">
               <button
                 onClick={() => router.push('/admin')}
-                style={{
-                  padding: '10px 24px',
-                  backgroundColor: 'transparent',
-                  color: colors.textPrimary,
-                  border: `1px solid ${colors.border}`,
-                  borderRadius: 8,
-                  fontSize: 14,
-                  cursor: 'pointer',
-                }}
+                className="py-2.5 px-6 bg-transparent text-gray-900 border border-gray-200 rounded-lg text-sm cursor-pointer"
               >
                 管理画面へ
               </button>
               <button
                 onClick={signOut}
-                style={{
-                  padding: '10px 24px',
-                  backgroundColor: '#1e3a5f',
-                  color: '#ffffff',
-                  border: 'none',
-                  borderRadius: 8,
-                  fontSize: 14,
-                  fontWeight: 'bold',
-                  cursor: 'pointer',
-                }}
+                className="py-2.5 px-6 bg-[#1e3a5f] text-white border-none rounded-lg text-sm font-bold cursor-pointer"
               >
                 ログアウト
               </button>
@@ -203,27 +153,13 @@ export function SuperAdminProvider({ children }: { children: React.ReactNode }) 
   // スーパー管理者: サイドバー + ヘッダー + コンテンツ
   return (
     <SuperAdminContext.Provider value={contextValue}>
-      {/* レスポンシブ対応 */}
-      <style>{`
-        @media (max-width: 768px) {
-          .superadmin-sidebar { display: none !important; }
-          .superadmin-main { margin-left: 0 !important; }
-        }
-      `}</style>
-      <div style={{ display: 'flex', minHeight: '100vh' }}>
-        <div className="superadmin-sidebar">
+      <div className="flex min-h-screen">
+        <div className="hidden md:block">
           <SuperAdminSidebar />
         </div>
-        <div className="superadmin-main" style={{
-          flex: 1,
-          marginLeft: layout.sidebarWidth,
-        }}>
+        <div className="flex-1 ml-0 md:ml-[240px]">
           <SuperAdminHeader />
-          <main style={{
-            padding: 24,
-            backgroundColor: colors.pageBg,
-            minHeight: `calc(100vh - ${layout.headerHeight}px)`,
-          }}>
+          <main className="p-6 bg-gray-50 min-h-[calc(100vh-60px)]">
             {children}
           </main>
         </div>

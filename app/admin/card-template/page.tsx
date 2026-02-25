@@ -4,7 +4,8 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '../components/AuthProvider'
-import { colors, commonStyles } from '../components/AdminStyles'
+import { commonStyles } from '../components/AdminStyles'
+import { cn } from '@/lib/utils'
 import {
   generatePreviewQRDataURL,
   generateHighResQRDataURL,
@@ -96,54 +97,25 @@ export default function CardTemplatePage() {
   return (
     <div>
       {/* ページヘッダー */}
-      <div style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: 24,
-      }}>
-        <h2 style={{
-          fontSize: 20,
-          fontWeight: 'bold',
-          color: colors.textPrimary,
-          margin: 0,
-        }}>
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-xl font-bold text-gray-900">
           QRコード出力
         </h2>
         <button
           onClick={handleBulkDownload}
           disabled={bulkDownloading || members.length === 0}
-          style={{
-            ...commonStyles.button,
-            opacity: (bulkDownloading || members.length === 0) ? 0.6 : 1,
-          }}
+          className={cn(commonStyles.button, (bulkDownloading || members.length === 0) && 'opacity-60')}
         >
           {bulkDownloading ? '生成中...' : '一括ダウンロード（ZIP）'}
         </button>
       </div>
 
       {/* 印刷ガイド */}
-      <div style={{
-        ...commonStyles.card,
-        marginBottom: 24,
-        backgroundColor: '#f0f9ff',
-        borderColor: '#bae6fd',
-      }}>
-        <h3 style={{
-          fontSize: 15,
-          fontWeight: 'bold',
-          color: colors.textPrimary,
-          margin: '0 0 12px',
-        }}>
+      <div className={cn(commonStyles.card, 'mb-6 bg-sky-50 border-sky-200')}>
+        <h3 className="text-[15px] font-bold text-gray-900 mb-3">
           印刷ガイド
         </h3>
-        <ul style={{
-          margin: 0,
-          paddingLeft: 20,
-          fontSize: 14,
-          color: colors.textPrimary,
-          lineHeight: 2,
-        }}>
+        <ul className="m-0 pl-5 text-sm text-gray-900 leading-8">
           <li>推奨サイズ: <strong>20mm x 20mm</strong>（名刺裏面に最適）</li>
           <li>推奨配置: 名刺裏面の右下または中央</li>
           <li>解像度: 1000 x 1000 px（300dpi相当の印刷用高解像度）</li>
@@ -154,71 +126,42 @@ export default function CardTemplatePage() {
       </div>
 
       {/* メンバー一覧 */}
-      <div style={commonStyles.card}>
-        <h3 style={{
-          fontSize: 15,
-          fontWeight: 'bold',
-          color: colors.textPrimary,
-          margin: '0 0 16px',
-        }}>
+      <div className={commonStyles.card}>
+        <h3 className="text-[15px] font-bold text-gray-900 mb-4">
           QRコード一覧
         </h3>
 
         {loading ? (
-          <p style={{ color: colors.textSecondary, textAlign: 'center', padding: 40 }}>
+          <p className="text-gray-500 text-center p-10">
             読み込み中...
           </p>
         ) : members.length === 0 ? (
-          <p style={{ color: colors.textSecondary, textAlign: 'center', padding: 40 }}>
+          <p className="text-gray-500 text-center p-10">
             従業員が登録されていません
           </p>
         ) : (
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
-            gap: 20,
-          }}>
+          <div className="grid grid-cols-[repeat(auto-fill,minmax(220px,1fr))] gap-5">
             {members.map((member) => (
-              <div key={member.id} style={{
-                border: `1px solid ${colors.border}`,
-                borderRadius: 12,
-                padding: 20,
-                textAlign: 'center' as const,
-              }}>
+              <div key={member.id} className="border border-gray-200 rounded-xl p-5 text-center">
                 {member.qrPreview && (
                   <img
                     src={member.qrPreview}
                     alt={`${member.name} QR`}
                     width={120}
                     height={120}
-                    style={{ display: 'block', margin: '0 auto 12px' }}
+                    className="block mx-auto mb-3"
                   />
                 )}
-                <p style={{
-                  fontSize: 14,
-                  fontWeight: 'bold',
-                  color: colors.textPrimary,
-                  margin: '0 0 4px',
-                }}>
+                <p className="text-sm font-bold text-gray-900 mb-1">
                   {member.name}
                 </p>
-                <p style={{
-                  fontSize: 12,
-                  color: colors.textSecondary,
-                  margin: '0 0 12px',
-                }}>
+                <p className="text-xs text-gray-500 mb-3">
                   {member.position || '-'} / {member.department || '-'}
                 </p>
                 <button
                   onClick={() => handleDownload(member.slug, member.name, member.id)}
                   disabled={downloadingId === member.id}
-                  style={{
-                    ...commonStyles.buttonOutline,
-                    width: '100%',
-                    fontSize: 13,
-                    padding: '8px 12px',
-                    opacity: downloadingId === member.id ? 0.5 : 1,
-                  }}
+                  className={cn(commonStyles.buttonOutline, 'w-full text-[13px] py-2 px-3', downloadingId === member.id && 'opacity-50')}
                 >
                   {downloadingId === member.id ? '生成中...' : 'ダウンロード'}
                 </button>
