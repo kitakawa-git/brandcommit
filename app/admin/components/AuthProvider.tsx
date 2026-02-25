@@ -6,8 +6,9 @@ import { createContext, useContext, useEffect, useState } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import type { User } from '@supabase/supabase-js'
-import { Sidebar } from './Sidebar'
+import { AppSidebar } from './AppSidebar'
 import { AdminHeader } from './AdminHeader'
+import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar'
 
 type AuthContextType = {
   user: User | null
@@ -202,17 +203,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // 認証済み + admin_users登録済み: サイドバー + ヘッダー + コンテンツ
   return (
     <AuthContext.Provider value={contextValue}>
-      <div className="flex min-h-screen">
-        <div className="hidden md:block">
-          <Sidebar />
-        </div>
-        <div className="flex-1 ml-0 md:ml-[240px]">
+      <SidebarProvider>
+        <AppSidebar />
+        <SidebarInset>
           <AdminHeader />
-          <main className="p-6 bg-gray-50 min-h-[calc(100vh-60px)]">
+          <main className="p-6 bg-muted/30 min-h-[calc(100vh-60px)]">
             {children}
           </main>
-        </div>
-      </div>
+        </SidebarInset>
+      </SidebarProvider>
     </AuthContext.Provider>
   )
 }
