@@ -370,7 +370,7 @@ export default async function CardPage({ params }: Props) {
               fontSize: 15, fontWeight: 'bold', margin: '0 0 12px',
               color: primaryColor,
             }}>
-              提供価値
+              バリュー
             </h3>
             <div style={{
               display: 'flex',
