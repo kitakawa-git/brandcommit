@@ -23,23 +23,34 @@ export default function EditMemberPage() {
   useEffect(() => {
     if (!companyId) return
 
-    const fetchProfile = async () => {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', id)
-        .eq('company_id', companyId)
-        .single()
+    let cancelled = false
 
-      if (!error && data) {
-        setProfile(data)
-        if (data.slug) {
-          generatePreviewQRDataURL(data.slug).then(setQrPreview)
+    const fetchProfile = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', id)
+          .eq('company_id', companyId)
+          .single()
+
+        if (!cancelled && !error && data) {
+          setProfile(data)
+          if (data.slug) {
+            generatePreviewQRDataURL(data.slug).then(url => {
+              if (!cancelled) setQrPreview(url)
+            })
+          }
         }
+      } catch (err) {
+        console.error('プロフィール取得エラー:', err)
+      } finally {
+        if (!cancelled) setLoading(false)
       }
-      setLoading(false)
     }
     fetchProfile()
+
+    return () => { cancelled = true }
   }, [id, companyId])
 
   if (loading) {
