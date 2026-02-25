@@ -311,7 +311,7 @@ export default async function CardPage({ params }: Props) {
                 <img
                   src={company.logo_url}
                   alt={company.name}
-                  className="max-w-[120px] max-h-[48px] object-contain mb-2 block"
+                  className="max-w-[120px] max-h-[48px] object-contain mb-2 block self-start"
                 />
               )}
               <CardTitle
