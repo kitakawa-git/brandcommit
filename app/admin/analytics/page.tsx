@@ -246,8 +246,9 @@ export default function AnalyticsPage() {
               <ChartTooltip
                 content={
                   <ChartTooltipContent
-                    labelFormatter={(value: string) => {
-                      const [y, m, d] = value.split('-')
+                    labelFormatter={(value) => {
+                      const str = String(value)
+                      const [y, m, d] = str.split('-')
                       return `${y}年${parseInt(m)}月${parseInt(d)}日`
                     }}
                   />
