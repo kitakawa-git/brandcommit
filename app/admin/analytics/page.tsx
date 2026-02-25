@@ -2,9 +2,23 @@
 
 // アクセス解析ページ
 import { useEffect, useState } from 'react'
+import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from 'recharts'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '../components/AuthProvider'
-import { Card, CardContent } from '@/components/ui/card'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
+import {
+  type ChartConfig,
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+} from '@/components/ui/chart'
+import { Eye, CalendarDays, CalendarClock } from 'lucide-react'
 
 type ViewRecord = {
   id: string
@@ -29,6 +43,13 @@ type DailyCount = {
   date: string
   count: number
 }
+
+const chartConfig = {
+  count: {
+    label: 'アクセス数',
+    color: 'hsl(217, 91%, 60%)',
+  },
+} satisfies ChartConfig
 
 export default function AnalyticsPage() {
   const { companyId } = useAuth()
@@ -147,9 +168,6 @@ export default function AnalyticsPage() {
     )
   }
 
-  // 日別棒グラフの最大値
-  const maxDaily = Math.max(...dailyCounts.map(d => d.count), 1)
-
   return (
     <div>
       <h2 className="text-xl font-bold text-foreground mb-6">
@@ -158,49 +176,90 @@ export default function AnalyticsPage() {
 
       {/* === 全体サマリー === */}
       <div className="grid grid-cols-[repeat(auto-fit,minmax(180px,1fr))] gap-4 mb-6">
-        <SummaryCard label="総閲覧数" value={totalViews} color="#2563eb" />
-        <SummaryCard label="今月の閲覧数" value={monthViews} color="#16a34a" />
-        <SummaryCard label="今週の閲覧数" value={weekViews} color="#f59e0b" />
+        <Card className="bg-muted/50 border shadow-none">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardDescription className="text-[13px]">総閲覧数</CardDescription>
+            <Eye className="size-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <p className="text-3xl font-bold text-blue-600">
+              {totalViews.toLocaleString()}
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-muted/50 border shadow-none">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardDescription className="text-[13px]">今月の閲覧数</CardDescription>
+            <CalendarDays className="size-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <p className="text-3xl font-bold text-green-600">
+              {monthViews.toLocaleString()}
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-muted/50 border shadow-none">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardDescription className="text-[13px]">今週の閲覧数</CardDescription>
+            <CalendarClock className="size-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <p className="text-3xl font-bold text-amber-500">
+              {weekViews.toLocaleString()}
+            </p>
+          </CardContent>
+        </Card>
       </div>
 
       {/* === 日別推移（過去30日） === */}
       <Card className="bg-muted/50 border shadow-none mb-6">
-        <CardContent className="p-6">
-          <h3 className="text-base font-bold text-foreground mb-4">
-            日別推移（過去30日）
-          </h3>
-          <div className="flex items-end gap-0.5 h-40 px-1">
-            {dailyCounts.map((d) => {
-              const barHeight = maxDaily > 0 ? (d.count / maxDaily) * 140 : 0
-              const dateLabel = d.date.slice(5) // MM-DD
-              return (
-                <div
-                  key={d.date}
-                  className="flex-1 flex flex-col items-center gap-0.5"
-                  title={`${d.date}: ${d.count}件`}
-                >
-                  {d.count > 0 && (
-                    <span className="text-[9px] text-muted-foreground">
-                      {d.count}
-                    </span>
-                  )}
-                  <div
-                    className="w-full max-w-5 rounded-t-sm transition-[height] duration-300"
-                    style={{
-                      height: Math.max(barHeight, d.count > 0 ? 4 : 1),
-                      backgroundColor: d.count > 0 ? '#2563eb' : '#e5e7eb',
+        <CardHeader>
+          <CardTitle className="text-base">日別推移</CardTitle>
+          <CardDescription>過去30日間のアクセス数</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <ChartContainer config={chartConfig} className="aspect-auto h-[250px] w-full">
+            <BarChart
+              data={dailyCounts}
+              margin={{ top: 4, right: 4, bottom: 0, left: -20 }}
+            >
+              <CartesianGrid vertical={false} />
+              <XAxis
+                dataKey="date"
+                tickLine={false}
+                axisLine={false}
+                tickMargin={8}
+                minTickGap={24}
+                tickFormatter={(value: string) => {
+                  const [, m, d] = value.split('-')
+                  return `${parseInt(m)}/${parseInt(d)}`
+                }}
+              />
+              <YAxis
+                tickLine={false}
+                axisLine={false}
+                tickMargin={8}
+                allowDecimals={false}
+              />
+              <ChartTooltip
+                content={
+                  <ChartTooltipContent
+                    labelFormatter={(value: string) => {
+                      const [y, m, d] = value.split('-')
+                      return `${y}年${parseInt(m)}月${parseInt(d)}日`
                     }}
                   />
-                  {/* 5日ごとにラベル表示 */}
-                  {dailyCounts.indexOf(d) % 5 === 0 && (
-                    <span className="text-[9px] text-muted-foreground whitespace-nowrap">
-                      {dateLabel}
-                    </span>
-                  )}
-                </div>
-              )
-            })}
-          </div>
+                }
+              />
+              <Bar
+                dataKey="count"
+                fill="var(--color-count)"
+                radius={[4, 4, 0, 0]}
+              />
+            </BarChart>
+          </ChartContainer>
         </CardContent>
       </Card>
 
@@ -208,10 +267,10 @@ export default function AnalyticsPage() {
       <div className="grid grid-cols-[repeat(auto-fit,minmax(360px,1fr))] gap-6">
         {/* === 社員別ランキング === */}
         <Card className="bg-muted/50 border shadow-none">
-          <CardContent className="p-6">
-            <h3 className="text-base font-bold text-foreground mb-4">
-              アクセスランキング
-            </h3>
+          <CardHeader>
+            <CardTitle className="text-base">アクセスランキング</CardTitle>
+          </CardHeader>
+          <CardContent>
             {ranking.length === 0 ? (
               <p className="text-muted-foreground text-sm">
                 まだアクセスデータがありません
@@ -256,10 +315,10 @@ export default function AnalyticsPage() {
 
         {/* === 最近のアクセス === */}
         <Card className="bg-muted/50 border shadow-none">
-          <CardContent className="p-6">
-            <h3 className="text-base font-bold text-foreground mb-4">
-              最近のアクセス
-            </h3>
+          <CardHeader>
+            <CardTitle className="text-base">最近のアクセス</CardTitle>
+          </CardHeader>
+          <CardContent>
             {recentViews.length === 0 ? (
               <p className="text-muted-foreground text-sm">
                 まだアクセスデータがありません
@@ -299,21 +358,5 @@ export default function AnalyticsPage() {
         </Card>
       </div>
     </div>
-  )
-}
-
-// サマリーカードコンポーネント
-function SummaryCard({ label, value, color }: { label: string; value: number; color: string }) {
-  return (
-    <Card className="bg-muted/50 border shadow-none">
-      <CardContent className="p-6 text-center">
-        <p className="text-[13px] text-muted-foreground mb-2">
-          {label}
-        </p>
-        <p className="text-[32px] font-bold m-0" style={{ color }}>
-          {value.toLocaleString()}
-        </p>
-      </CardContent>
-    </Card>
   )
 }
