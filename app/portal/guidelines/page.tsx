@@ -113,7 +113,7 @@ export default function PortalGuidelinesPage() {
       {/* 1. スローガン */}
       {data.slogan && (
         <section>
-          <h2 className="text-sm font-bold text-foreground mb-3 tracking-wide">スローガン</h2>
+          <h2 className="text-sm font-bold text-foreground mb-2 tracking-wide">スローガン</h2>
           <Card className="bg-muted/50 border shadow-none">
             <CardContent className="p-5">
               <p className="text-xl font-bold text-foreground m-0">{data.slogan}</p>
@@ -125,7 +125,7 @@ export default function PortalGuidelinesPage() {
       {/* 2. コンセプトビジュアル */}
       {data.concept_visual_url && (
         <section>
-          <h2 className="text-sm font-bold text-foreground mb-3 tracking-wide">コンセプトビジュアル</h2>
+          <h2 className="text-sm font-bold text-foreground mb-2 tracking-wide">コンセプトビジュアル</h2>
           <Card className="bg-muted/50 border shadow-none overflow-hidden">
             <CardContent className="p-4">
               <img
@@ -141,7 +141,7 @@ export default function PortalGuidelinesPage() {
       {/* 3. ブランド動画 */}
       {data.brand_video_url && (
         <section>
-          <h2 className="text-sm font-bold text-foreground mb-3 tracking-wide">ブランド動画</h2>
+          <h2 className="text-sm font-bold text-foreground mb-2 tracking-wide">ブランド動画</h2>
           <Card className="bg-muted/50 border shadow-none overflow-hidden">
             <CardContent className="p-4">
               {embedUrl ? (
@@ -172,7 +172,7 @@ export default function PortalGuidelinesPage() {
       {/* 4. メッセージ */}
       {data.brand_statement && (
         <section>
-          <h2 className="text-sm font-bold text-foreground mb-3 tracking-wide">メッセージ</h2>
+          <h2 className="text-sm font-bold text-foreground mb-2 tracking-wide">メッセージ</h2>
           <Card className="bg-muted/50 border shadow-none">
             <CardContent className="p-5">
               <p className="text-sm text-foreground/80 leading-[1.8] whitespace-pre-wrap m-0">{data.brand_statement}</p>
@@ -184,7 +184,7 @@ export default function PortalGuidelinesPage() {
       {/* 5. ミッション */}
       {data.mission && (
         <section>
-          <h2 className="text-sm font-bold text-foreground mb-3 tracking-wide">ミッション</h2>
+          <h2 className="text-sm font-bold text-foreground mb-2 tracking-wide">ミッション</h2>
           <Card className="bg-muted/50 border shadow-none">
             <CardContent className="p-5">
               <p className="text-xl font-bold text-foreground m-0">{data.mission}</p>
@@ -196,7 +196,7 @@ export default function PortalGuidelinesPage() {
       {/* 6. ビジョン */}
       {data.vision && (
         <section>
-          <h2 className="text-sm font-bold text-foreground mb-3 tracking-wide">ビジョン</h2>
+          <h2 className="text-sm font-bold text-foreground mb-2 tracking-wide">ビジョン</h2>
           <Card className="bg-muted/50 border shadow-none">
             <CardContent className="p-5">
               <p className="text-xl font-bold text-foreground m-0">{data.vision}</p>
@@ -208,7 +208,7 @@ export default function PortalGuidelinesPage() {
       {/* 7. バリュー（カードグリッド） */}
       {filteredValues.length > 0 && (
         <section>
-          <h2 className="text-sm font-bold text-foreground mb-3 tracking-wide">バリュー</h2>
+          <h2 className="text-sm font-bold text-foreground mb-2 tracking-wide">バリュー</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {filteredValues.map((v, i) => (
               <Card key={i} className="bg-muted/50 border shadow-none">
@@ -231,7 +231,7 @@ export default function PortalGuidelinesPage() {
       {/* 8. ブランドストーリー */}
       {data.brand_story && (
         <section>
-          <h2 className="text-sm font-bold text-foreground mb-3 tracking-wide">ブランドストーリー</h2>
+          <h2 className="text-sm font-bold text-foreground mb-2 tracking-wide">ブランドストーリー</h2>
           <Card className="bg-muted/50 border shadow-none">
             <CardContent className="p-5">
               <p className="text-sm text-foreground/80 leading-[1.8] whitespace-pre-wrap m-0">{data.brand_story}</p>
@@ -243,7 +243,7 @@ export default function PortalGuidelinesPage() {
       {/* 9. 沿革（タイムライン形式） */}
       {filteredHistory.length > 0 && (
         <section>
-          <h2 className="text-sm font-bold text-foreground mb-3 tracking-wide">沿革</h2>
+          <h2 className="text-sm font-bold text-foreground mb-2 tracking-wide">沿革</h2>
           <Card className="bg-muted/50 border shadow-none">
             <CardContent className="p-5">
               {filteredHistory.map((item, i) => (
@@ -268,7 +268,7 @@ export default function PortalGuidelinesPage() {
       {/* 10. 事業内容（番号付きリスト） */}
       {filteredBusiness.length > 0 && (
         <section>
-          <h2 className="text-sm font-bold text-foreground mb-3 tracking-wide">事業内容</h2>
+          <h2 className="text-sm font-bold text-foreground mb-2 tracking-wide">事業内容</h2>
           <div className="space-y-2">
             {filteredBusiness.map((item, i) => (
               <Card key={i} className="bg-muted/50 border shadow-none border-l-2 border-l-blue-600 rounded-lg">
@@ -294,7 +294,7 @@ export default function PortalGuidelinesPage() {
       {/* 11. ブランド特性（レーダーチャート＋リスト） */}
       {filteredTraits.length > 0 && (
         <section>
-          <h2 className="text-sm font-bold text-foreground mb-3 tracking-wide">ブランド特性</h2>
+          <h2 className="text-sm font-bold text-foreground mb-2 tracking-wide">ブランド特性</h2>
 
           {/* レーダーチャート（3つ以上の場合のみ） */}
           {chartData.length >= 3 && (
