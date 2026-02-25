@@ -181,23 +181,59 @@ export default async function CardPage({ params }: Props) {
         }
       `}</style>
 
-      {/* 1. ヘッダー（写真・名前・役職） */}
-      <div className="bg-[var(--brand-primary)] px-5 pt-12 pb-10 text-center text-[var(--brand-text)]">
-        <Avatar className="w-24 h-24 mx-auto mb-5 border-[3px] border-[var(--brand-text)]">
-          {profile.photo_url ? (
-            <AvatarImage src={profile.photo_url} alt={profile.name} />
-          ) : null}
-          <AvatarFallback
-            className="text-3xl font-semibold bg-[var(--brand-text)] text-[var(--brand-primary)]"
-          >
-            {profile.name?.charAt(0)}
-          </AvatarFallback>
-        </Avatar>
-        <h1 className="text-xl font-semibold mb-1 tracking-wide">{profile.name}</h1>
-        <p className="text-sm opacity-75 m-0">
-          {profile.position} / {profile.department}
-        </p>
-      </div>
+      {/* 1. ヘッダー（カバー写真・プロフィール写真・名前・役職） */}
+      {profile.cover_image_url ? (
+        <>
+          {/* カバー写真あり: 画像ヘッダー */}
+          <div className="relative">
+            <div className="h-[160px] sm:h-[200px] overflow-hidden">
+              <img
+                src={profile.cover_image_url}
+                alt=""
+                className="w-full h-full object-cover"
+              />
+            </div>
+            {/* プロフィール写真（カバー写真と重なる） */}
+            <div className="flex justify-center -mt-12">
+              <Avatar className="w-24 h-24 border-4 border-white shadow-lg">
+                {profile.photo_url ? (
+                  <AvatarImage src={profile.photo_url} alt={profile.name} />
+                ) : null}
+                <AvatarFallback
+                  className="text-3xl font-semibold bg-[var(--brand-primary)] text-[var(--brand-text)]"
+                >
+                  {profile.name?.charAt(0)}
+                </AvatarFallback>
+              </Avatar>
+            </div>
+          </div>
+          {/* 名前・役職 */}
+          <div className="text-center pt-3 pb-6 px-5">
+            <h1 className="text-xl font-semibold mb-1 tracking-wide text-foreground">{profile.name}</h1>
+            <p className="text-sm text-muted-foreground m-0">
+              {profile.position} / {profile.department}
+            </p>
+          </div>
+        </>
+      ) : (
+        /* カバー写真なし: 既存のブランドカラーヘッダー */
+        <div className="bg-[var(--brand-primary)] px-5 pt-12 pb-10 text-center text-[var(--brand-text)]">
+          <Avatar className="w-24 h-24 mx-auto mb-5 border-[3px] border-[var(--brand-text)]">
+            {profile.photo_url ? (
+              <AvatarImage src={profile.photo_url} alt={profile.name} />
+            ) : null}
+            <AvatarFallback
+              className="text-3xl font-semibold bg-[var(--brand-text)] text-[var(--brand-primary)]"
+            >
+              {profile.name?.charAt(0)}
+            </AvatarFallback>
+          </Avatar>
+          <h1 className="text-xl font-semibold mb-1 tracking-wide">{profile.name}</h1>
+          <p className="text-sm opacity-75 m-0">
+            {profile.position} / {profile.department}
+          </p>
+        </div>
+      )}
 
       {/* コンテンツ */}
       <div className="max-w-md mx-auto px-5 py-8 space-y-5">

@@ -5,6 +5,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { ImageUpload } from './ImageUpload'
+import { CoverImageUpload } from './CoverImageUpload'
 import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -21,6 +22,7 @@ type ProfileData = {
   phone: string
   slug: string
   photo_url: string
+  cover_image_url: string
   company_id: string
   sns_x: string
   sns_linkedin: string
@@ -46,6 +48,7 @@ export function MemberForm({ initialData, companyId }: Props) {
     phone: initialData?.phone || '',
     slug: initialData?.slug || '',
     photo_url: initialData?.photo_url || '',
+    cover_image_url: initialData?.cover_image_url || '',
     company_id: companyId,
     sns_x: initialData?.sns_x || '',
     sns_linkedin: initialData?.sns_linkedin || '',
@@ -79,6 +82,7 @@ export function MemberForm({ initialData, companyId }: Props) {
       phone: form.phone,
       slug: form.slug,
       photo_url: form.photo_url,
+      cover_image_url: form.cover_image_url || null,
       company_id: form.company_id,
       sns_x: form.sns_x || null,
       sns_linkedin: form.sns_linkedin || null,
@@ -127,6 +131,17 @@ export function MemberForm({ initialData, companyId }: Props) {
               folder="profiles"
               currentUrl={form.photo_url}
               onUpload={(url) => handleChange('photo_url', url)}
+            />
+          </div>
+
+          <div className="mb-5">
+            <Label className="mb-1.5 font-bold">カバー写真</Label>
+            <CoverImageUpload
+              bucket="avatars"
+              folder="covers"
+              currentUrl={form.cover_image_url}
+              onUpload={(url) => handleChange('cover_image_url', url)}
+              onRemove={() => handleChange('cover_image_url', '')}
             />
           </div>
 

@@ -64,6 +64,7 @@ export default function EditMemberPage() {
           phone: profile.phone || '',
           slug: profile.slug || '',
           photo_url: profile.photo_url || '',
+          cover_image_url: profile.cover_image_url || '',
           company_id: profile.company_id || '',
           sns_x: profile.sns_x || '',
           sns_linkedin: profile.sns_linkedin || '',
