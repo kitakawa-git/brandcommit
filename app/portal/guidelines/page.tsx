@@ -4,8 +4,9 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { usePortalAuth } from '../components/PortalAuthProvider'
-import { portalColors, portalStyles } from '../components/PortalStyles'
-import { cn } from '@/lib/utils'
+import { portalColors } from '../components/PortalStyles'
+import { Card, CardContent } from '@/components/ui/card'
+import { Separator } from '@/components/ui/separator'
 import {
   RadarChart,
   PolarGrid,
@@ -72,8 +73,8 @@ export default function PortalGuidelinesPage() {
       })
   }, [companyId])
 
-  if (loading) return <div className={portalStyles.empty}>読み込み中...</div>
-  if (!data) return <div className={portalStyles.empty}>まだ登録されていません</div>
+  if (loading) return <div className="text-center py-16 text-muted-foreground text-[15px]">読み込み中...</div>
+  if (!data) return <div className="text-center py-16 text-muted-foreground text-[15px]">まだ登録されていません</div>
 
   // フィルター: 入力済みの特性のみ
   const filteredTraits = data.traits.filter(t => t.name && !t.name.match(/^特性\s?\d+$/))
@@ -91,174 +92,199 @@ export default function PortalGuidelinesPage() {
   const embedUrl = data.brand_video_url ? getYouTubeEmbedUrl(data.brand_video_url) : null
 
   return (
-    <div className={portalStyles.pageContainer}>
-      <h1 className={portalStyles.pageTitle}>ブランド方針</h1>
-      <p className={portalStyles.pageDescription}>
-        ブランドのビジョン・ミッション・バリューとメッセージ
-      </p>
+    <div className="max-w-3xl mx-auto px-5 py-8 space-y-8">
+      <div>
+        <h1 className="text-2xl font-bold text-foreground mb-1">ブランド方針</h1>
+        <p className="text-sm text-muted-foreground">
+          ブランドのビジョン・ミッション・バリューとメッセージ
+        </p>
+      </div>
 
       {/* 1. スローガン */}
       {data.slogan && (
-        <div className={portalStyles.section}>
-          <h2 className={portalStyles.sectionTitle}>スローガン</h2>
-          <div className={portalStyles.card}>
-            <div className={cn(portalStyles.value, 'text-xl font-bold')}>{data.slogan}</div>
-          </div>
-        </div>
+        <section>
+          <h2 className="text-sm font-bold text-foreground mb-3 tracking-wide">スローガン</h2>
+          <Card className="bg-muted/50 border shadow-none">
+            <CardContent className="p-5">
+              <p className="text-xl font-bold text-foreground m-0">{data.slogan}</p>
+            </CardContent>
+          </Card>
+        </section>
       )}
 
       {/* 2. コンセプトビジュアル */}
       {data.concept_visual_url && (
-        <div className={portalStyles.section}>
-          <h2 className={portalStyles.sectionTitle}>コンセプトビジュアル</h2>
-          <div className={portalStyles.card}>
-            <img
-              src={data.concept_visual_url}
-              alt="コンセプトビジュアル"
-              className="w-full max-h-[400px] object-contain rounded-lg"
-            />
-          </div>
-        </div>
+        <section>
+          <h2 className="text-sm font-bold text-foreground mb-3 tracking-wide">コンセプトビジュアル</h2>
+          <Card className="bg-muted/50 border shadow-none overflow-hidden">
+            <CardContent className="p-4">
+              <img
+                src={data.concept_visual_url}
+                alt="コンセプトビジュアル"
+                className="w-full max-h-[400px] object-contain rounded-lg"
+              />
+            </CardContent>
+          </Card>
+        </section>
       )}
 
       {/* 3. ブランド動画 */}
       {data.brand_video_url && (
-        <div className={portalStyles.section}>
-          <h2 className={portalStyles.sectionTitle}>ブランド動画</h2>
-          <div className={portalStyles.card}>
-            {embedUrl ? (
-              <div className="relative pb-[56.25%] h-0">
-                <iframe
-                  src={embedUrl}
-                  title="ブランド動画"
-                  className="absolute top-0 left-0 w-full h-full border-none rounded-lg"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                />
-              </div>
-            ) : (
-              <a
-                href={data.brand_video_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-blue-600 text-sm"
-              >
-                {data.brand_video_url}
-              </a>
-            )}
-          </div>
-        </div>
+        <section>
+          <h2 className="text-sm font-bold text-foreground mb-3 tracking-wide">ブランド動画</h2>
+          <Card className="bg-muted/50 border shadow-none overflow-hidden">
+            <CardContent className="p-4">
+              {embedUrl ? (
+                <div className="relative pb-[56.25%] h-0">
+                  <iframe
+                    src={embedUrl}
+                    title="ブランド動画"
+                    className="absolute top-0 left-0 w-full h-full border-none rounded-lg"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  />
+                </div>
+              ) : (
+                <a
+                  href={data.brand_video_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-600 text-sm"
+                >
+                  {data.brand_video_url}
+                </a>
+              )}
+            </CardContent>
+          </Card>
+        </section>
       )}
 
       {/* 4. メッセージ */}
       {data.brand_statement && (
-        <div className={portalStyles.section}>
-          <h2 className={portalStyles.sectionTitle}>メッセージ</h2>
-          <div className={portalStyles.card}>
-            <div className={portalStyles.value}>{data.brand_statement}</div>
-          </div>
-        </div>
+        <section>
+          <h2 className="text-sm font-bold text-foreground mb-3 tracking-wide">メッセージ</h2>
+          <Card className="bg-muted/50 border shadow-none">
+            <CardContent className="p-5">
+              <p className="text-sm text-foreground/80 leading-[1.8] whitespace-pre-wrap m-0">{data.brand_statement}</p>
+            </CardContent>
+          </Card>
+        </section>
       )}
 
       {/* 5. ミッション */}
       {data.mission && (
-        <div className={portalStyles.section}>
-          <h2 className={portalStyles.sectionTitle}>ミッション</h2>
-          <div className={portalStyles.card}>
-            <div className={portalStyles.value}>{data.mission}</div>
-          </div>
-        </div>
+        <section>
+          <h2 className="text-sm font-bold text-foreground mb-3 tracking-wide">ミッション</h2>
+          <Card className="bg-muted/50 border shadow-none">
+            <CardContent className="p-5">
+              <p className="text-sm text-foreground/80 leading-[1.8] whitespace-pre-wrap m-0">{data.mission}</p>
+            </CardContent>
+          </Card>
+        </section>
       )}
 
       {/* 6. ビジョン */}
       {data.vision && (
-        <div className={portalStyles.section}>
-          <h2 className={portalStyles.sectionTitle}>ビジョン</h2>
-          <div className={portalStyles.card}>
-            <div className={portalStyles.value}>{data.vision}</div>
-          </div>
-        </div>
+        <section>
+          <h2 className="text-sm font-bold text-foreground mb-3 tracking-wide">ビジョン</h2>
+          <Card className="bg-muted/50 border shadow-none">
+            <CardContent className="p-5">
+              <p className="text-sm text-foreground/80 leading-[1.8] whitespace-pre-wrap m-0">{data.vision}</p>
+            </CardContent>
+          </Card>
+        </section>
       )}
 
       {/* 7. バリュー */}
       {filteredValues.length > 0 && (
-        <div className={portalStyles.section}>
-          <h2 className={portalStyles.sectionTitle}>バリュー</h2>
-          <div className={portalStyles.card}>
-            <div className="flex flex-wrap gap-2">
-              {filteredValues.map((v, i) => (
-                <div key={i} className="mb-3">
-                  <span className={portalStyles.tag}>{v.name}</span>
-                  {v.description && (
-                    <div className="text-[13px] text-gray-500 mt-1 pl-1">
-                      {v.description}
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
+        <section>
+          <h2 className="text-sm font-bold text-foreground mb-3 tracking-wide">バリュー</h2>
+          <div className="space-y-2">
+            {filteredValues.map((v, i) => (
+              <Card key={i} className="bg-muted/50 border shadow-none border-l-2 border-l-blue-600 rounded-lg">
+                <CardContent className="p-4 flex gap-3">
+                  <span className="text-xs font-mono text-muted-foreground tabular-nums pt-0.5">
+                    {String(i + 1).padStart(2, '0')}
+                  </span>
+                  <div className="flex-1 min-w-0">
+                    <span className="text-sm font-semibold text-foreground">{v.name}</span>
+                    {v.description && (
+                      <p className="text-xs text-muted-foreground leading-relaxed mt-1 m-0">
+                        {v.description}
+                      </p>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
           </div>
-        </div>
+        </section>
       )}
 
       {/* 8. ブランドストーリー */}
       {data.brand_story && (
-        <div className={portalStyles.section}>
-          <h2 className={portalStyles.sectionTitle}>ブランドストーリー</h2>
-          <div className={portalStyles.card}>
-            <div className={portalStyles.value}>{data.brand_story}</div>
-          </div>
-        </div>
+        <section>
+          <h2 className="text-sm font-bold text-foreground mb-3 tracking-wide">ブランドストーリー</h2>
+          <Card className="bg-muted/50 border shadow-none">
+            <CardContent className="p-5">
+              <p className="text-sm text-foreground/80 leading-[1.8] whitespace-pre-wrap m-0">{data.brand_story}</p>
+            </CardContent>
+          </Card>
+        </section>
       )}
 
       {/* 9. 沿革（タイムライン形式） */}
       {filteredHistory.length > 0 && (
-        <div className={portalStyles.section}>
-          <h2 className={portalStyles.sectionTitle}>沿革</h2>
-          <div className={portalStyles.card}>
-            {filteredHistory.map((item, i) => (
-              <div key={i} className={cn(
-                'flex gap-4',
-                i < filteredHistory.length - 1 && 'pb-4 mb-4 border-b border-gray-200'
-              )}>
-                <div className="shrink-0 w-16 text-sm font-bold text-blue-600 relative pl-4">
-                  <div className="absolute left-0 top-1.5 w-2 h-2 rounded-full bg-blue-600" />
-                  {item.year}
+        <section>
+          <h2 className="text-sm font-bold text-foreground mb-3 tracking-wide">沿革</h2>
+          <Card className="bg-muted/50 border shadow-none">
+            <CardContent className="p-5">
+              {filteredHistory.map((item, i) => (
+                <div key={i}>
+                  <div className="flex gap-4">
+                    <div className="shrink-0 w-16 text-sm font-bold text-blue-600 relative pl-4">
+                      <div className="absolute left-0 top-1.5 w-2 h-2 rounded-full bg-blue-600" />
+                      {item.year}
+                    </div>
+                    <div className="text-sm text-foreground leading-relaxed">
+                      {item.event}
+                    </div>
+                  </div>
+                  {i < filteredHistory.length - 1 && <Separator className="my-4" />}
                 </div>
-                <div className="text-sm text-gray-900 leading-relaxed">
-                  {item.event}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+              ))}
+            </CardContent>
+          </Card>
+        </section>
       )}
 
       {/* 10. 事業内容（カードグリッド） */}
       {filteredBusiness.length > 0 && (
-        <div className={portalStyles.section}>
-          <h2 className={portalStyles.sectionTitle}>事業内容</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <section>
+          <h2 className="text-sm font-bold text-foreground mb-3 tracking-wide">事業内容</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {filteredBusiness.map((item, i) => (
-              <div key={i} className={portalStyles.card}>
-                <div className="text-base font-bold text-gray-900 mb-2">
-                  {item.title}
-                </div>
-                {item.description && (
-                  <div className="text-sm text-gray-500 leading-relaxed">
-                    {item.description}
-                  </div>
-                )}
-              </div>
+              <Card key={i} className="bg-muted/50 border shadow-none">
+                <CardContent className="p-5">
+                  <p className="text-base font-bold text-foreground mb-1.5 m-0">
+                    {item.title}
+                  </p>
+                  {item.description && (
+                    <p className="text-sm text-muted-foreground leading-relaxed m-0">
+                      {item.description}
+                    </p>
+                  )}
+                </CardContent>
+              </Card>
             ))}
           </div>
-        </div>
+        </section>
       )}
 
       {/* 11. ブランド特性（レーダーチャート＋リスト） */}
       {filteredTraits.length > 0 && (
-        <div className={portalStyles.section}>
-          <h2 className={portalStyles.sectionTitle}>ブランド特性</h2>
+        <section>
+          <h2 className="text-sm font-bold text-foreground mb-3 tracking-wide">ブランド特性</h2>
 
           {/* レーダーチャート（3つ以上の場合のみ） */}
           {chartData.length >= 3 && (
@@ -274,27 +300,31 @@ export default function PortalGuidelinesPage() {
             </div>
           )}
 
-          {filteredTraits.map((trait, i) => (
-            <div key={i} className={cn(portalStyles.card, 'flex items-center gap-4')}>
-              <div className="flex-1">
-                <div className="text-[15px] font-bold text-gray-900 mb-1">
-                  {trait.name}
-                </div>
-                {trait.description && (
-                  <div className="text-[13px] text-gray-500 leading-normal">
-                    {trait.description}
+          <div className="space-y-2">
+            {filteredTraits.map((trait, i) => (
+              <Card key={i} className="bg-muted/50 border shadow-none">
+                <CardContent className="p-4 flex items-center gap-4">
+                  <div className="flex-1">
+                    <p className="text-sm font-bold text-foreground mb-0.5 m-0">
+                      {trait.name}
+                    </p>
+                    {trait.description && (
+                      <p className="text-xs text-muted-foreground leading-relaxed m-0">
+                        {trait.description}
+                      </p>
+                    )}
                   </div>
-                )}
-              </div>
-              <div className="shrink-0 text-center">
-                <div className="w-12 h-12 rounded-full bg-blue-600 text-white flex items-center justify-center text-lg font-bold">
-                  {trait.score}
-                </div>
-                <div className="text-[10px] text-gray-400 mt-1">/10</div>
-              </div>
-            </div>
-          ))}
-        </div>
+                  <div className="shrink-0 text-center">
+                    <div className="w-11 h-11 rounded-full bg-blue-600 text-white flex items-center justify-center text-base font-bold">
+                      {trait.score}
+                    </div>
+                    <div className="text-[10px] text-muted-foreground mt-1">/10</div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </section>
       )}
     </div>
   )
