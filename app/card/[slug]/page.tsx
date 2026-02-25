@@ -159,7 +159,7 @@ export default async function CardPage({ params }: Props) {
 
   return (
     <div
-      className="min-h-screen bg-muted/30 font-sans"
+      className="min-h-screen bg-white font-sans"
       style={{
         '--brand-primary': primaryColor,
         '--brand-text': headerTextColor,
@@ -203,13 +203,9 @@ export default async function CardPage({ params }: Props) {
       <div className="max-w-md mx-auto px-5 py-8 space-y-5">
         {/* 2. 自己紹介 */}
         {profile.bio && (
-          <Card className="border-0 shadow-none bg-white">
-            <CardContent className="p-5">
-              <p className="text-sm leading-[1.8] text-foreground/80 m-0">
-                {profile.bio}
-              </p>
-            </CardContent>
-          </Card>
+          <p className="text-sm leading-[1.8] text-foreground/80 m-0">
+            {profile.bio}
+          </p>
         )}
 
         {/* 3. SNSリンク（アイコン横並び） */}
@@ -222,7 +218,7 @@ export default async function CardPage({ params }: Props) {
                 target="_blank"
                 rel="noopener noreferrer"
                 title={sns.label}
-                className="sns-icon w-11 h-11 rounded-full bg-white flex items-center justify-center no-underline shadow-sm text-[var(--brand-primary)]"
+                className="sns-icon w-11 h-11 rounded-full bg-muted flex items-center justify-center no-underline text-[var(--brand-primary)]"
               >
                 {sns.icon}
               </a>
@@ -273,7 +269,7 @@ export default async function CardPage({ params }: Props) {
 
         {/* 5. 企業情報（ロゴ・企業名・スローガン・MVV） */}
         {company && (
-          <Card className="border-0 shadow-sm">
+          <Card className="bg-muted/50 border shadow-none">
             <CardHeader className="pb-0">
               {company.logo_url && (
                 <img
@@ -318,7 +314,7 @@ export default async function CardPage({ params }: Props) {
               {businessContents.map((item, i) => (
                 <Card
                   key={i}
-                  className="border-0 shadow-none bg-white border-l-2 rounded-lg"
+                  className="bg-muted/50 border shadow-none border-l-2 rounded-lg"
                   style={{ borderLeftColor: accentColor }}
                 >
                   <CardContent className="p-4 flex gap-3">
@@ -351,7 +347,7 @@ export default async function CardPage({ params }: Props) {
             >
               ブランドストーリー
             </h3>
-            <Card className="border-0 shadow-sm">
+            <Card className="bg-muted/50 border shadow-none">
               <CardContent className="p-5">
                 <p className="text-[13px] text-foreground/70 leading-[1.8] whitespace-pre-wrap m-0">
                   {brandStory}
