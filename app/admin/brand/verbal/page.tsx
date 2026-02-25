@@ -332,7 +332,7 @@ export default function VerbalIdentityPage() {
                   />
                   <Button
                     type="button"
-                    variant="destructive"
+                    variant="outline"
                     onClick={() => removeTerm(index)}
                     className="py-2 px-3.5 text-[13px] whitespace-nowrap"
                   >

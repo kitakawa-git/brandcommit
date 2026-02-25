@@ -366,13 +366,14 @@ export default function BrandVisualsPage() {
                       placeholder="セクションタイトル（例: ロゴ、余白の指定、禁止事項）"
                       className="h-10 flex-1"
                     />
-                    <button
+                    <Button
                       type="button"
+                      variant="outline"
                       onClick={() => removeSection(sIdx)}
-                      className="py-2 px-3 bg-transparent text-red-600 border border-red-600 rounded-md text-[13px] cursor-pointer whitespace-nowrap"
+                      className="py-2 px-3 text-[13px] whitespace-nowrap"
                     >
                       削除
-                    </button>
+                    </Button>
                   </div>
 
                   {/* 画像一覧 */}
@@ -395,13 +396,14 @@ export default function BrandVisualsPage() {
                               placeholder="キャプション"
                               className="text-xs py-1.5 px-2"
                             />
-                            <button
+                            <Button
                               type="button"
+                              variant="outline"
                               onClick={() => removeImage(sIdx, iIdx)}
-                              className="mt-1.5 py-1 px-2 bg-transparent text-red-600 border-none text-xs cursor-pointer w-full text-center"
+                              className="mt-1.5 h-auto py-1 px-2 text-xs w-full"
                             >
                               画像を削除
-                            </button>
+                            </Button>
                           </div>
                         </div>
                       ))}

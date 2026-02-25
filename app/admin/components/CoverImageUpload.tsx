@@ -87,7 +87,7 @@ export function CoverImageUpload({ bucket, folder = '', currentUrl, onUpload, on
           />
           <Button
             type="button"
-            variant="destructive"
+            variant="outline"
             size="icon"
             className="absolute top-2 right-2 size-8"
             onClick={handleRemove}

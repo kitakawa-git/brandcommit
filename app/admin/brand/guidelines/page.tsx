@@ -404,7 +404,7 @@ export default function BrandGuidelinesPage() {
                     placeholder="説明"
                     className="h-10 flex-[2]"
                   />
-                  <Button type="button" variant="destructive" onClick={() => removeValue(index)} className="py-2 px-3.5 text-[13px] whitespace-nowrap">
+                  <Button type="button" variant="outline" onClick={() => removeValue(index)} className="py-2 px-3.5 text-[13px] whitespace-nowrap">
                     削除
                   </Button>
                 </div>
@@ -449,7 +449,7 @@ export default function BrandGuidelinesPage() {
                     placeholder="出来事"
                     className="h-10 flex-1"
                   />
-                  <Button type="button" variant="destructive" onClick={() => removeHistory(index)} className="py-2 px-3.5 text-[13px] whitespace-nowrap">
+                  <Button type="button" variant="outline" onClick={() => removeHistory(index)} className="py-2 px-3.5 text-[13px] whitespace-nowrap">
                     削除
                   </Button>
                 </div>
@@ -472,7 +472,7 @@ export default function BrandGuidelinesPage() {
                       placeholder="事業タイトル"
                       className="h-10 flex-1"
                     />
-                    <Button type="button" variant="destructive" onClick={() => removeBusiness(index)} className="py-2 px-3.5 text-[13px] whitespace-nowrap">
+                    <Button type="button" variant="outline" onClick={() => removeBusiness(index)} className="py-2 px-3.5 text-[13px] whitespace-nowrap">
                       削除
                     </Button>
                   </div>
@@ -519,7 +519,7 @@ export default function BrandGuidelinesPage() {
                     placeholder="この特性の説明"
                     className="h-10 flex-[2]"
                   />
-                  <Button type="button" variant="destructive" onClick={() => removeTrait(index)} className="py-2 px-3.5 text-[13px] whitespace-nowrap">
+                  <Button type="button" variant="outline" onClick={() => removeTrait(index)} className="py-2 px-3.5 text-[13px] whitespace-nowrap">
                     削除
                   </Button>
                 </div>

@@ -381,7 +381,7 @@ export default function BrandStrategyPage() {
                     </span>
                     <Button
                       type="button"
-                      variant="destructive"
+                      variant="outline"
                       onClick={() => removePersona(index)}
                       className="py-1 px-3 text-xs"
                     >
@@ -446,7 +446,7 @@ export default function BrandStrategyPage() {
                         />
                         <Button
                           type="button"
-                          variant="destructive"
+                          variant="outline"
                           onClick={() => removeNeed(index, needIndex)}
                           className="py-2 px-3.5 text-[13px] whitespace-nowrap"
                         >
@@ -477,7 +477,7 @@ export default function BrandStrategyPage() {
                         />
                         <Button
                           type="button"
-                          variant="destructive"
+                          variant="outline"
                           onClick={() => removePainPoint(index, pointIndex)}
                           className="py-2 px-3.5 text-[13px] whitespace-nowrap"
                         >
@@ -523,7 +523,7 @@ export default function BrandStrategyPage() {
                     />
                     <Button
                       type="button"
-                      variant="destructive"
+                      variant="outline"
                       onClick={removeMap}
                       className="absolute top-2 right-2 py-1 px-2.5 text-xs"
                     >
@@ -577,7 +577,7 @@ export default function BrandStrategyPage() {
                   />
                   <Button
                     type="button"
-                    variant="destructive"
+                    variant="outline"
                     onClick={() => removeGuideline(index)}
                     className="py-2 px-3.5 text-[13px] whitespace-nowrap"
                   >

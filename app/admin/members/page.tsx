@@ -218,7 +218,7 @@ export default function MembersPage() {
                             <span className="text-muted-foreground/50 text-sm font-medium">編集</span>
                           )}
                           {member.is_active && (
-                            <button onClick={() => handleDeactivate(member.id)} className="text-red-600 bg-transparent border-none text-sm font-medium cursor-pointer p-0">無効化</button>
+                            <Button variant="outline" size="sm" className="h-7 text-xs" onClick={() => handleDeactivate(member.id)}>無効化</Button>
                           )}
                         </div>
                       </td>

@@ -174,7 +174,7 @@ export default function MembersPortalPage() {
                       {link.is_active && (
                         <div className="flex gap-2">
                           <Button variant="outline" size="sm" className="h-7 text-xs" onClick={() => handleCopyLink(link.token)}>コピー</Button>
-                          <Button variant="destructive" size="sm" className="h-7 text-xs" onClick={() => handleDeactivateLink(link.id)}>無効化</Button>
+                          <Button variant="outline" size="sm" className="h-7 text-xs" onClick={() => handleDeactivateLink(link.id)}>無効化</Button>
                         </div>
                       )}
                     </td>
