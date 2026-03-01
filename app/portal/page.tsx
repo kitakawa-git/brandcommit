@@ -1,7 +1,7 @@
 'use client'
 
 // ポータルダッシュボード: ミッション + KPI + 個人サマリー + 投稿フィード
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import { usePortalAuth } from './components/PortalAuthProvider'
@@ -49,6 +49,14 @@ const CATEGORY_COLORS = [
 // ============================================
 // Types
 // ============================================
+
+type StatsPeriod = 'month' | '30d' | '90d' | 'all'
+
+type UserPostRaw = {
+  id: string
+  category: string
+  created_at: string
+}
 
 type PersonalStats = {
   monthlyPosts: number
@@ -181,6 +189,8 @@ type KpiItemSummary = {
 type DashboardCache = {
   mission: string | null
   personalStats: PersonalStats | null
+  allUserPostsRaw: UserPostRaw[]
+  allLikePostIds: string[]
   myRecentPosts: DashboardPost[]
   companyRecentPosts: DashboardPost[]
   latestAnnouncements: AnnouncementSummary[]
@@ -199,6 +209,9 @@ export default function PortalTopPage() {
   const [loading, setLoading] = useState(!cached)
   const [mission, setMission] = useState<string | null>(cached?.mission ?? null)
   const [personalStats, setPersonalStats] = useState<PersonalStats | null>(cached?.personalStats ?? null)
+  const [allUserPostsRaw, setAllUserPostsRaw] = useState<UserPostRaw[]>(cached?.allUserPostsRaw ?? [])
+  const [allLikePostIds, setAllLikePostIds] = useState<string[]>(cached?.allLikePostIds ?? [])
+  const [statsPeriod, setStatsPeriod] = useState<StatsPeriod>('all')
   const [myRecentPosts, setMyRecentPosts] = useState<DashboardPost[]>(cached?.myRecentPosts ?? [])
   const [companyRecentPosts, setCompanyRecentPosts] = useState<DashboardPost[]>(cached?.companyRecentPosts ?? [])
   const [latestAnnouncements, setLatestAnnouncements] = useState<AnnouncementSummary[]>(cached?.latestAnnouncements ?? [])
@@ -209,6 +222,47 @@ export default function PortalTopPage() {
   const [showGoalBanner, setShowGoalBanner] = useState<boolean>(cached?.showGoalBanner ?? true)
   const [showReviewBanner, setShowReviewBanner] = useState<boolean>(cached?.showReviewBanner ?? true)
   const [chartKey, setChartKey] = useState(0)
+
+  // フィルタ期間に基づく統計計算
+  const filteredStats = useMemo(() => {
+    let filteredPosts = allUserPostsRaw
+    const now = new Date()
+
+    if (statsPeriod === 'month') {
+      const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString()
+      filteredPosts = allUserPostsRaw.filter(p => p.created_at >= monthStart)
+    } else if (statsPeriod === '30d') {
+      const d30ago = new Date(now.getTime() - 30 * 86400000).toISOString()
+      filteredPosts = allUserPostsRaw.filter(p => p.created_at >= d30ago)
+    } else if (statsPeriod === '90d') {
+      const d90ago = new Date(now.getTime() - 90 * 86400000).toISOString()
+      filteredPosts = allUserPostsRaw.filter(p => p.created_at >= d90ago)
+    }
+    // 'all' — フィルタなし
+
+    const filteredPostIds = new Set(filteredPosts.map(p => p.id))
+    const filteredLikeCount = allLikePostIds.filter(pid => filteredPostIds.has(pid)).length
+
+    // Category distribution
+    const catMap = new Map<string, number>()
+    filteredPosts.forEach(p => {
+      catMap.set(p.category, (catMap.get(p.category) || 0) + 1)
+    })
+    const categoryDistribution = [...catMap.entries()]
+      .map(([category, count]) => ({ category, count }))
+      .sort((a, b) => b.count - a.count)
+
+    return {
+      postCount: filteredPosts.length,
+      likeCount: filteredLikeCount,
+      categoryDistribution,
+    }
+  }, [allUserPostsRaw, allLikePostIds, statsPeriod])
+
+  const handlePeriodChange = (period: StatsPeriod) => {
+    setStatsPeriod(period)
+    setChartKey(prev => prev + 1)
+  }
 
   // 自己評価ポップアップ
   const [reviewOpen, setReviewOpen] = useState(false)
@@ -249,11 +303,8 @@ export default function PortalTopPage() {
 
     const fetchAll = async () => {
       try {
-        const now = new Date()
-        const ninetyDaysAgo = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000)
-
         // === Group 1: base queries (parallel) ===
-        const [missionRes, userPosts90Res, userRecent3Res, companyRecent3Res, announcementsRes, kpiGoalsRes, goalPeriodRes, goalPeriodsRes] =
+        const [missionRes, allUserPostsRes, userRecent3Res, companyRecent3Res, announcementsRes, kpiGoalsRes, goalPeriodRes, goalPeriodsRes] =
           await Promise.allSettled([
             supabase
               .from('brand_guidelines')
@@ -265,7 +316,6 @@ export default function PortalTopPage() {
               .select('id, category, created_at')
               .eq('company_id', companyId)
               .eq('user_id', user.id)
-              .gte('created_at', ninetyDaysAgo.toISOString())
               .order('created_at', { ascending: false }),
             supabase
               .from('timeline_posts')
@@ -315,9 +365,9 @@ export default function PortalTopPage() {
           setMission(missionData.mission)
         }
 
-        const allUserPosts =
-          userPosts90Res.status === 'fulfilled'
-            ? userPosts90Res.value.data || []
+        const allUserPosts: UserPostRaw[] =
+          allUserPostsRes.status === 'fulfilled'
+            ? (allUserPostsRes.value.data || []) as UserPostRaw[]
             : []
         const myRecentData =
           userRecent3Res.status === 'fulfilled'
@@ -388,7 +438,7 @@ export default function PortalTopPage() {
         // --- Personal stats ---
         const currentStreak = calculateCurrentStreak(allUserPosts)
 
-        // Category distribution (90日間)
+        // Category distribution (全期間)
         const catMap = new Map<string, number>()
         allUserPosts.forEach((p) => {
           catMap.set(p.category, (catMap.get(p.category) || 0) + 1)
@@ -396,6 +446,9 @@ export default function PortalTopPage() {
         const categoryDistribution = [...catMap.entries()]
           .map(([category, count]) => ({ category, count }))
           .sort((a, b) => b.count - a.count)
+
+        // 生データを保持（フィルタ切り替え用）
+        setAllUserPostsRaw(allUserPosts)
 
         // === Group 2: dependent queries (parallel) ===
         const myPostIds = allUserPosts.map((p) => p.id)
@@ -408,13 +461,13 @@ export default function PortalTopPage() {
 
         const [monthlyLikesRes, recentLikesRes, recentCommentsRes, membersRes] =
           await Promise.allSettled([
-            // [0] Likes on my posts (90日間)
+            // [0] Likes on my posts (全期間、post_id付き)
             myPostIds.length > 0
               ? supabase
                   .from('timeline_likes')
-                  .select('id')
+                  .select('post_id')
                   .in('post_id', myPostIds)
-              : Promise.resolve({ data: [] as unknown[] }),
+              : Promise.resolve({ data: [] as { post_id: string }[] }),
             // [1] Likes on all recent posts
             allRecentIds.length > 0
               ? supabase
@@ -439,12 +492,15 @@ export default function PortalTopPage() {
               : Promise.resolve({ data: [] as { auth_id: string; display_name: string; profile: { name: string } | { name: string }[] | null }[] }),
           ])
 
-        // Likes received
-        let likesReceived = 0
+        // Likes received — post_id付きで保持（フィルタ切り替え用）
+        let allLikePostIdsData: string[] = []
         if (monthlyLikesRes.status === 'fulfilled') {
-          const res = monthlyLikesRes.value as { data: unknown[] | null }
-          likesReceived = res.data?.length || 0
+          const res = monthlyLikesRes.value as { data: { post_id: string }[] | null }
+          allLikePostIdsData = (res.data || []).map(l => l.post_id)
         }
+        setAllLikePostIds(allLikePostIdsData)
+
+        const likesReceived = allLikePostIdsData.length
 
         setPersonalStats({
           monthlyPosts: allUserPosts.length,
@@ -539,6 +595,8 @@ export default function PortalTopPage() {
             currentStreak,
             categoryDistribution,
           },
+          allUserPostsRaw: allUserPosts,
+          allLikePostIds: allLikePostIdsData,
           myRecentPosts: myRecentPostsFinal,
           companyRecentPosts: companyRecentPostsFinal,
           latestAnnouncements: latestAnnouncementsData,
@@ -590,15 +648,15 @@ export default function PortalTopPage() {
     )
   }
 
-  // Chart config for category pie chart
+  // Chart config for category pie chart (フィルタ済みデータから生成)
   const categoryChartConfig: ChartConfig =
-    personalStats?.categoryDistribution.reduce<ChartConfig>((acc, item, i) => {
+    filteredStats.categoryDistribution.reduce<ChartConfig>((acc, item, i) => {
       acc[item.category] = {
         label: item.category,
         color: CATEGORY_COLORS[i % CATEGORY_COLORS.length],
       }
       return acc
-    }, {}) || {}
+    }, {})
 
   return (
     <div className="max-w-4xl mx-auto px-5 pt-4 pb-10">
@@ -753,14 +811,39 @@ export default function PortalTopPage() {
 
       {/* ===== 4. あなたのブランドコミット ===== */}
       {personalStats && (() => {
-        const catWithData = personalStats.categoryDistribution.filter(d => d.count > 0)
+        const catWithData = filteredStats.categoryDistribution.filter(d => d.count > 0)
         const totalCatCount = catWithData.reduce((sum, d) => sum + d.count, 0)
+
+        const periodOptions: { value: StatsPeriod; label: string }[] = [
+          { value: 'all', label: 'すべて' },
+          { value: '90d', label: '90日間' },
+          { value: '30d', label: '30日間' },
+          { value: 'month', label: '今月' },
+        ]
 
         return (
           <div className="mb-3">
-            <h2 className="text-sm font-bold text-foreground tracking-wide mb-4">
-              あなたのブランドコミット
-            </h2>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-sm font-bold text-foreground tracking-wide m-0">
+                あなたのブランドコミット
+              </h2>
+              <div className="flex gap-1">
+                {periodOptions.map(opt => (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    onClick={() => handlePeriodChange(opt.value)}
+                    className={`rounded-full text-xs font-medium px-3 py-1 border-0 cursor-pointer transition-colors ${
+                      statsPeriod === opt.value
+                        ? 'bg-foreground text-background'
+                        : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                    }`}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+            </div>
 
             {/* 2fr 1fr グリッド: 左(2x2) + 右(円グラフ) */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -776,7 +859,7 @@ export default function PortalTopPage() {
                         <h3 className="text-sm font-semibold text-foreground m-0">投稿数</h3>
                       </div>
                       <p className="text-3xl font-bold text-foreground m-0 text-center">
-                        {personalStats.monthlyPosts}
+                        {filteredStats.postCount}
                       </p>
                     </CardContent>
                   </Card>
@@ -789,7 +872,7 @@ export default function PortalTopPage() {
                         <h3 className="text-sm font-semibold text-foreground m-0">いいね数</h3>
                       </div>
                       <p className="text-3xl font-bold text-foreground m-0 text-center">
-                        {personalStats.monthlyLikesReceived}
+                        {filteredStats.likeCount}
                       </p>
                     </CardContent>
                   </Card>
