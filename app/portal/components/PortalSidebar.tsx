@@ -148,28 +148,6 @@ export function PortalSidebar() {
           </SidebarGroup>
           <NavGroup label="ブランド掲示" items={brandItems} pathname={pathname} />
 
-          {/* マイページ（名刺プレビューはDialog起動） */}
-          <SidebarGroup>
-            <SidebarGroupLabel>マイページ</SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                <SidebarMenuItem>
-                  <SidebarMenuButton asChild isActive={pathname.startsWith('/portal/profile')}>
-                    <Link href="/portal/profile">
-                      <CircleUser size={18} />
-                      <span>マイプロフィール</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-                <SidebarMenuItem>
-                  <SidebarMenuButton onClick={() => setCardPreviewOpen(true)}>
-                    <CreditCard size={18} />
-                    <span>名刺プレビュー</span>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
         </SidebarContent>
 
         {/* ユーザーメニュー */}
@@ -201,10 +179,20 @@ export function PortalSidebar() {
                 <DropdownMenuContent
                   side="top"
                   align="start"
-                  className="w-[--radix-dropdown-menu-trigger-width] min-w-56"
+                  className="w-[--radix-dropdown-menu-trigger-width] min-w-56 p-2"
                 >
-                  <DropdownMenuItem onClick={signOut}>
-                    <LogOut className="mr-2 size-4" />
+                  <DropdownMenuItem asChild className="h-10 px-3 gap-2 text-base font-medium rounded-md">
+                    <Link href="/portal/profile" className="no-underline">
+                      <CircleUser className="size-4" />
+                      マイプロフィール
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setCardPreviewOpen(true)} className="h-10 px-3 gap-2 text-base font-medium rounded-md">
+                    <CreditCard className="size-4" />
+                    名刺プレビュー
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={signOut} className="h-10 px-3 gap-2 text-base font-medium rounded-md">
+                    <LogOut className="size-4" />
                     ログアウト
                   </DropdownMenuItem>
                 </DropdownMenuContent>

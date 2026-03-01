@@ -4,7 +4,6 @@
 import { useState } from 'react'
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
-import { downloadQRCode } from '@/lib/qr-download'
 import { ExternalLink, QrCode } from 'lucide-react'
 
 type Props = {
@@ -24,6 +23,7 @@ export function CardPreviewDialog({ open, onOpenChange, slug, name }: Props) {
   const handleDownloadQR = async () => {
     setDownloading(true)
     try {
+      const { downloadQRCode } = await import('@/lib/qr-download')
       await downloadQRCode(slug, name || 'member')
     } catch (err) {
       console.error('QRコード生成エラー:', err)
@@ -43,7 +43,7 @@ export function CardPreviewDialog({ open, onOpenChange, slug, name }: Props) {
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[120px] h-[28px] bg-gray-900 rounded-b-2xl z-10" />
 
             {/* スクリーン */}
-            <div className="relative bg-white rounded-[2rem] overflow-hidden" style={{ width: 375, height: 667 }}>
+            <div className="relative bg-white rounded-[2rem] overflow-hidden" style={{ width: 390, height: 844 }}>
               <iframe
                 src={cardUrl}
                 className="w-full h-full border-0"
@@ -53,7 +53,7 @@ export function CardPreviewDialog({ open, onOpenChange, slug, name }: Props) {
           </div>
 
           {/* アクションボタン */}
-          <div className="flex gap-3 mt-5 w-full max-w-[375px]">
+          <div className="flex gap-3 mt-5 w-full max-w-[390px]">
             <Button
               asChild
               className="flex-1 h-10 gap-2"
