@@ -130,7 +130,7 @@ function PortalRegisterContent() {
   if (tokenValid === false) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center font-sans">
-        <Card className="max-w-[400px] w-full mx-5 bg-muted/50 border shadow-none">
+        <Card className="max-w-[400px] w-full mx-5 bg-[hsl(0_0%_97%)] border shadow-none">
           <CardContent className="p-10 text-center">
             <div className="mb-4 flex justify-center text-muted-foreground">
               <ShieldAlert size={48} />
@@ -150,7 +150,7 @@ function PortalRegisterContent() {
   // 登録フォーム
   return (
     <div className="min-h-screen bg-white flex items-center justify-center font-sans">
-      <Card className="w-full max-w-[400px] mx-5 bg-muted/50 border shadow-none">
+      <Card className="w-full max-w-[400px] mx-5 bg-[hsl(0_0%_97%)] border shadow-none">
         <CardContent className="p-10">
           <div className="text-center mb-8">
             <h1 className="text-2xl font-bold text-foreground mb-2">

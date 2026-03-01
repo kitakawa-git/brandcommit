@@ -7,7 +7,6 @@ import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
 
 export default function LoginPage() {
@@ -86,24 +85,24 @@ export default function LoginPage() {
   if (loggedIn && isSuperAdmin) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center font-sans">
-        <Card className="w-full max-w-[400px] mx-5 bg-muted/50 border shadow-none">
+        <Card className="w-full max-w-[400px] mx-5 bg-[hsl(220_13%_18%)] border-[hsl(218_14%_26%)] shadow-none">
           <CardContent className="p-10">
             <div className="text-center mb-6">
-              <h1 className="text-2xl font-bold text-foreground mb-2">
+              <h1 className="text-2xl font-bold text-white mb-2">
                 brandcommit
               </h1>
-              <p className="text-sm text-muted-foreground m-0">
+              <p className="text-sm text-[hsl(216_12%_70%)] m-0">
                 ログイン成功 — 遷移先を選択
               </p>
             </div>
 
             <div className="flex flex-col gap-3">
-              <Button asChild className="h-12 text-[15px] font-bold bg-gray-800 hover:bg-gray-900">
+              <Button asChild className="h-12 text-[15px] font-bold bg-white text-[hsl(220_13%_18%)] hover:bg-white/90">
                 <Link href="/superadmin/companies">
                   スーパー管理画面
                 </Link>
               </Button>
-              <Button asChild className="h-12 text-[15px] font-bold">
+              <Button asChild className="h-12 text-[15px] font-bold bg-[hsl(218_14%_26%)] text-white hover:bg-[hsl(218_14%_30%)]">
                 <Link href="/admin/members">
                   通常管理画面
                 </Link>
@@ -117,60 +116,65 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-white flex items-center justify-center font-sans">
-      <Card className="w-full max-w-[400px] mx-5 bg-muted/50 border shadow-none">
+      <Card className="w-full max-w-[400px] mx-5 bg-[hsl(220_13%_18%)] border-[hsl(218_14%_26%)] shadow-none">
         <CardContent className="p-10">
           <div className="text-center mb-8">
-            <h1 className="text-2xl font-bold text-foreground mb-2">
+            <h1 className="text-2xl font-bold text-white mb-2">
               brandcommit
             </h1>
-            <p className="text-sm text-muted-foreground m-0">
+            <p className="text-sm text-[hsl(216_12%_70%)] m-0">
               管理画面にログイン
             </p>
           </div>
 
           {error && (
-            <div className="bg-red-50 text-red-600 px-4 py-3 rounded-lg text-sm mb-4 whitespace-pre-wrap break-words">
+            <div className="bg-red-900/40 text-red-300 px-4 py-3 rounded-lg text-sm mb-4 whitespace-pre-wrap break-words">
               {error}
             </div>
           )}
 
           <form onSubmit={handleLogin}>
             <div className="mb-5">
-              <Label className="mb-1.5 font-bold">メールアドレス</Label>
+              <h2 className="text-sm font-bold mb-3 text-[hsl(216_12%_84%)]">メールアドレス</h2>
               <Input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="admin@example.com"
                 required
-                className="h-10"
+                className="h-10 bg-[hsl(218_14%_26%)] border-[hsl(218_14%_32%)] text-white placeholder:text-[hsl(216_12%_50%)] focus-visible:ring-[hsl(217_91%_60%)]"
               />
             </div>
 
             <div className="mb-5">
-              <Label className="mb-1.5 font-bold">パスワード</Label>
+              <h2 className="text-sm font-bold mb-3 text-[hsl(216_12%_84%)]">パスワード</h2>
               <Input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="パスワードを入力"
                 required
-                className="h-10"
+                className="h-10 bg-[hsl(218_14%_26%)] border-[hsl(218_14%_32%)] text-white placeholder:text-[hsl(216_12%_50%)] focus-visible:ring-[hsl(217_91%_60%)]"
               />
             </div>
 
             <Button
               type="submit"
               disabled={loading}
-              className="w-full h-11 text-base font-bold"
+              className="w-full h-11 text-base font-bold bg-white text-[hsl(220_13%_18%)] hover:bg-white/90"
             >
               {loading ? 'ログイン中...' : 'ログイン'}
             </Button>
           </form>
 
-          <p className="text-center text-xs text-muted-foreground mt-6 mb-0">
+          <p className="text-center text-xs mt-6 mb-0">
+            <Link href="/portal/login" className="text-[hsl(217_91%_70%)] no-underline hover:underline">
+              メンバーログインはこちら
+            </Link>
+          </p>
+          <p className="text-center text-xs text-[hsl(216_12%_60%)] mt-3 mb-0">
             アカウントをお持ちでない方は{' '}
-            <Link href="/signup" className="text-blue-600 no-underline font-bold hover:underline">
+            <Link href="/signup" className="text-[hsl(217_91%_70%)] no-underline font-bold hover:underline">
               こちら
             </Link>
             {' '}から登録

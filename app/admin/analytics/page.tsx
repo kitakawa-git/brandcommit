@@ -2,23 +2,21 @@
 
 // アクセス解析ページ
 import { useEffect, useState } from 'react'
+import { usePathname } from 'next/navigation'
+import Link from 'next/link'
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from 'recharts'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '../components/AuthProvider'
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
+import { Skeleton } from '@/components/ui/skeleton'
+import { getPageCache, setPageCache } from '@/lib/page-cache'
 import {
   type ChartConfig,
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
 } from '@/components/ui/chart'
-import { Eye, CalendarDays, CalendarClock } from 'lucide-react'
+import { Eye, CalendarDays, CalendarClock, BarChart3, Trophy, Clock } from 'lucide-react'
 
 type ViewRecord = {
   id: string
@@ -44,25 +42,43 @@ type DailyCount = {
   count: number
 }
 
+type AnalyticsCache = {
+  totalViews: number
+  monthViews: number
+  weekViews: number
+  ranking: MemberRanking[]
+  dailyCounts: DailyCount[]
+  recentViews: ViewRecord[]
+}
+
 const chartConfig = {
   count: {
     label: 'アクセス数',
-    color: 'hsl(217, 91%, 60%)',
+    color: '#1785F3',
   },
 } satisfies ChartConfig
 
+const dashboardTabs = [
+  { label: 'タイムライン投稿', href: '/admin/dashboard' },
+  { label: 'スマート名刺', href: '/admin/analytics' },
+]
+
 export default function AnalyticsPage() {
   const { companyId } = useAuth()
-  const [loading, setLoading] = useState(true)
-  const [totalViews, setTotalViews] = useState(0)
-  const [monthViews, setMonthViews] = useState(0)
-  const [weekViews, setWeekViews] = useState(0)
-  const [ranking, setRanking] = useState<MemberRanking[]>([])
-  const [dailyCounts, setDailyCounts] = useState<DailyCount[]>([])
-  const [recentViews, setRecentViews] = useState<ViewRecord[]>([])
+  const pathname = usePathname()
+  const cacheKey = `analytics-${companyId}`
+  const cached = companyId ? getPageCache<AnalyticsCache>(cacheKey) : null
+  const [loading, setLoading] = useState(!cached)
+  const [totalViews, setTotalViews] = useState(cached?.totalViews ?? 0)
+  const [monthViews, setMonthViews] = useState(cached?.monthViews ?? 0)
+  const [weekViews, setWeekViews] = useState(cached?.weekViews ?? 0)
+  const [ranking, setRanking] = useState<MemberRanking[]>(cached?.ranking ?? [])
+  const [dailyCounts, setDailyCounts] = useState<DailyCount[]>(cached?.dailyCounts ?? [])
+  const [recentViews, setRecentViews] = useState<ViewRecord[]>(cached?.recentViews ?? [])
 
   useEffect(() => {
     if (!companyId) return
+    if (getPageCache<AnalyticsCache>(cacheKey)) return
 
     const fetchAnalytics = async () => {
       try {
@@ -90,13 +106,14 @@ export default function AnalyticsPage() {
         const views = allViews || []
 
         // 総閲覧数
-        setTotalViews(views.length)
+        const computedTotalViews = views.length
+        setTotalViews(computedTotalViews)
 
         // 今月の閲覧数
         const now = new Date()
         const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString()
-        const monthCount = views.filter(v => v.viewed_at >= monthStart).length
-        setMonthViews(monthCount)
+        const computedMonthViews = views.filter(v => v.viewed_at >= monthStart).length
+        setMonthViews(computedMonthViews)
 
         // 今週の閲覧数（月曜始まり）
         const today = new Date()
@@ -104,8 +121,8 @@ export default function AnalyticsPage() {
         const diff = dayOfWeek === 0 ? 6 : dayOfWeek - 1
         const weekStart = new Date(today.getFullYear(), today.getMonth(), today.getDate() - diff)
         weekStart.setHours(0, 0, 0, 0)
-        const weekCount = views.filter(v => new Date(v.viewed_at) >= weekStart).length
-        setWeekViews(weekCount)
+        const computedWeekViews = views.filter(v => new Date(v.viewed_at) >= weekStart).length
+        setWeekViews(computedWeekViews)
 
         // 社員別ランキング
         const countByProfile = new Map<string, number>()
@@ -150,6 +167,15 @@ export default function AnalyticsPage() {
             : null,
         }))
         setRecentViews(recentData)
+
+        setPageCache(cacheKey, {
+          totalViews: computedTotalViews,
+          monthViews: computedMonthViews,
+          weekViews: computedWeekViews,
+          ranking: rankingData,
+          dailyCounts: dailyData,
+          recentViews: recentData,
+        })
       } catch (err) {
         console.error('[Analytics] データ取得エラー:', err)
       } finally {
@@ -158,55 +184,102 @@ export default function AnalyticsPage() {
     }
 
     fetchAnalytics()
-  }, [companyId])
+  }, [companyId, cacheKey])
 
   if (loading) {
     return (
-      <p className="text-muted-foreground text-center p-10">
-        読み込み中...
-      </p>
+      <div>
+        <div className="flex gap-6 border-b mb-6">
+          <Skeleton className="h-5 w-32 mb-2" />
+          <Skeleton className="h-5 w-28 mb-2" />
+        </div>
+        <div className="grid grid-cols-[repeat(auto-fit,minmax(180px,1fr))] gap-3 mb-3">
+          {[1, 2, 3, 4].map(i => (
+            <Card key={i} className="bg-[hsl(0_0%_97%)] border shadow-none">
+              <CardContent className="p-5 pb-3">
+                <div className="flex items-center gap-2 mb-3">
+                  <Skeleton className="size-[18px] rounded" />
+                  <Skeleton className="h-4 w-24" />
+                </div>
+                <Skeleton className="h-9 w-16 mx-auto" />
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+        <Card className="bg-[hsl(0_0%_97%)] border shadow-none mb-3">
+          <CardContent className="p-5">
+            <Skeleton className="h-4 w-36 mb-4" />
+            <Skeleton className="h-48 w-full rounded-lg" />
+          </CardContent>
+        </Card>
+        <Card className="bg-[hsl(0_0%_97%)] border shadow-none">
+          <CardContent className="p-5">
+            <Skeleton className="h-4 w-28 mb-4" />
+            {[1, 2, 3, 4, 5].map(i => (
+              <div key={i} className="flex items-center gap-3 py-3 border-b border-border last:border-0">
+                <Skeleton className="h-4 w-6" />
+                <Skeleton className="size-8 rounded-full" />
+                <Skeleton className="h-4 w-28 flex-1" />
+                <Skeleton className="h-4 w-12" />
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      </div>
     )
   }
 
   return (
     <div>
-      <h2 className="text-xl font-bold text-foreground mb-6">
-        アクセス解析
-      </h2>
+      <div className="flex gap-6 border-b mb-6">
+        {dashboardTabs.map(tab => (
+          <Link
+            key={tab.href}
+            href={tab.href}
+            className={`pb-2 text-sm font-semibold border-b-2 -mb-px transition-colors ${
+              pathname === tab.href
+                ? 'border-foreground text-foreground'
+                : 'border-transparent text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            {tab.label}
+          </Link>
+        ))}
+      </div>
 
       {/* === 全体サマリー === */}
-      <div className="grid grid-cols-[repeat(auto-fit,minmax(180px,1fr))] gap-4 mb-6">
-        <Card className="bg-muted/50 border shadow-none">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardDescription className="text-[13px]">総閲覧数</CardDescription>
-            <Eye className="size-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <p className="text-3xl font-bold text-blue-600">
+      <div className="grid grid-cols-[repeat(auto-fit,minmax(180px,1fr))] gap-3 mb-3">
+        <Card className="bg-[hsl(0_0%_97%)] border shadow-none">
+          <CardContent className="p-5 pb-3">
+            <div className="flex items-center gap-2 mb-3">
+              <Eye size={18} className="text-foreground" />
+              <h3 className="text-sm font-semibold text-foreground m-0">総閲覧数</h3>
+            </div>
+            <p className="text-3xl font-bold text-foreground m-0 text-center">
               {totalViews.toLocaleString()}
             </p>
           </CardContent>
         </Card>
 
-        <Card className="bg-muted/50 border shadow-none">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardDescription className="text-[13px]">今月の閲覧数</CardDescription>
-            <CalendarDays className="size-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <p className="text-3xl font-bold text-green-600">
+        <Card className="bg-[hsl(0_0%_97%)] border shadow-none">
+          <CardContent className="p-5 pb-3">
+            <div className="flex items-center gap-2 mb-3">
+              <CalendarDays size={18} className="text-foreground" />
+              <h3 className="text-sm font-semibold text-foreground m-0">今月の閲覧数</h3>
+            </div>
+            <p className="text-3xl font-bold text-foreground m-0 text-center">
               {monthViews.toLocaleString()}
             </p>
           </CardContent>
         </Card>
 
-        <Card className="bg-muted/50 border shadow-none">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardDescription className="text-[13px]">今週の閲覧数</CardDescription>
-            <CalendarClock className="size-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <p className="text-3xl font-bold text-amber-500">
+        <Card className="bg-[hsl(0_0%_97%)] border shadow-none">
+          <CardContent className="p-5 pb-3">
+            <div className="flex items-center gap-2 mb-3">
+              <CalendarClock size={18} className="text-foreground" />
+              <h3 className="text-sm font-semibold text-foreground m-0">今週の閲覧数</h3>
+            </div>
+            <p className="text-3xl font-bold text-foreground m-0 text-center">
               {weekViews.toLocaleString()}
             </p>
           </CardContent>
@@ -214,12 +287,12 @@ export default function AnalyticsPage() {
       </div>
 
       {/* === 日別推移（過去30日） === */}
-      <Card className="bg-muted/50 border shadow-none mb-6">
-        <CardHeader>
-          <CardTitle className="text-base">日別推移</CardTitle>
-          <CardDescription>過去30日間のアクセス数</CardDescription>
-        </CardHeader>
-        <CardContent>
+      <Card className="bg-[hsl(0_0%_97%)] border shadow-none mb-3">
+        <CardContent className="p-5">
+          <div className="flex items-center gap-2 mb-3">
+            <BarChart3 size={18} className="text-foreground" />
+            <h3 className="text-sm font-semibold text-foreground m-0">日別推移</h3>
+          </div>
           <ChartContainer config={chartConfig} className="aspect-auto h-[250px] w-full">
             <BarChart
               data={dailyCounts}
@@ -265,13 +338,14 @@ export default function AnalyticsPage() {
       </Card>
 
       {/* 2カラム: ランキング + 最近のアクセス */}
-      <div className="grid grid-cols-[repeat(auto-fit,minmax(360px,1fr))] gap-6">
+      <div className="grid grid-cols-[repeat(auto-fit,minmax(360px,1fr))] gap-3">
         {/* === 社員別ランキング === */}
-        <Card className="bg-muted/50 border shadow-none">
-          <CardHeader>
-            <CardTitle className="text-base">アクセスランキング</CardTitle>
-          </CardHeader>
-          <CardContent>
+        <Card className="bg-[hsl(0_0%_97%)] border shadow-none">
+          <CardContent className="p-5">
+            <div className="flex items-center gap-2 mb-3">
+              <Trophy size={18} className="text-foreground" />
+              <h3 className="text-sm font-semibold text-foreground m-0">アクセスランキング</h3>
+            </div>
             {ranking.length === 0 ? (
               <p className="text-muted-foreground text-sm">
                 まだアクセスデータがありません
@@ -286,14 +360,13 @@ export default function AnalyticsPage() {
                       <div className="flex justify-between items-center mb-1">
                         <span className="text-sm text-foreground">
                           <span
-                            className="inline-block w-6 font-bold"
-                            style={{ color: i < 3 ? '#f59e0b' : undefined }}
+                            className="inline-block w-6 font-bold text-foreground"
                           >
                             {i + 1}.
                           </span>
                           {member.name}
                         </span>
-                        <span className="text-sm font-bold text-blue-600">
+                        <span className="text-sm font-bold text-foreground">
                           {member.count}件
                         </span>
                       </div>
@@ -315,11 +388,12 @@ export default function AnalyticsPage() {
         </Card>
 
         {/* === 最近のアクセス === */}
-        <Card className="bg-muted/50 border shadow-none">
-          <CardHeader>
-            <CardTitle className="text-base">最近のアクセス</CardTitle>
-          </CardHeader>
-          <CardContent>
+        <Card className="bg-[hsl(0_0%_97%)] border shadow-none">
+          <CardContent className="p-5">
+            <div className="flex items-center gap-2 mb-3">
+              <Clock size={18} className="text-foreground" />
+              <h3 className="text-sm font-semibold text-foreground m-0">最近のアクセス</h3>
+            </div>
             {recentViews.length === 0 ? (
               <p className="text-muted-foreground text-sm">
                 まだアクセスデータがありません

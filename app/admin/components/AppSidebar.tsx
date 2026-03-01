@@ -27,9 +27,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import {
   Users,
   Sparkles,
-  BarChart3,
   CreditCard,
-  UserPlus,
   FileText,
   Palette,
   MessageSquare,
@@ -39,6 +37,9 @@ import {
   ShieldCheck,
   ChevronsUpDown,
   Settings2,
+  LayoutDashboard,
+  Bell,
+  Target,
   type LucideIcon,
 } from 'lucide-react'
 
@@ -49,11 +50,12 @@ type NavItem = {
 }
 
 const navItems: NavItem[] = [
-  { href: '/admin/members', label: 'アカウント一覧', icon: Users },
+  { href: '/admin/dashboard', label: 'ダッシュボード', icon: LayoutDashboard },
+  { href: '/admin/announcements', label: 'お知らせ管理', icon: Bell },
+  { href: '/admin/kpi', label: '目標管理', icon: Target },
   { href: '/admin/company', label: 'ブランド基本情報', icon: Sparkles },
-  { href: '/admin/analytics', label: 'アクセス解析', icon: BarChart3 },
+  { href: '/admin/members', label: 'アカウント管理', icon: Users },
   { href: '/admin/card-template', label: 'QRコード出力', icon: CreditCard },
-  { href: '/admin/members-portal', label: 'アカウント作成', icon: UserPlus },
 ]
 
 const brandItems: NavItem[] = [
@@ -83,7 +85,7 @@ export function AppSidebar() {
                   <Settings2 className="size-4" />
                 </div>
                 <div className="flex flex-col gap-0.5 leading-none">
-                  <span className="font-medium">brandcommit</span>
+                  <span className="font-semibold">brandcommit</span>
                   <span className="text-xs">管理画面</span>
                 </div>
               </Link>
@@ -99,9 +101,13 @@ export function AppSidebar() {
             <SidebarMenu>
               {navItems.map((item) => {
                 const Icon = item.icon
+                const isActive =
+                  item.href === '/admin/dashboard'
+                    ? pathname.startsWith('/admin/dashboard') || pathname.startsWith('/admin/analytics')
+                    : pathname.startsWith(item.href)
                 return (
                   <SidebarMenuItem key={item.href}>
-                    <SidebarMenuButton asChild isActive={pathname.startsWith(item.href)}>
+                    <SidebarMenuButton asChild isActive={isActive}>
                       <Link href={item.href}>
                         <Icon size={18} />
                         <span>{item.label}</span>

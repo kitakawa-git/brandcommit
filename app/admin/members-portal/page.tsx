@@ -6,8 +6,9 @@ import { toast } from 'sonner'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '../components/AuthProvider'
 import { Card, CardContent } from '@/components/ui/card'
+import { Skeleton } from '@/components/ui/skeleton'
+import { getPageCache, setPageCache } from '@/lib/page-cache'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
 
 type InviteLink = {
@@ -28,8 +29,10 @@ function generatePassword(): string {
 
 export default function MembersPortalPage() {
   const { companyId } = useAuth()
-  const [inviteLinks, setInviteLinks] = useState<InviteLink[]>([])
-  const [loading, setLoading] = useState(true)
+  const cacheKey = `admin-members-portal-${companyId}`
+  const cached = getPageCache<InviteLink[]>(cacheKey)
+  const [inviteLinks, setInviteLinks] = useState<InviteLink[]>(cached ?? [])
+  const [loading, setLoading] = useState(!cached)
 
   const [newEmail, setNewEmail] = useState('')
   const [newPassword, setNewPassword] = useState('')
@@ -39,8 +42,9 @@ export default function MembersPortalPage() {
 
   useEffect(() => {
     if (!companyId) return
+    if (getPageCache<InviteLink[]>(cacheKey)) return
     fetchData()
-  }, [companyId])
+  }, [companyId, cacheKey])
 
   const fetchData = async () => {
     if (!companyId) return
@@ -49,7 +53,10 @@ export default function MembersPortalPage() {
       .select('*')
       .eq('company_id', companyId)
       .order('created_at', { ascending: false })
-    if (data) setInviteLinks(data)
+    if (data) {
+      setInviteLinks(data)
+      setPageCache(cacheKey, data)
+    }
     setLoading(false)
   }
 
@@ -127,16 +134,46 @@ export default function MembersPortalPage() {
   }
 
   if (loading) {
-    return <p className="text-muted-foreground text-center p-10">読み込み中...</p>
+    return (
+      <div>
+        <Skeleton className="h-8 w-40 mb-6" />
+        <Card className="bg-[hsl(0_0%_97%)] border shadow-none mb-6">
+          <CardContent className="p-5 space-y-3">
+            <Skeleton className="h-4 w-24" />
+            <Skeleton className="h-3 w-64" />
+            <Skeleton className="h-9 w-36" />
+            <div className="space-y-2 mt-4">
+              {[1, 2].map(i => (
+                <div key={i} className="flex items-center gap-3 py-2 border-b border-border">
+                  <Skeleton className="h-4 w-48" />
+                  <Skeleton className="h-5 w-14 rounded-full" />
+                  <Skeleton className="h-4 w-24" />
+                  <Skeleton className="h-8 w-20 rounded" />
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+        <Card className="bg-[hsl(0_0%_97%)] border shadow-none">
+          <CardContent className="p-5 space-y-4">
+            <Skeleton className="h-4 w-32" />
+            <Skeleton className="h-10 w-full rounded-md" />
+            <Skeleton className="h-10 w-full rounded-md" />
+            <Skeleton className="h-10 w-full rounded-md" />
+            <Skeleton className="h-9 w-28" />
+          </CardContent>
+        </Card>
+      </div>
+    )
   }
 
   return (
     <div>
-      <h2 className="text-xl font-bold text-foreground mb-6">アカウント作成</h2>
+      <h1 className="text-2xl font-bold text-foreground mb-6">アカウント作成</h1>
 
       {/* 招待リンク */}
-      <Card className="bg-muted/50 border shadow-none mb-6">
-        <CardContent className="p-6">
+      <Card className="bg-[hsl(0_0%_97%)] border shadow-none mb-6">
+        <CardContent className="p-5">
           <h3 className="text-sm font-bold text-foreground mb-2">招待リンク</h3>
           <p className="text-xs text-muted-foreground mb-3 m-0">
             従業員に共有すると、セルフ登録でアカウントを作成できます
@@ -174,7 +211,7 @@ export default function MembersPortalPage() {
                       {link.is_active && (
                         <div className="flex gap-2">
                           <Button variant="outline" size="sm" className="h-7 text-xs" onClick={() => handleCopyLink(link.token)}>コピー</Button>
-                          <Button variant="outline" size="sm" className="h-7 text-xs" onClick={() => handleDeactivateLink(link.id)}>無効化</Button>
+                          <Button variant="outline-destructive" size="sm" className="h-7 text-xs" onClick={() => handleDeactivateLink(link.id)}>無効化</Button>
                         </div>
                       )}
                     </td>
@@ -187,25 +224,25 @@ export default function MembersPortalPage() {
       </Card>
 
       {/* アカウント手動作成 */}
-      <Card className="bg-muted/50 border shadow-none mb-6">
-        <CardContent className="p-6">
+      <Card className="bg-[hsl(0_0%_97%)] border shadow-none mb-6">
+        <CardContent className="p-5">
           <h3 className="text-sm font-bold text-foreground mb-2">アカウント手動作成</h3>
           <p className="text-xs text-muted-foreground mb-4 m-0">名刺プロフィールも同時に作成されます</p>
 
           <form onSubmit={handleCreateMember}>
             <div className="mb-5">
-              <Label className="mb-1.5 font-bold">メールアドレス</Label>
+              <h2 className="text-sm font-bold mb-3">メールアドレス</h2>
               <Input type="email" value={newEmail} onChange={(e) => setNewEmail(e.target.value)} placeholder="member@example.com" required className="h-10" />
             </div>
             <div className="mb-5">
-              <Label className="mb-1.5 font-bold">パスワード</Label>
+              <h2 className="text-sm font-bold mb-3">パスワード</h2>
               <div className="flex gap-2">
                 <Input type="text" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} placeholder="8文字以上" required minLength={8} className="h-10 flex-1" />
                 <Button type="button" variant="outline" size="sm" onClick={() => setNewPassword(generatePassword())}>自動生成</Button>
               </div>
             </div>
             <div className="mb-5">
-              <Label className="mb-1.5 font-bold">名前</Label>
+              <h2 className="text-sm font-bold mb-3">名前</h2>
               <Input type="text" value={newDisplayName} onChange={(e) => setNewDisplayName(e.target.value)} placeholder="山田太郎" required className="h-10" />
             </div>
             <Button type="submit" disabled={creating}>

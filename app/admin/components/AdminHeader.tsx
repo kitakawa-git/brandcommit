@@ -6,7 +6,7 @@ import { Separator } from '@/components/ui/separator'
 
 export function AdminHeader() {
   return (
-    <header className="flex h-16 shrink-0 items-center gap-2 px-4">
+    <header className="sticky top-0 z-10 flex h-16 shrink-0 items-center gap-2 px-4 bg-background/80 backdrop-blur-sm">
       <SidebarTrigger className="-ml-1" />
       <Separator
         orientation="vertical"

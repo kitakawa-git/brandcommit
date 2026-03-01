@@ -63,7 +63,7 @@ export default function EditMemberPage() {
 
   return (
     <div>
-      <h2 className="text-xl font-bold text-foreground mb-6">アカウント編集</h2>
+      <h1 className="text-2xl font-bold text-foreground mb-6">アカウント編集</h1>
       <MemberForm
         initialData={{
           id: profile.id,
@@ -87,8 +87,8 @@ export default function EditMemberPage() {
 
       {/* QRコードプレビュー */}
       {profile.slug && (
-        <Card className="bg-muted/50 border shadow-none mt-6">
-          <CardContent className="p-6 text-center">
+        <Card className="bg-[hsl(0_0%_97%)] border shadow-none mt-6">
+          <CardContent className="p-5 text-center">
             <h3 className="text-sm font-bold text-foreground mb-4">QRコード</h3>
             {qrPreview && (
               <img

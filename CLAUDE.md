@@ -44,7 +44,7 @@ id (uuid), company_id (FK→companies), name, position, department, bio, photo_u
 ## 開発経緯・技術メモ
 
 ### DB構成
-- companies: name, slogan, mvv, primary_color, secondary_color, website_url, logo_url, brand_story, provided_values(text[])
+- companies: name, slogan, mvv, website_url, logo_url, brand_story, provided_values(text[])
 - profiles: name, title, department, bio, email, phone, slug, photo_url, company_id, sns_x, sns_linkedin, sns_facebook, sns_instagram
 - admin_users: auth_id, company_id, role, is_superadmin
 - card_views: profile_id, viewed_at, ip_address, user_agent, referer, country, city

@@ -116,13 +116,14 @@ export default async function CardPage({ params }: Props) {
   const guidelines = guidelinesRes.data
   const visuals = visualsRes.data
 
-  // ブランドカラー（brand_visuals テーブルから取得）
-  const primaryColor = visuals?.primary_color || '#1a1a1a'
-  const secondaryColor = visuals?.secondary_color || '#666666'
+  // ブランドカラー
+  const palette = visuals?.color_palette as { brand_colors?: { hex: string }[]; secondary_colors?: { hex: string }[]; accent_colors?: { hex: string }[] } | null
+  const primaryColor = palette?.brand_colors?.[0]?.hex || '#1a1a1a'
+  const secondaryColor = palette?.secondary_colors?.[0]?.hex || '#666666'
   const headerTextColor = getContrastTextColor(primaryColor)
 
-  // アクセントカラー（brand_visuals テーブルから取得）
-  const accentColor = visuals?.accent_color || secondaryColor
+  // アクセントカラー
+  const accentColor = palette?.accent_colors?.[0]?.hex || secondaryColor
 
   // スローガン・ミッション・バリュー・ブランドストーリー（brand_guidelines テーブルから取得）
   const slogan = guidelines?.slogan || ''

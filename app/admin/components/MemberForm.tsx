@@ -8,7 +8,6 @@ import { ImageUpload } from './ImageUpload'
 import { CoverImageUpload } from './CoverImageUpload'
 import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 
@@ -117,15 +116,15 @@ export function MemberForm({ initialData, companyId }: Props) {
   }
 
   return (
-    <Card className="bg-muted/50 border shadow-none">
-      <CardContent className="p-6">
+    <Card className="bg-[hsl(0_0%_97%)] border shadow-none">
+      <CardContent className="p-5">
         {error && (
           <div className="bg-red-50 text-red-600 px-4 py-3 rounded-lg text-sm mb-4">{error}</div>
         )}
 
         <form onSubmit={handleSubmit}>
           <div className="mb-5">
-            <Label className="mb-1.5 font-bold">プロフィール写真</Label>
+            <h2 className="text-sm font-bold mb-3">プロフィール写真</h2>
             <ImageUpload
               bucket="avatars"
               folder="profiles"
@@ -135,7 +134,7 @@ export function MemberForm({ initialData, companyId }: Props) {
           </div>
 
           <div className="mb-5">
-            <Label className="mb-1.5 font-bold">カバー写真</Label>
+            <h2 className="text-sm font-bold mb-3">カバー写真</h2>
             <CoverImageUpload
               bucket="avatars"
               folder="covers"
@@ -146,22 +145,22 @@ export function MemberForm({ initialData, companyId }: Props) {
           </div>
 
           <div className="mb-5">
-            <Label className="mb-1.5 font-bold">名前 *</Label>
+            <h2 className="text-sm font-bold mb-3">名前 *</h2>
             <Input type="text" value={form.name} onChange={(e) => handleChange('name', e.target.value)} placeholder="山田太郎" required className="h-10" />
           </div>
 
           <div className="mb-5">
-            <Label className="mb-1.5 font-bold">役職</Label>
+            <h2 className="text-sm font-bold mb-3">役職</h2>
             <Input type="text" value={form.position} onChange={(e) => handleChange('position', e.target.value)} placeholder="代表取締役" className="h-10" />
           </div>
 
           <div className="mb-5">
-            <Label className="mb-1.5 font-bold">部署</Label>
+            <h2 className="text-sm font-bold mb-3">部署</h2>
             <Input type="text" value={form.department} onChange={(e) => handleChange('department', e.target.value)} placeholder="経営企画部" className="h-10" />
           </div>
 
           <div className="mb-5">
-            <Label className="mb-1.5 font-bold">自己紹介</Label>
+            <h2 className="text-sm font-bold mb-3">自己紹介</h2>
             <textarea
               value={form.bio}
               onChange={(e) => handleChange('bio', e.target.value)}
@@ -171,12 +170,12 @@ export function MemberForm({ initialData, companyId }: Props) {
           </div>
 
           <div className="mb-5">
-            <Label className="mb-1.5 font-bold">メールアドレス</Label>
+            <h2 className="text-sm font-bold mb-3">メールアドレス</h2>
             <Input type="email" value={form.email} onChange={(e) => handleChange('email', e.target.value)} placeholder="taro@example.com" className="h-10" />
           </div>
 
           <div className="mb-5">
-            <Label className="mb-1.5 font-bold">電話番号</Label>
+            <h2 className="text-sm font-bold mb-3">電話番号</h2>
             <Input type="tel" value={form.phone} onChange={(e) => handleChange('phone', e.target.value)} placeholder="090-1234-5678" className="h-10" />
           </div>
 
@@ -185,29 +184,29 @@ export function MemberForm({ initialData, companyId }: Props) {
           <h3 className="text-sm font-bold text-foreground mb-4">SNSリンク</h3>
 
           <div className="mb-5">
-            <Label className="mb-1.5 font-bold">X (Twitter)</Label>
+            <h2 className="text-sm font-bold mb-3">X (Twitter)</h2>
             <Input type="url" value={form.sns_x} onChange={(e) => handleChange('sns_x', e.target.value)} placeholder="https://x.com/username" className="h-10" />
           </div>
 
           <div className="mb-5">
-            <Label className="mb-1.5 font-bold">LinkedIn</Label>
+            <h2 className="text-sm font-bold mb-3">LinkedIn</h2>
             <Input type="url" value={form.sns_linkedin} onChange={(e) => handleChange('sns_linkedin', e.target.value)} placeholder="https://linkedin.com/in/username" className="h-10" />
           </div>
 
           <div className="mb-5">
-            <Label className="mb-1.5 font-bold">Facebook</Label>
+            <h2 className="text-sm font-bold mb-3">Facebook</h2>
             <Input type="url" value={form.sns_facebook} onChange={(e) => handleChange('sns_facebook', e.target.value)} placeholder="https://facebook.com/username" className="h-10" />
           </div>
 
           <div className="mb-5">
-            <Label className="mb-1.5 font-bold">Instagram</Label>
+            <h2 className="text-sm font-bold mb-3">Instagram</h2>
             <Input type="url" value={form.sns_instagram} onChange={(e) => handleChange('sns_instagram', e.target.value)} placeholder="https://instagram.com/username" className="h-10" />
           </div>
 
           <Separator className="my-5" />
 
           <div className="mb-5">
-            <Label className="mb-1.5 font-bold">スラッグ（URL） *</Label>
+            <h2 className="text-sm font-bold mb-3">スラッグ（URL） *</h2>
             <Input type="text" value={form.slug} onChange={(e) => handleChange('slug', e.target.value)} placeholder="taro-yamada" required className="h-10" />
             <p className="text-xs text-muted-foreground mt-1 m-0">
               名刺ページURL: brandcommit.vercel.app/card/{form.slug || '...'}

@@ -1,37 +1,52 @@
 'use client'
 
 // バーバルアイデンティティ 編集ページ（トーンオブボイス・コミュニケーションスタイル・用語ルール統合）
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { toast } from 'sonner'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '../../components/AuthProvider'
 import { Card, CardContent } from '@/components/ui/card'
+import { Skeleton } from '@/components/ui/skeleton'
+import { getPageCache, setPageCache } from '@/lib/page-cache'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
+import { AutoResizeTextarea } from '@/components/ui/auto-resize-textarea'
+import { DEFAULT_SUBTITLES, type PortalSubtitles } from '@/lib/portal-subtitles'
+import { Trash2 } from 'lucide-react'
 
 type Personality = {
   tone_of_voice: string
-  communication_style: string
 }
 
 type TermItem = {
   preferred_term: string
   avoided_term: string
   context: string
+  category: string
+}
+
+type VerbalCache = {
+  personalityId: string | null
+  personality: Personality
+  terms: TermItem[]
+  portalSubtitle: string
+  portalSubtitlesData: PortalSubtitles | null
 }
 
 export default function VerbalIdentityPage() {
   const { companyId } = useAuth()
-  const [personalityId, setPersonalityId] = useState<string | null>(null)
-  const [personality, setPersonality] = useState<Personality>({
+  const cacheKey = `admin-brand-verbal-${companyId}`
+  const cached = companyId ? getPageCache<VerbalCache>(cacheKey) : null
+  const [personalityId, setPersonalityId] = useState<string | null>(cached?.personalityId ?? null)
+  const [personality, setPersonality] = useState<Personality>(cached?.personality ?? {
     tone_of_voice: '',
-    communication_style: '',
   })
-  const [terms, setTerms] = useState<TermItem[]>([])
-  const [loading, setLoading] = useState(true)
+  const [terms, setTerms] = useState<TermItem[]>(cached?.terms ?? [])
+  const [loading, setLoading] = useState(!cached)
   const [fetchError, setFetchError] = useState('')
   const [saving, setSaving] = useState(false)
+  const [portalSubtitle, setPortalSubtitle] = useState(cached?.portalSubtitle ?? '')
+  const [portalSubtitlesData, setPortalSubtitlesData] = useState<PortalSubtitles | null>(cached?.portalSubtitlesData ?? null)
 
   const fetchData = async () => {
     if (!companyId) return
@@ -50,21 +65,55 @@ export default function VerbalIdentityPage() {
         ]),
       ])
 
-      if (personalityResult.data) {
-        setPersonalityId(personalityResult.data.id)
-        setPersonality({
-          tone_of_voice: personalityResult.data.tone_of_voice || '',
-          communication_style: personalityResult.data.communication_style || '',
-        })
+      // ポータルサブタイトル取得
+      let fetchedSubtitle = ''
+      let fetchedSubtitlesData: PortalSubtitles | null = null
+      try {
+        const { data: companyData } = await supabase
+          .from('companies')
+          .select('portal_subtitles')
+          .eq('id', companyId)
+          .single()
+        if (companyData) {
+          const subtitles = (companyData.portal_subtitles as PortalSubtitles) || null
+          fetchedSubtitlesData = subtitles
+          fetchedSubtitle = subtitles?.verbal || ''
+          setPortalSubtitlesData(subtitles)
+          setPortalSubtitle(fetchedSubtitle)
+        }
+      } catch {
+        // サブタイトル取得失敗は無視
       }
 
+      let parsedPersonalityId: string | null = null
+      let parsedPersonality: Personality = { tone_of_voice: '' }
+      if (personalityResult.data) {
+        parsedPersonalityId = personalityResult.data.id
+        parsedPersonality = {
+          tone_of_voice: personalityResult.data.tone_of_voice || '',
+        }
+        setPersonalityId(parsedPersonalityId)
+        setPersonality(parsedPersonality)
+      }
+
+      let parsedTerms: TermItem[] = []
       if (termsResult.data && termsResult.data.length > 0) {
-        setTerms(termsResult.data.map((d: Record<string, unknown>) => ({
+        parsedTerms = termsResult.data.map((d: Record<string, unknown>) => ({
           preferred_term: (d.preferred_term as string) || '',
           avoided_term: (d.avoided_term as string) || '',
           context: (d.context as string) || '',
-        })))
+          category: (d.category as string) || '',
+        }))
+        setTerms(parsedTerms)
       }
+
+      setPageCache(cacheKey, {
+        personalityId: parsedPersonalityId,
+        personality: parsedPersonality,
+        terms: parsedTerms,
+        portalSubtitle: fetchedSubtitle,
+        portalSubtitlesData: fetchedSubtitlesData,
+      })
     } catch (err) {
       console.error('[VerbalIdentity] データ取得エラー:', err)
       const msg = err instanceof Error && err.message === 'timeout'
@@ -78,16 +127,23 @@ export default function VerbalIdentityPage() {
 
   useEffect(() => {
     if (!companyId) return
+    if (getPageCache<VerbalCache>(cacheKey)) return
     fetchData()
-  }, [companyId])
+  }, [companyId, cacheKey])
 
   const handleChange = (field: keyof Personality, value: string) => {
     setPersonality(prev => ({ ...prev, [field]: value }))
   }
 
   // --- 用語ルール操作 ---
+  // --- カテゴリ候補 ---
+  const existingCategories = useMemo(() => {
+    const cats = terms.map(t => t.category).filter(c => c.trim() !== '')
+    return [...new Set(cats)]
+  }, [terms])
+
   const addTerm = () => {
-    setTerms([...terms, { preferred_term: '', avoided_term: '', context: '' }])
+    setTerms([...terms, { preferred_term: '', avoided_term: '', context: '', category: '' }])
   }
 
   const updateTerm = (index: number, field: keyof TermItem, value: string) => {
@@ -179,7 +235,7 @@ export default function VerbalIdentityPage() {
       const personalityData: Record<string, unknown> = {
         company_id: companyId,
         tone_of_voice: personality.tone_of_voice || null,
-        communication_style: personality.communication_style || null,
+        communication_style: null,
       }
 
       let pResult: { ok: boolean; error?: string; data?: Record<string, unknown> }
@@ -220,6 +276,7 @@ export default function VerbalIdentityPage() {
           preferred_term: t.preferred_term,
           avoided_term: t.avoided_term || null,
           context: t.context || null,
+          category: t.category.trim() || null,
           sort_order: i,
         }))
 
@@ -235,6 +292,18 @@ export default function VerbalIdentityPage() {
       }
       setTerms(cleanedTerms)
 
+      // ポータルサブタイトル保存
+      const updatedSubtitles = { ...(portalSubtitlesData || {}) }
+      if (portalSubtitle.trim()) {
+        updatedSubtitles.verbal = portalSubtitle.trim()
+      } else {
+        delete updatedSubtitles.verbal
+      }
+      await supabasePatch('companies', companyId, {
+        portal_subtitles: Object.keys(updatedSubtitles).length > 0 ? updatedSubtitles : null,
+      }, token)
+      setPortalSubtitlesData(updatedSubtitles)
+
       toast.success('保存しました')
     } catch (err) {
       console.error('[VerbalIdentity Save] エラー:', err)
@@ -245,7 +314,33 @@ export default function VerbalIdentityPage() {
   }
 
   if (loading) {
-    return <p className="text-muted-foreground text-center p-10">読み込み中...</p>
+    return (
+      <div>
+        <Skeleton className="h-8 w-56 mb-2" />
+        <Skeleton className="h-9 w-full mb-6" />
+        <div className="space-y-8">
+          <Card className="bg-[hsl(0_0%_97%)] border shadow-none">
+            <CardContent className="p-5 space-y-3">
+              <Skeleton className="h-4 w-36" />
+              <Skeleton className="h-24 w-full rounded-md" />
+            </CardContent>
+          </Card>
+          <Card className="bg-[hsl(0_0%_97%)] border shadow-none">
+            <CardContent className="p-5 space-y-3">
+              <Skeleton className="h-4 w-24" />
+              {[1, 2, 3].map(i => (
+                <div key={i} className="flex gap-3">
+                  <Skeleton className="h-10 w-1/4 rounded-md" />
+                  <Skeleton className="h-10 w-1/4 rounded-md" />
+                  <Skeleton className="h-10 w-1/4 rounded-md" />
+                  <Skeleton className="h-10 w-1/4 rounded-md" />
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    )
   }
 
   if (fetchError) {
@@ -259,108 +354,126 @@ export default function VerbalIdentityPage() {
 
   return (
     <div>
-      <h2 className="text-xl font-bold text-foreground mb-6">
+      <h1 className="text-2xl font-bold text-foreground mb-2">
         バーバルアイデンティティ
-      </h2>
+      </h1>
+      <div className="mb-6">
+        <Input
+          type="text"
+          value={portalSubtitle}
+          onChange={(e) => setPortalSubtitle(e.target.value)}
+          placeholder={DEFAULT_SUBTITLES.verbal}
+          className="h-9 text-sm"
+        />
+        <p className="text-[11px] text-muted-foreground mt-1">ポータルに表示されるサブタイトル（空欄でデフォルト表示）</p>
+      </div>
 
-      <Card className="bg-muted/50 border shadow-none">
-        <CardContent className="p-6">
-          <form onSubmit={handleSubmit}>
-            {/* トーンオブボイス */}
-            <div className="mb-5">
-              <Label className="mb-1.5 font-bold">トーンオブボイス</Label>
-              <textarea
-                value={personality.tone_of_voice}
-                onChange={(e) => handleChange('tone_of_voice', e.target.value)}
-                placeholder="フォーマルだが親しみやすい、専門用語は最小限に..."
-                className="w-full px-3 py-2.5 bg-white border border-border rounded-lg text-sm outline-none resize-y min-h-[100px] focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-              />
-            </div>
+      <form id="verbal-form" onSubmit={handleSubmit} className="space-y-8">
+        {/* カード1: トーンオブボイス */}
+        <Card className="bg-[hsl(0_0%_97%)] border shadow-none">
+          <CardContent className="p-5">
+            <h2 className="text-sm font-bold mb-3">トーンオブボイス</h2>
+            <AutoResizeTextarea
+              value={personality.tone_of_voice}
+              onChange={(e) => handleChange('tone_of_voice', e.target.value)}
+              placeholder="フォーマルだが親しみやすい、専門用語は最小限に..."
+              className="min-h-[100px]"
+            />
+          </CardContent>
+        </Card>
 
-            {/* コミュニケーションスタイル */}
-            <div className="mb-5">
-              <Label className="mb-1.5 font-bold">コミュニケーションスタイル</Label>
-              <textarea
-                value={personality.communication_style}
-                onChange={(e) => handleChange('communication_style', e.target.value)}
-                placeholder="結論から伝える、データで裏付ける..."
-                className="w-full px-3 py-2.5 bg-white border border-border rounded-lg text-sm outline-none resize-y min-h-[100px] focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-              />
-            </div>
+        {/* カード2: 用語ルール */}
+        <Card className="bg-[hsl(0_0%_97%)] border shadow-none">
+          <CardContent className="p-5">
+            <h2 className="text-sm font-bold mb-2">用語ルール</h2>
+            <p className="text-xs text-muted-foreground mb-4">
+              ブランドで使用する推奨用語と避けるべき用語を設定します
+            </p>
 
-            {/* 用語ルール */}
-            <div className="mt-2 pt-5 border-t border-border">
-              <h3 className="text-[15px] font-bold text-foreground mb-2">
-                用語ルール
-              </h3>
-              <p className="text-xs text-muted-foreground mb-4">
-                ブランドで使用する推奨用語と避けるべき用語を設定します
-              </p>
+            {/* ヘッダー行 */}
+            {terms.length > 0 && (
+              <div className="flex gap-2 mb-2">
+                <span className="w-[140px] shrink-0 text-xs font-bold text-muted-foreground">カテゴリ</span>
+                <span className="flex-1 text-xs font-bold text-muted-foreground">推奨用語</span>
+                <span className="flex-1 text-xs font-bold text-muted-foreground">非推奨用語</span>
+                <span className="flex-1 text-xs font-bold text-muted-foreground">使い分け説明</span>
+                <span className="w-14" />
+              </div>
+            )}
 
-              {/* ヘッダー行 */}
-              {terms.length > 0 && (
-                <div className="flex gap-2 mb-2">
-                  <span className="flex-1 text-xs font-bold text-muted-foreground">推奨用語</span>
-                  <span className="flex-1 text-xs font-bold text-muted-foreground">非推奨用語</span>
-                  <span className="flex-1 text-xs font-bold text-muted-foreground">使い分け説明</span>
-                  <span className="w-14" />
-                </div>
-              )}
+            {terms.map((term, index) => (
+              <div key={index} className="flex gap-2 mb-2 items-start">
+                <Input
+                  type="text"
+                  list="term-categories"
+                  value={term.category}
+                  onChange={(e) => updateTerm(index, 'category', e.target.value)}
+                  placeholder="カテゴリ"
+                  className="h-10 w-[140px] shrink-0"
+                />
+                <Input
+                  type="text"
+                  value={term.preferred_term}
+                  onChange={(e) => updateTerm(index, 'preferred_term', e.target.value)}
+                  placeholder="推奨用語"
+                  className="h-10 flex-1"
+                />
+                <Input
+                  type="text"
+                  value={term.avoided_term}
+                  onChange={(e) => updateTerm(index, 'avoided_term', e.target.value)}
+                  placeholder="非推奨用語"
+                  className="h-10 flex-1"
+                />
+                <Input
+                  type="text"
+                  value={term.context}
+                  onChange={(e) => updateTerm(index, 'context', e.target.value)}
+                  placeholder="使い分け説明"
+                  className="h-10 flex-1"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon"
+                  onClick={() => removeTerm(index)}
+                  className="size-9 shrink-0 text-destructive border-destructive/30 hover:bg-destructive/10 hover:text-destructive"
+                >
+                  <Trash2 size={14} />
+                </Button>
+              </div>
+            ))}
 
-              {terms.map((term, index) => (
-                <div key={index} className="flex gap-2 mb-2 items-start">
-                  <Input
-                    type="text"
-                    value={term.preferred_term}
-                    onChange={(e) => updateTerm(index, 'preferred_term', e.target.value)}
-                    placeholder="推奨用語"
-                    className="h-10 flex-1"
-                  />
-                  <Input
-                    type="text"
-                    value={term.avoided_term}
-                    onChange={(e) => updateTerm(index, 'avoided_term', e.target.value)}
-                    placeholder="非推奨用語"
-                    className="h-10 flex-1"
-                  />
-                  <Input
-                    type="text"
-                    value={term.context}
-                    onChange={(e) => updateTerm(index, 'context', e.target.value)}
-                    placeholder="使い分け説明"
-                    className="h-10 flex-1"
-                  />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => removeTerm(index)}
-                    className="py-2 px-3.5 text-[13px] whitespace-nowrap"
-                  >
-                    削除
-                  </Button>
-                </div>
+            <datalist id="term-categories">
+              {existingCategories.map(cat => (
+                <option key={cat} value={cat} />
               ))}
-
-              <Button
-                type="button"
-                variant="outline"
-                onClick={addTerm}
-                className="py-2 px-4 text-[13px] mb-5"
-              >
-                + 用語ルールを追加
-              </Button>
-            </div>
+            </datalist>
 
             <Button
-              type="submit"
-              disabled={saving}
-              className={`mt-2 ${saving ? 'opacity-60' : ''}`}
+              type="button"
+              variant="outline"
+              onClick={addTerm}
+              className="py-2 px-4 text-[13px]"
             >
-              {saving ? '保存中...' : '保存する'}
+              + 用語ルールを追加
             </Button>
-          </form>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+
+      </form>
+
+      {/* 固定保存バー */}
+      <div className="sticky bottom-0 -mx-6 -mb-6 mt-6 bg-background/80 backdrop-blur border-t border-border px-6 py-3 flex justify-start">
+        <Button
+          type="submit"
+          form="verbal-form"
+          disabled={saving}
+          className={`${saving ? 'opacity-60' : ''}`}
+        >
+          {saving ? '保存中...' : '保存する'}
+        </Button>
+      </div>
     </div>
   )
 }

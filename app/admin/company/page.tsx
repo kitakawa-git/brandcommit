@@ -9,10 +9,10 @@ import { supabase } from '@/lib/supabase'
 import { useAuth } from '../components/AuthProvider'
 import { ImageUpload } from '../components/ImageUpload'
 import { Card, CardContent } from '@/components/ui/card'
+import { Skeleton } from '@/components/ui/skeleton'
+import { getPageCache, setPageCache } from '@/lib/page-cache'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-
 type Company = {
   id: string
   name: string
@@ -22,8 +22,10 @@ type Company = {
 
 export default function CompanyPage() {
   const { companyId } = useAuth()
-  const [company, setCompany] = useState<Company | null>(null)
-  const [loading, setLoading] = useState(true)
+  const cacheKey = `admin-company-${companyId}`
+  const cached = companyId ? getPageCache<Company>(cacheKey) : null
+  const [company, setCompany] = useState<Company | null>(cached)
+  const [loading, setLoading] = useState(!cached)
   const [fetchError, setFetchError] = useState('')
   const [saving, setSaving] = useState(false)
 
@@ -50,12 +52,14 @@ export default function CompanyPage() {
 
       if (result.error) throw new Error(result.error.message)
       if (result.data) {
-        setCompany({
+        const companyData = {
           id: result.data.id,
           name: result.data.name || '',
           logo_url: result.data.logo_url || '',
           website_url: result.data.website_url || '',
-        })
+        }
+        setCompany(companyData)
+        setPageCache(cacheKey, companyData)
       }
     } catch (err) {
       console.error(`[Company] データ取得エラー (試行${retryCount + 1}/${MAX_RETRIES + 1}):`, err)
@@ -76,8 +80,9 @@ export default function CompanyPage() {
 
   useEffect(() => {
     if (!companyId) return
+    if (getPageCache<Company>(cacheKey)) return
     fetchCompany()
-  }, [companyId])
+  }, [companyId, cacheKey])
 
   const handleChange = (field: keyof Company, value: string) => {
     setCompany(prev => prev ? { ...prev, [field]: value } : null)
@@ -163,9 +168,25 @@ export default function CompanyPage() {
 
   if (loading) {
     return (
-      <p className="text-muted-foreground text-center p-10">
-        読み込み中...
-      </p>
+      <div>
+        <Skeleton className="h-8 w-44 mb-6" />
+        <Card className="bg-[hsl(0_0%_97%)] border shadow-none">
+          <CardContent className="p-5 space-y-6">
+            <div>
+              <Skeleton className="h-4 w-16 mb-2" />
+              <Skeleton className="h-24 w-24 rounded-lg" />
+            </div>
+            <div>
+              <Skeleton className="h-4 w-16 mb-2" />
+              <Skeleton className="h-10 w-full rounded-md" />
+            </div>
+            <div>
+              <Skeleton className="h-4 w-28 mb-2" />
+              <Skeleton className="h-10 w-full rounded-md" />
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     )
   }
 
@@ -190,16 +211,16 @@ export default function CompanyPage() {
 
   return (
     <div>
-      <h2 className="text-xl font-bold text-foreground mb-6">
+      <h1 className="text-2xl font-bold text-foreground mb-6">
         ブランド基本情報
-      </h2>
+      </h1>
 
-      <Card className="bg-muted/50 border shadow-none">
-        <CardContent className="p-6">
-          <form onSubmit={handleSubmit}>
+      <form id="company-form" onSubmit={handleSubmit} className="space-y-6">
+        <Card className="bg-[hsl(0_0%_97%)] border shadow-none">
+          <CardContent className="p-5">
             {/* ロゴ */}
             <div className="mb-5">
-              <Label className="mb-1.5 font-bold">ロゴ</Label>
+              <h2 className="text-sm font-bold mb-3">ロゴ</h2>
               <ImageUpload
                 bucket="avatars"
                 folder="logos"
@@ -210,7 +231,7 @@ export default function CompanyPage() {
 
             {/* 企業名 */}
             <div className="mb-5">
-              <Label className="mb-1.5 font-bold">ブランド名</Label>
+              <h2 className="text-sm font-bold mb-3">ブランド名</h2>
               <Input
                 type="text"
                 value={company.name}
@@ -224,8 +245,8 @@ export default function CompanyPage() {
             </div>
 
             {/* WebサイトURL */}
-            <div className="mb-5">
-              <Label className="mb-1.5 font-bold">ウェブサイトURL</Label>
+            <div>
+              <h2 className="text-sm font-bold mb-3">ウェブサイトURL</h2>
               <Input
                 type="text"
                 value={company.website_url}
@@ -234,18 +255,21 @@ export default function CompanyPage() {
                 className="h-10"
               />
             </div>
+          </CardContent>
+        </Card>
+      </form>
 
-            {/* 保存ボタン */}
-            <Button
-              type="submit"
-              disabled={saving}
-              className={`mt-2 ${saving ? 'opacity-60' : ''}`}
-            >
-              {saving ? '保存中...' : '保存する'}
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
+      {/* 固定保存バー */}
+      <div className="sticky bottom-0 -mx-6 -mb-6 mt-6 bg-background/80 backdrop-blur border-t border-border px-6 py-3 flex justify-start">
+        <Button
+          type="submit"
+          form="company-form"
+          disabled={saving}
+          className={`${saving ? 'opacity-60' : ''}`}
+        >
+          {saving ? '保存中...' : '保存する'}
+        </Button>
+      </div>
     </div>
   )
 }

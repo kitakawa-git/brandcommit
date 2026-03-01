@@ -5,6 +5,8 @@ import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '../components/AuthProvider'
 import { Card, CardContent } from '@/components/ui/card'
+import { Skeleton } from '@/components/ui/skeleton'
+import { getPageCache, setPageCache } from '@/lib/page-cache'
 import { Button } from '@/components/ui/button'
 import {
   generatePreviewQRDataURL,
@@ -26,13 +28,16 @@ type MemberWithQR = {
 
 export default function CardTemplatePage() {
   const { companyId } = useAuth()
-  const [members, setMembers] = useState<MemberWithQR[]>([])
-  const [loading, setLoading] = useState(true)
+  const cacheKey = `admin-card-template-${companyId}`
+  const cached = getPageCache<MemberWithQR[]>(cacheKey)
+  const [members, setMembers] = useState<MemberWithQR[]>(cached ?? [])
+  const [loading, setLoading] = useState(!cached)
   const [bulkDownloading, setBulkDownloading] = useState(false)
   const [downloadingId, setDownloadingId] = useState<string | null>(null)
 
   useEffect(() => {
     if (!companyId) return
+    if (getPageCache<MemberWithQR[]>(cacheKey)) return
 
     const fetchMembers = async () => {
       const { data, error } = await supabase
@@ -50,11 +55,12 @@ export default function CardTemplatePage() {
           }))
         )
         setMembers(withQR)
+        setPageCache(cacheKey, withQR)
       }
       setLoading(false)
     }
     fetchMembers()
-  }, [companyId])
+  }, [companyId, cacheKey])
 
   // 個別ダウンロード
   const handleDownload = async (slug: string, name: string, id: string) => {
@@ -98,9 +104,9 @@ export default function CardTemplatePage() {
     <div>
       {/* ページヘッダー */}
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-xl font-bold text-foreground">
+        <h1 className="text-2xl font-bold text-foreground">
           QRコード出力
-        </h2>
+        </h1>
         <Button
           onClick={handleBulkDownload}
           disabled={bulkDownloading || members.length === 0}
@@ -112,7 +118,7 @@ export default function CardTemplatePage() {
 
       {/* 印刷ガイド */}
       <Card className="bg-sky-50 border-sky-200 shadow-none mb-6">
-        <CardContent className="p-6">
+        <CardContent className="p-5">
           <h3 className="text-[15px] font-bold text-foreground mb-3">
             印刷ガイド
           </h3>
@@ -128,16 +134,23 @@ export default function CardTemplatePage() {
       </Card>
 
       {/* メンバー一覧 */}
-      <Card className="bg-muted/50 border shadow-none">
-        <CardContent className="p-6">
+      <Card className="bg-[hsl(0_0%_97%)] border shadow-none">
+        <CardContent className="p-5">
           <h3 className="text-[15px] font-bold text-foreground mb-4">
             QRコード一覧
           </h3>
 
           {loading ? (
-            <p className="text-muted-foreground text-center p-10">
-              読み込み中...
-            </p>
+            <div className="grid grid-cols-[repeat(auto-fill,minmax(220px,1fr))] gap-5">
+              {[1, 2, 3, 4].map(i => (
+                <div key={i} className="border border-border rounded-xl p-5 text-center">
+                  <Skeleton className="w-[120px] h-[120px] mx-auto mb-3" />
+                  <Skeleton className="h-4 w-24 mx-auto mb-1" />
+                  <Skeleton className="h-3 w-32 mx-auto mb-3" />
+                  <Skeleton className="h-9 w-full rounded-md" />
+                </div>
+              ))}
+            </div>
           ) : members.length === 0 ? (
             <p className="text-muted-foreground text-center p-10">
               従業員が登録されていません

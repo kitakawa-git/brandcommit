@@ -56,7 +56,7 @@ export default function PortalLoginPage() {
 
   return (
     <div className="min-h-screen bg-white flex items-center justify-center font-sans">
-      <Card className="w-full max-w-[400px] mx-5 bg-muted/50 border shadow-none">
+      <Card className="w-full max-w-[400px] mx-5 bg-[hsl(0_0%_97%)] border shadow-none">
         <CardContent className="p-10">
           <div className="text-center mb-8">
             <h1 className="text-2xl font-bold text-foreground mb-2">

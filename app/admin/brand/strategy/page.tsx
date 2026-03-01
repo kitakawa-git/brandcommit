@@ -1,14 +1,22 @@
 'use client'
 
 // ブランド戦略 編集ページ（ターゲット・ペルソナ・ポジショニングマップ・行動指針）
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '../../components/AuthProvider'
 import { Card, CardContent } from '@/components/ui/card'
+import { Skeleton } from '@/components/ui/skeleton'
+import { getPageCache, setPageCache } from '@/lib/page-cache'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { AutoResizeTextarea } from '@/components/ui/auto-resize-textarea'
+import { DEFAULT_SUBTITLES, type PortalSubtitles } from '@/lib/portal-subtitles'
 import { Label } from '@/components/ui/label'
+import { Slider } from '@/components/ui/slider'
+import { PositioningMap } from '@/components/PositioningMap'
+import { Trash2 } from 'lucide-react'
+import type { PositioningMapData, PositioningMapItem, PositioningMapSize } from '@/lib/types/positioning-map'
 
 type PersonaItem = {
   name: string
@@ -38,17 +46,47 @@ const emptyGuideline = (): ActionGuideline => ({
   description: '',
 })
 
+const emptyMapData = (): PositioningMapData => ({
+  x_axis: { left: '', right: '' },
+  y_axis: { bottom: '', top: '' },
+  items: [],
+})
+
+const emptyMapItem = (): PositioningMapItem => ({
+  name: '',
+  color: '#3B82F6',
+  x: 50,
+  y: 50,
+  size: 'md',
+})
+
+const DEFAULT_COLORS = [
+  '#3B82F6', '#EF4444', '#10B981', '#F59E0B', '#8B5CF6',
+  '#EC4899', '#06B6D4', '#F97316', '#6366F1', '#14B8A6',
+]
+
+type StrategyCache = {
+  target: string
+  personas: PersonaItem[]
+  positioningMapData: PositioningMapData | null
+  actionGuidelines: ActionGuideline[]
+  portalSubtitle: string
+  portalSubtitlesData: PortalSubtitles | null
+}
+
 export default function BrandStrategyPage() {
   const { companyId } = useAuth()
-  const [target, setTarget] = useState('')
-  const [personas, setPersonas] = useState<PersonaItem[]>([])
-  const [positioningMapUrl, setPositioningMapUrl] = useState('')
-  const [actionGuidelines, setActionGuidelines] = useState<ActionGuideline[]>([])
-  const [loading, setLoading] = useState(true)
+  const cacheKey = `admin-brand-strategy-${companyId}`
+  const cached = companyId ? getPageCache<StrategyCache>(cacheKey) : null
+  const [target, setTarget] = useState(cached?.target ?? '')
+  const [personas, setPersonas] = useState<PersonaItem[]>(cached?.personas ?? [])
+  const [positioningMapData, setPositioningMapData] = useState<PositioningMapData | null>(cached?.positioningMapData ?? null)
+  const [actionGuidelines, setActionGuidelines] = useState<ActionGuideline[]>(cached?.actionGuidelines ?? [])
+  const [loading, setLoading] = useState(!cached)
   const [fetchError, setFetchError] = useState('')
   const [saving, setSaving] = useState(false)
-  const [uploading, setUploading] = useState(false)
-  const fileInputRef = useRef<HTMLInputElement>(null)
+  const [portalSubtitle, setPortalSubtitle] = useState(cached?.portalSubtitle ?? '')
+  const [portalSubtitlesData, setPortalSubtitlesData] = useState<PortalSubtitles | null>(cached?.portalSubtitlesData ?? null)
 
   const fetchData = async () => {
     if (!companyId) return
@@ -67,22 +105,53 @@ export default function BrandStrategyPage() {
         ),
       ])
 
+      // ポータルサブタイトル取得
+      let fetchedSubtitlesData: PortalSubtitles | null = null
+      let fetchedSubtitle = ''
+      try {
+        const { data: companyData } = await supabase
+          .from('companies')
+          .select('portal_subtitles')
+          .eq('id', companyId)
+          .single()
+        if (companyData) {
+          const subtitles = (companyData.portal_subtitles as PortalSubtitles) || null
+          fetchedSubtitlesData = subtitles
+          fetchedSubtitle = subtitles?.strategy || ''
+          setPortalSubtitlesData(subtitles)
+          setPortalSubtitle(fetchedSubtitle)
+        }
+      } catch {
+        // サブタイトル取得失敗は無視
+      }
+
       if (result.error) throw new Error(result.error.message)
       if (result.data && result.data.length > 0) {
-        // 最初のレコードからtarget, positioning_map_url, action_guidelinesを取得
         const first = result.data[0] as Record<string, unknown>
-        setTarget((first.target as string) || '')
-        setPositioningMapUrl((first.positioning_map_url as string) || '')
-        setActionGuidelines((first.action_guidelines as ActionGuideline[]) || [])
-
-        setPersonas(result.data.map((d: Record<string, unknown>) => ({
+        const parsedTarget = (first.target as string) || ''
+        const parsedMapData = (first.positioning_map_data as PositioningMapData) || null
+        const parsedActionGuidelines = (first.action_guidelines as ActionGuideline[]) || []
+        const parsedPersonas = result.data.map((d: Record<string, unknown>) => ({
           name: (d.name as string) || '',
           age_range: (d.age_range as string) || '',
           occupation: (d.occupation as string) || '',
           description: (d.description as string) || '',
           needs: (d.needs as string[]) || [],
           pain_points: (d.pain_points as string[]) || [],
-        })))
+        }))
+
+        setTarget(parsedTarget)
+        setPositioningMapData(parsedMapData)
+        setActionGuidelines(parsedActionGuidelines)
+        setPersonas(parsedPersonas)
+        setPageCache<StrategyCache>(cacheKey, {
+          target: parsedTarget,
+          personas: parsedPersonas,
+          positioningMapData: parsedMapData,
+          actionGuidelines: parsedActionGuidelines,
+          portalSubtitle: fetchedSubtitle,
+          portalSubtitlesData: fetchedSubtitlesData,
+        })
       }
     } catch (err) {
       console.error('[BrandStrategy] データ取得エラー:', err)
@@ -97,8 +166,9 @@ export default function BrandStrategyPage() {
 
   useEffect(() => {
     if (!companyId) return
+    if (getPageCache<StrategyCache>(cacheKey)) return
     fetchData()
-  }, [companyId])
+  }, [companyId, cacheKey])
 
   // ペルソナ操作
   const addPersona = () => {
@@ -186,45 +256,52 @@ export default function BrandStrategyPage() {
     setActionGuidelines(actionGuidelines.filter((_, i) => i !== index))
   }
 
-  // ポジショニングマップ画像アップロード
-  const handleMapUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file || !companyId) return
-
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error('ファイルサイズは5MB以下にしてください')
-      return
-    }
-
-    setUploading(true)
-    try {
-      const timestamp = Date.now()
-      const ext = file.name.split('.').pop() || 'png'
-      const random = Math.random().toString(36).substring(2, 8)
-      const path = `${companyId}/strategy/${timestamp}-${random}.${ext}`
-
-      const { error: uploadError } = await supabase.storage
-        .from('brand-assets')
-        .upload(path, file, { upsert: true })
-
-      if (uploadError) throw uploadError
-
-      const { data: { publicUrl } } = supabase.storage
-        .from('brand-assets')
-        .getPublicUrl(path)
-
-      setPositioningMapUrl(publicUrl)
-    } catch (err) {
-      console.error('[MapUpload] エラー:', err)
-      toast.error('画像のアップロードに失敗しました')
-    } finally {
-      setUploading(false)
-      if (fileInputRef.current) fileInputRef.current.value = ''
-    }
+  // ポジショニングマップ操作
+  const initializeMap = () => {
+    setPositioningMapData(emptyMapData())
   }
 
-  const removeMap = () => {
-    setPositioningMapUrl('')
+  const clearMap = () => {
+    setPositioningMapData(null)
+  }
+
+  const updateXAxis = (side: 'left' | 'right', value: string) => {
+    setPositioningMapData(prev => {
+      if (!prev) return prev
+      return { ...prev, x_axis: { ...prev.x_axis, [side]: value } }
+    })
+  }
+
+  const updateYAxis = (side: 'top' | 'bottom', value: string) => {
+    setPositioningMapData(prev => {
+      if (!prev) return prev
+      return { ...prev, y_axis: { ...prev.y_axis, [side]: value } }
+    })
+  }
+
+  const addMapItem = () => {
+    setPositioningMapData(prev => {
+      if (!prev || prev.items.length >= 10) return prev
+      const newItem = emptyMapItem()
+      newItem.color = DEFAULT_COLORS[prev.items.length % DEFAULT_COLORS.length]
+      return { ...prev, items: [...prev.items, newItem] }
+    })
+  }
+
+  const updateMapItem = (index: number, field: keyof PositioningMapItem, value: string | number) => {
+    setPositioningMapData(prev => {
+      if (!prev) return prev
+      const items = [...prev.items]
+      items[index] = { ...items[index], [field]: value }
+      return { ...prev, items }
+    })
+  }
+
+  const removeMapItem = (index: number) => {
+    setPositioningMapData(prev => {
+      if (!prev) return prev
+      return { ...prev, items: prev.items.filter((_, i) => i !== index) }
+    })
   }
 
   // 保存処理
@@ -278,7 +355,8 @@ export default function BrandStrategyPage() {
           pain_points: p.pain_points.filter(pp => pp.trim() !== ''),
           sort_order: i,
           target: i === 0 ? (target || null) : null,
-          positioning_map_url: i === 0 ? (positioningMapUrl || null) : null,
+          positioning_map_url: null,
+          positioning_map_data: i === 0 ? (positioningMapData || null) : null,
           action_guidelines: i === 0 ? (cleanedGuidelines.length > 0 ? cleanedGuidelines : null) : null,
         }))
 
@@ -293,13 +371,14 @@ export default function BrandStrategyPage() {
         }
       } else {
         // ペルソナがなくてもtarget等を保存するためダミーレコードを作成
-        if (target || positioningMapUrl || cleanedGuidelines.length > 0) {
+        if (target || positioningMapData || cleanedGuidelines.length > 0) {
           const insertData = [{
             company_id: companyId,
             name: '',
             sort_order: 0,
             target: target || null,
-            positioning_map_url: positioningMapUrl || null,
+            positioning_map_url: null,
+            positioning_map_data: positioningMapData || null,
             action_guidelines: cleanedGuidelines.length > 0 ? cleanedGuidelines : null,
           }]
 
@@ -315,6 +394,22 @@ export default function BrandStrategyPage() {
         }
       }
 
+      // ポータルサブタイトル保存
+      const updatedSubtitles = { ...(portalSubtitlesData || {}) }
+      if (portalSubtitle.trim()) {
+        updatedSubtitles.strategy = portalSubtitle.trim()
+      } else {
+        delete updatedSubtitles.strategy
+      }
+      await fetch(`${supabaseUrl}/rest/v1/companies?id=eq.${companyId}`, {
+        method: 'PATCH',
+        headers: { ...headers, 'Prefer': 'return=minimal' },
+        body: JSON.stringify({
+          portal_subtitles: Object.keys(updatedSubtitles).length > 0 ? updatedSubtitles : null,
+        }),
+      })
+      setPortalSubtitlesData(updatedSubtitles)
+
       setPersonas(cleanedPersonas)
       setActionGuidelines(cleanedGuidelines)
       toast.success('保存しました')
@@ -328,9 +423,45 @@ export default function BrandStrategyPage() {
 
   if (loading) {
     return (
-      <p className="text-muted-foreground text-center p-10">
-        読み込み中...
-      </p>
+      <div>
+        <Skeleton className="h-8 w-36 mb-2" />
+        <Skeleton className="h-9 w-full mb-6" />
+        <div className="space-y-6">
+          <Card className="bg-[hsl(0_0%_97%)] border shadow-none">
+            <CardContent className="p-5 space-y-4">
+              <Skeleton className="h-4 w-24" />
+              <Skeleton className="h-20 w-full rounded-md" />
+              <Skeleton className="h-4 w-20" />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {[1, 2].map(i => (
+                  <div key={i} className="border border-border rounded-lg p-4 space-y-3">
+                    <Skeleton className="h-10 w-full rounded-md" />
+                    <Skeleton className="h-10 w-full rounded-md" />
+                    <Skeleton className="h-16 w-full rounded-md" />
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+          <Card className="bg-[hsl(0_0%_97%)] border shadow-none">
+            <CardContent className="p-5 space-y-4">
+              <Skeleton className="h-4 w-40" />
+              <Skeleton className="h-64 w-full rounded-lg" />
+            </CardContent>
+          </Card>
+          <Card className="bg-[hsl(0_0%_97%)] border shadow-none">
+            <CardContent className="p-5 space-y-3">
+              <Skeleton className="h-4 w-24" />
+              {[1, 2, 3].map(i => (
+                <div key={i} className="flex gap-3">
+                  <Skeleton className="h-10 w-full rounded-md" />
+                  <Skeleton className="h-10 w-full rounded-md" />
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        </div>
+      </div>
     )
   }
 
@@ -347,34 +478,42 @@ export default function BrandStrategyPage() {
 
   return (
     <div>
-      <h2 className="text-xl font-bold text-foreground mb-6">
+      <h1 className="text-2xl font-bold text-foreground mb-2">
         ブランド戦略
-      </h2>
+      </h1>
+      <div className="mb-6">
+        <Input
+          type="text"
+          value={portalSubtitle}
+          onChange={(e) => setPortalSubtitle(e.target.value)}
+          placeholder={DEFAULT_SUBTITLES.strategy}
+          className="h-9 text-sm"
+        />
+        <p className="text-[11px] text-muted-foreground mt-1">ポータルに表示されるサブタイトル（空欄でデフォルト表示）</p>
+      </div>
 
-      <Card className="bg-muted/50 border shadow-none">
-        <CardContent className="p-6">
-          <form onSubmit={handleSubmit}>
-
-            {/* ===== ターゲット ===== */}
-            <div className="mb-6">
-              <h3 className="text-[15px] font-bold text-foreground mb-3 pb-2 border-b border-border">ターゲット</h3>
-              <textarea
+      <form id="strategy-form" onSubmit={handleSubmit} className="space-y-6">
+        {/* Card 1: ターゲット＋ペルソナ */}
+        <Card className="bg-[hsl(0_0%_97%)] border shadow-none">
+          <CardContent className="p-5 space-y-5">
+            <div>
+              <h2 className="text-sm font-bold mb-3">ターゲット</h2>
+              <AutoResizeTextarea
                 value={target}
                 onChange={(e) => setTarget(e.target.value)}
                 placeholder="ブランドのターゲット市場や顧客層を記述"
-                className="w-full px-3 py-2.5 bg-white border border-border rounded-lg text-sm outline-none resize-y min-h-[100px] focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                className="min-h-[100px]"
               />
             </div>
 
-            {/* ===== ペルソナ ===== */}
-            <div className="mb-6">
-              <h3 className="text-[15px] font-bold text-foreground mb-3 pb-2 border-b border-border">ペルソナ</h3>
+            <div>
+              <h2 className="text-sm font-bold mb-3">ペルソナ</h2>
               <p className="text-xs text-muted-foreground mb-4">
                 ターゲット顧客のペルソナを設定します（最大5件）
               </p>
 
               {personas.map((persona, index) => (
-                <div key={index} className="border border-border rounded-lg p-4 mb-3">
+                <div key={index} className="border border-border rounded-lg p-4 mb-3 bg-background">
                   <div className="flex justify-between items-center mb-3">
                     <span className="text-[13px] font-bold text-muted-foreground">
                       ペルソナ {index + 1}
@@ -382,15 +521,16 @@ export default function BrandStrategyPage() {
                     <Button
                       type="button"
                       variant="outline"
+                      size="icon"
                       onClick={() => removePersona(index)}
-                      className="py-1 px-3 text-xs"
+                      className="size-9 shrink-0 text-destructive border-destructive/30 hover:bg-destructive/10 hover:text-destructive"
                     >
-                      削除
+                      <Trash2 size={14} />
                     </Button>
                   </div>
 
                   <div className="mb-5">
-                    <Label className="mb-1.5 font-bold">ペルソナ名称</Label>
+                    <h2 className="text-sm font-bold mb-3">ペルソナ名称</h2>
                     <Input
                       type="text"
                       value={persona.name}
@@ -402,7 +542,7 @@ export default function BrandStrategyPage() {
 
                   <div className="flex gap-3">
                     <div className="mb-5 flex-1">
-                      <Label className="mb-1.5 font-bold">年齢層</Label>
+                      <h2 className="text-sm font-bold mb-3">年齢層</h2>
                       <Input
                         type="text"
                         value={persona.age_range}
@@ -412,7 +552,7 @@ export default function BrandStrategyPage() {
                       />
                     </div>
                     <div className="mb-5 flex-1">
-                      <Label className="mb-1.5 font-bold">職業</Label>
+                      <h2 className="text-sm font-bold mb-3">職業</h2>
                       <Input
                         type="text"
                         value={persona.occupation}
@@ -424,17 +564,17 @@ export default function BrandStrategyPage() {
                   </div>
 
                   <div className="mb-5">
-                    <Label className="mb-1.5 font-bold">説明</Label>
-                    <textarea
+                    <h2 className="text-sm font-bold mb-3">説明</h2>
+                    <AutoResizeTextarea
                       value={persona.description}
                       onChange={(e) => updatePersona(index, 'description', e.target.value)}
                       placeholder="このペルソナの背景や特徴"
-                      className="w-full px-3 py-2.5 bg-white border border-border rounded-lg text-sm outline-none resize-y min-h-[80px] focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                      className="min-h-[80px]"
                     />
                   </div>
 
                   <div className="mb-5">
-                    <Label className="mb-1.5 font-bold">ニーズ</Label>
+                    <h2 className="text-sm font-bold mb-3">ニーズ</h2>
                     {persona.needs.map((need, needIndex) => (
                       <div key={needIndex} className="flex gap-2 mb-2">
                         <Input
@@ -447,10 +587,11 @@ export default function BrandStrategyPage() {
                         <Button
                           type="button"
                           variant="outline"
+                          size="icon"
                           onClick={() => removeNeed(index, needIndex)}
-                          className="py-2 px-3.5 text-[13px] whitespace-nowrap"
+                          className="size-9 shrink-0 text-destructive border-destructive/30 hover:bg-destructive/10 hover:text-destructive"
                         >
-                          削除
+                          <Trash2 size={14} />
                         </Button>
                       </div>
                     ))}
@@ -465,7 +606,7 @@ export default function BrandStrategyPage() {
                   </div>
 
                   <div>
-                    <Label className="mb-1.5 font-bold">課題・ペインポイント</Label>
+                    <h2 className="text-sm font-bold mb-3">課題・ペインポイント</h2>
                     {persona.pain_points.map((point, pointIndex) => (
                       <div key={pointIndex} className="flex gap-2 mb-2">
                         <Input
@@ -478,10 +619,11 @@ export default function BrandStrategyPage() {
                         <Button
                           type="button"
                           variant="outline"
+                          size="icon"
                           onClick={() => removePainPoint(index, pointIndex)}
-                          className="py-2 px-3.5 text-[13px] whitespace-nowrap"
+                          className="size-9 shrink-0 text-destructive border-destructive/30 hover:bg-destructive/10 hover:text-destructive"
                         >
-                          削除
+                          <Trash2 size={14} />
                         </Button>
                       </div>
                     ))}
@@ -508,108 +650,271 @@ export default function BrandStrategyPage() {
                 </Button>
               )}
             </div>
+          </CardContent>
+        </Card>
 
-            {/* ===== ポジショニングマップ ===== */}
-            <div className="mb-6">
-              <h3 className="text-[15px] font-bold text-foreground mb-3 pb-2 border-b border-border">ポジショニングマップ</h3>
+        {/* Card 2: ポジショニングマップ */}
+        <Card className="bg-[hsl(0_0%_97%)] border shadow-none">
+          <CardContent className="p-5">
+            <h2 className="text-sm font-bold mb-3">ポジショニングマップ</h2>
 
-              {positioningMapUrl ? (
-                <div className="mb-3">
-                  <div className="relative inline-block border border-border rounded-lg overflow-hidden">
-                    <img
-                      src={positioningMapUrl}
-                      alt="ポジショニングマップ"
-                      className="max-w-full max-h-[300px] block"
-                    />
+            {positioningMapData ? (
+              <div className="space-y-5">
+                {/* 軸ラベル設定 */}
+                <div className="space-y-3">
+                  <h3 className="text-[13px] font-bold text-muted-foreground">軸ラベル</h3>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <Label className="text-xs text-muted-foreground mb-1 block">X軸 左</Label>
+                      <Input
+                        type="text"
+                        value={positioningMapData.x_axis.left}
+                        onChange={(e) => updateXAxis('left', e.target.value)}
+                        placeholder="例: 低価格"
+                        className="h-10"
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-xs text-muted-foreground mb-1 block">X軸 右</Label>
+                      <Input
+                        type="text"
+                        value={positioningMapData.x_axis.right}
+                        onChange={(e) => updateXAxis('right', e.target.value)}
+                        placeholder="例: 高価格"
+                        className="h-10"
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-xs text-muted-foreground mb-1 block">Y軸 下</Label>
+                      <Input
+                        type="text"
+                        value={positioningMapData.y_axis.bottom}
+                        onChange={(e) => updateYAxis('bottom', e.target.value)}
+                        placeholder="例: 機能重視"
+                        className="h-10"
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-xs text-muted-foreground mb-1 block">Y軸 上</Label>
+                      <Input
+                        type="text"
+                        value={positioningMapData.y_axis.top}
+                        onChange={(e) => updateYAxis('top', e.target.value)}
+                        placeholder="例: デザイン重視"
+                        className="h-10"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* アイテム一覧 */}
+                <div className="space-y-3">
+                  <h3 className="text-[13px] font-bold text-muted-foreground">
+                    プロット項目（{positioningMapData.items.length}/10）
+                  </h3>
+
+                  {positioningMapData.items.map((item, index) => (
+                    <div key={index} className="border border-border rounded-lg p-4 bg-background">
+                      <div className="flex items-center gap-3 mb-3">
+                        <input
+                          type="color"
+                          value={item.color}
+                          onChange={(e) => updateMapItem(index, 'color', e.target.value)}
+                          className="w-10 h-10 border border-border rounded-lg cursor-pointer p-0.5"
+                        />
+                        <Input
+                          type="text"
+                          value={item.name}
+                          onChange={(e) => updateMapItem(index, 'name', e.target.value)}
+                          placeholder="名称（例: 自社、競合A）"
+                          className="h-10 flex-1"
+                        />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="icon"
+                          onClick={() => removeMapItem(index)}
+                          className="size-9 shrink-0 text-destructive border-destructive/30 hover:bg-destructive/10 hover:text-destructive"
+                        >
+                          <Trash2 size={14} />
+                        </Button>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <Label className="text-xs text-muted-foreground mb-2 block">
+                            X位置: {item.x}
+                          </Label>
+                          <Slider
+                            value={[item.x]}
+                            onValueChange={([val]) => updateMapItem(index, 'x', val)}
+                            min={0}
+                            max={100}
+                            step={1}
+                            className="w-full"
+                          />
+                        </div>
+                        <div>
+                          <Label className="text-xs text-muted-foreground mb-2 block">
+                            Y位置: {item.y}
+                          </Label>
+                          <Slider
+                            value={[item.y]}
+                            onValueChange={([val]) => updateMapItem(index, 'y', val)}
+                            min={0}
+                            max={100}
+                            step={1}
+                            className="w-full"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-3 mt-3">
+                        <Label className="text-xs text-muted-foreground whitespace-nowrap">サイズ</Label>
+                        <div className="flex gap-1.5">
+                          {([
+                            { value: 'sm' as PositioningMapSize, label: '小' },
+                            { value: 'md' as PositioningMapSize, label: '中' },
+                            { value: 'lg' as PositioningMapSize, label: '大' },
+                            { value: 'custom' as PositioningMapSize, label: 'カスタム' },
+                          ]).map((opt) => (
+                            <button
+                              key={opt.value}
+                              type="button"
+                              onClick={() => updateMapItem(index, 'size', opt.value)}
+                              className={`px-2.5 py-1 text-xs rounded-md border transition-colors ${
+                                item.size === opt.value
+                                  ? 'bg-foreground text-background border-foreground'
+                                  : 'bg-background text-foreground border-border hover:bg-muted'
+                              }`}
+                            >
+                              {opt.label}
+                            </button>
+                          ))}
+                        </div>
+                        {item.size === 'custom' && (
+                          <div className="flex items-center gap-2">
+                            <Slider
+                              value={[item.customSize || 6]}
+                              onValueChange={([val]) => updateMapItem(index, 'customSize', val)}
+                              min={2}
+                              max={20}
+                              step={1}
+                              className="w-24"
+                            />
+                            <span className="text-xs text-muted-foreground w-6">{item.customSize || 6}</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+
+                  {positioningMapData.items.length < 10 && (
                     <Button
                       type="button"
                       variant="outline"
-                      onClick={removeMap}
-                      className="absolute top-2 right-2 py-1 px-2.5 text-xs"
+                      onClick={addMapItem}
+                      className="py-2 px-4 text-[13px]"
                     >
-                      削除
+                      + 項目を追加
                     </Button>
-                  </div>
+                  )}
                 </div>
-              ) : (
-                <p className="text-[13px] text-muted-foreground mb-3">
-                  ポジショニングマップ画像をアップロードしてください
-                </p>
-              )}
 
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                onChange={handleMapUpload}
-                className="hidden"
-              />
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => fileInputRef.current?.click()}
-                disabled={uploading}
-                className={`py-2 px-4 text-[13px] ${uploading ? 'opacity-60' : ''}`}
-              >
-                {uploading ? 'アップロード中...' : '画像をアップロード'}
-              </Button>
-            </div>
-
-            {/* ===== 行動指針 ===== */}
-            <div className="mb-6">
-              <h3 className="text-[15px] font-bold text-foreground mb-3 pb-2 border-b border-border">行動指針</h3>
-
-              {actionGuidelines.map((guideline, index) => (
-                <div key={index} className="flex gap-2 mb-2 items-start">
-                  <Input
-                    type="text"
-                    value={guideline.title}
-                    onChange={(e) => updateGuideline(index, 'title', e.target.value)}
-                    placeholder="タイトル（例: 顧客第一）"
-                    className="h-10 flex-[0_0_200px]"
-                  />
-                  <Input
-                    type="text"
-                    value={guideline.description}
-                    onChange={(e) => updateGuideline(index, 'description', e.target.value)}
-                    placeholder="説明（例: 常に顧客の視点で考える）"
-                    className="h-10 flex-1"
-                  />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => removeGuideline(index)}
-                    className="py-2 px-3.5 text-[13px] whitespace-nowrap"
-                  >
-                    削除
-                  </Button>
+                {/* プレビュー */}
+                <div>
+                  <h3 className="text-[13px] font-bold text-muted-foreground mb-2">プレビュー</h3>
+                  <PositioningMap data={positioningMapData} />
                 </div>
-              ))}
 
-              {actionGuidelines.length < 10 && (
+                {/* マップ削除 */}
                 <Button
                   type="button"
                   variant="outline"
-                  onClick={addGuideline}
-                  className="py-1.5 px-3 text-xs"
+                  size="icon"
+                  onClick={clearMap}
+                  className="size-9 shrink-0 text-destructive border-destructive/30 hover:bg-destructive/10 hover:text-destructive"
                 >
-                  + 行動指針を追加
+                  <Trash2 size={14} />
                 </Button>
-              )}
-            </div>
+              </div>
+            ) : (
+              <div>
+                <p className="text-[13px] text-muted-foreground mb-3">
+                  ポジショニングマップを作成してください
+                </p>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={initializeMap}
+                  className="py-2 px-4 text-[13px]"
+                >
+                  マップを作成
+                </Button>
+              </div>
+            )}
+          </CardContent>
+        </Card>
 
-            <div>
+        {/* Card 3: 行動指針 */}
+        <Card className="bg-[hsl(0_0%_97%)] border shadow-none">
+          <CardContent className="p-5">
+            <h2 className="text-sm font-bold mb-3">行動指針</h2>
+
+            {actionGuidelines.map((guideline, index) => (
+              <div key={index} className="flex gap-2 mb-2 items-start">
+                <Input
+                  type="text"
+                  value={guideline.title}
+                  onChange={(e) => updateGuideline(index, 'title', e.target.value)}
+                  placeholder="タイトル（例: 顧客第一）"
+                  className="h-10 flex-[0_0_200px]"
+                />
+                <Input
+                  type="text"
+                  value={guideline.description}
+                  onChange={(e) => updateGuideline(index, 'description', e.target.value)}
+                  placeholder="説明（例: 常に顧客の視点で考える）"
+                  className="h-10 flex-1"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon"
+                  onClick={() => removeGuideline(index)}
+                  className="size-9 shrink-0 text-destructive border-destructive/30 hover:bg-destructive/10 hover:text-destructive"
+                >
+                  <Trash2 size={14} />
+                </Button>
+              </div>
+            ))}
+
+            {actionGuidelines.length < 10 && (
               <Button
-                type="submit"
-                disabled={saving}
-                className={`mt-2 ${saving ? 'opacity-60' : ''}`}
+                type="button"
+                variant="outline"
+                onClick={addGuideline}
+                className="py-1.5 px-3 text-xs"
               >
-                {saving ? '保存中...' : '保存する'}
+                + 行動指針を追加
               </Button>
-            </div>
-          </form>
-        </CardContent>
-      </Card>
+            )}
+          </CardContent>
+        </Card>
+
+      </form>
+
+      {/* 固定保存バー */}
+      <div className="sticky bottom-0 -mx-6 -mb-6 mt-6 bg-background/80 backdrop-blur border-t border-border px-6 py-3 flex justify-start">
+        <Button
+          type="submit"
+          form="strategy-form"
+          disabled={saving}
+          className={`${saving ? 'opacity-60' : ''}`}
+        >
+          {saving ? '保存中...' : '保存する'}
+        </Button>
+      </div>
     </div>
   )
 }

@@ -6,6 +6,7 @@ import { createContext, useContext, useEffect, useState } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import type { User } from '@supabase/supabase-js'
+import { clearPageCache } from '@/lib/page-cache'
 import { AppSidebar } from './AppSidebar'
 import { AdminHeader } from './AdminHeader'
 import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar'
@@ -133,6 +134,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           }
 
           setUser(currentUser)
+
+          // TOKEN_REFRESHED: データ既取得済みなら再取得スキップ（スケルトン回避）
+          if (event === 'TOKEN_REFRESHED' && companyId) {
+            return
+          }
+
           await fetchAdminUser(currentUser.id)
           setLoading(false)
         } else if (event === 'SIGNED_OUT') {
@@ -158,6 +165,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [])
 
   const signOut = async () => {
+    clearPageCache()
     await supabase.auth.signOut()
     setCompanyId(null)
     setRole(null)
@@ -202,9 +210,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         <div className="flex items-center justify-center min-h-screen bg-gray-50 font-sans">
           <div className="bg-white rounded-xl p-10 text-center max-w-[400px] shadow-sm">
             <div className="text-5xl mb-4">🚫</div>
-            <h2 className="text-xl font-bold text-gray-900 mb-3">
+            <h1 className="text-2xl font-bold text-gray-900 mb-3">
               アクセス権限がありません
-            </h2>
+            </h1>
             <p className="text-sm text-gray-500 mb-6 leading-relaxed">
               このアカウント（{user.email}）は管理者として登録されていません。
               管理者に連絡してください。
@@ -230,7 +238,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         <AppSidebar />
         <SidebarInset>
           <AdminHeader />
-          <main className="p-6">
+          <main className="max-w-4xl mx-auto px-5 py-6 w-full">
             {children}
           </main>
         </SidebarInset>

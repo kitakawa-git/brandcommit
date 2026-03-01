@@ -1,6 +1,6 @@
-// ダッシュボードのルート: 社員一覧にリダイレクト
+// 管理画面ルート: ダッシュボードにリダイレクト
 import { redirect } from 'next/navigation'
 
 export default function AdminPage() {
-  redirect('/admin/members')
+  redirect('/admin/dashboard')
 }

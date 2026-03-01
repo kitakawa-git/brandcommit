@@ -5,6 +5,8 @@ import { createContext, useContext, useEffect, useState } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import type { User } from '@supabase/supabase-js'
+import type { PortalSubtitles } from '@/lib/portal-subtitles'
+import { clearPageCache } from '@/lib/page-cache'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { ShieldAlert } from 'lucide-react'
@@ -20,9 +22,12 @@ type PortalAuthContextType = {
   companyId: string | null
   companyName: string | null
   companyLogoUrl: string | null
+  portalSubtitles: PortalSubtitles | null
+  slogan: string | null
   member: MemberInfo | null
   profileName: string | null
   profilePhotoUrl: string | null
+  isAdmin: boolean
   loading: boolean
   signOut: () => Promise<void>
 }
@@ -32,9 +37,12 @@ const PortalAuthContext = createContext<PortalAuthContextType>({
   companyId: null,
   companyName: null,
   companyLogoUrl: null,
+  portalSubtitles: null,
+  slogan: null,
   member: null,
   profileName: null,
   profilePhotoUrl: null,
+  isAdmin: false,
   loading: true,
   signOut: async () => {},
 })
@@ -47,9 +55,12 @@ export function PortalAuthProvider({ children }: { children: React.ReactNode }) 
   const [companyId, setCompanyId] = useState<string | null>(null)
   const [companyName, setCompanyName] = useState<string | null>(null)
   const [companyLogoUrl, setCompanyLogoUrl] = useState<string | null>(null)
+  const [portalSubtitles, setPortalSubtitles] = useState<PortalSubtitles | null>(null)
+  const [slogan, setSlogan] = useState<string | null>(null)
   const [member, setMember] = useState<MemberInfo | null>(null)
   const [profileName, setProfileName] = useState<string | null>(null)
   const [profilePhotoUrl, setProfilePhotoUrl] = useState<string | null>(null)
+  const [isAdmin, setIsAdmin] = useState(false)
   const [loading, setLoading] = useState(true)
   const router = useRouter()
   const pathname = usePathname()
@@ -88,15 +99,43 @@ export function PortalAuthProvider({ children }: { children: React.ReactNode }) 
       try {
         const { data: companyData } = await supabase
           .from('companies')
-          .select('name, logo_url')
+          .select('name, logo_url, portal_subtitles')
           .eq('id', data.company_id)
           .single()
         if (companyData) {
           setCompanyName(companyData.name || null)
           setCompanyLogoUrl(companyData.logo_url || null)
+          setPortalSubtitles((companyData.portal_subtitles as PortalSubtitles) || null)
         }
       } catch {
         // 会社情報取得失敗は無視
+      }
+
+      // スローガン取得
+      try {
+        const { data: guidelinesData } = await supabase
+          .from('brand_guidelines')
+          .select('slogan')
+          .eq('company_id', data.company_id)
+          .single()
+        if (guidelinesData) {
+          setSlogan(guidelinesData.slogan || null)
+        }
+      } catch {
+        // スローガン取得失敗は無視
+      }
+
+      // 管理者チェック
+      try {
+        const { data: adminData } = await supabase
+          .from('admin_users')
+          .select('id')
+          .eq('auth_id', authId)
+          .eq('company_id', data.company_id)
+          .maybeSingle()
+        setIsAdmin(!!adminData)
+      } catch {
+        setIsAdmin(false)
       }
 
       return true
@@ -136,6 +175,12 @@ export function PortalAuthProvider({ children }: { children: React.ReactNode }) 
           }
 
           setUser(currentUser)
+
+          // TOKEN_REFRESHED: データ既取得済みなら再取得スキップ（スケルトン回避）
+          if (event === 'TOKEN_REFRESHED' && member) {
+            return
+          }
+
           await fetchMember(currentUser.id)
           setLoading(false)
         } else if (event === 'SIGNED_OUT') {
@@ -157,17 +202,21 @@ export function PortalAuthProvider({ children }: { children: React.ReactNode }) 
   }, [])
 
   const signOut = async () => {
+    clearPageCache()
     await supabase.auth.signOut()
     setCompanyId(null)
     setCompanyName(null)
     setCompanyLogoUrl(null)
+    setPortalSubtitles(null)
+    setSlogan(null)
+    setIsAdmin(false)
     setMember(null)
     setProfileName(null)
     setProfilePhotoUrl(null)
     router.push('/portal/login')
   }
 
-  const contextValue = { user, companyId, companyName, companyLogoUrl, member, profileName, profilePhotoUrl, loading, signOut }
+  const contextValue = { user, companyId, companyName, companyLogoUrl, portalSubtitles, slogan, member, profileName, profilePhotoUrl, isAdmin, loading, signOut }
 
   // 公開パスではそのまま表示
   if (isPublicPath) {
@@ -199,7 +248,7 @@ export function PortalAuthProvider({ children }: { children: React.ReactNode }) 
     return (
       <PortalAuthContext.Provider value={contextValue}>
         <div className="flex items-center justify-center min-h-screen bg-white font-sans">
-          <Card className="bg-muted/50 border shadow-none max-w-[400px] w-full mx-5">
+          <Card className="bg-[hsl(0_0%_97%)] border shadow-none max-w-[400px] w-full mx-5">
             <CardContent className="p-10 text-center">
               <div className="mb-4 flex justify-center text-muted-foreground">
                 <ShieldAlert size={48} />

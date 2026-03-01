@@ -10,6 +10,7 @@ import {
   SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
+  SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
@@ -27,7 +28,11 @@ import {
   Compass,
   Palette,
   MessageSquare,
+  Trophy,
+  Target,
+  LayoutDashboard,
   CircleUser,
+  CreditCard,
   LogOut,
   ChevronsUpDown,
   type LucideIcon,
@@ -39,16 +44,55 @@ type NavItem = {
   icon: LucideIcon
 }
 
-const navItems: NavItem[] = [
+// ブランド掲示グループ
+const brandItems: NavItem[] = [
   { href: '/portal/guidelines', label: 'ブランド方針', icon: FileText },
   { href: '/portal/strategy', label: 'ブランド戦略', icon: Compass },
   { href: '/portal/visuals', label: 'ビジュアル', icon: Palette },
   { href: '/portal/verbal', label: 'バーバル', icon: MessageSquare },
 ]
 
+// 浸透グループ
+const engagementItems: NavItem[] = [
+  { href: '/portal', label: 'ダッシュボード', icon: LayoutDashboard },
+  { href: '/portal/timeline', label: 'タイムライン', icon: Trophy },
+  { href: '/portal/kpi', label: '目標・KPI', icon: Target },
+]
+
+// マイページグループ
+const myPageItems: NavItem[] = [
+  { href: '/portal/profile', label: 'マイプロフィール', icon: CircleUser },
+  { href: '/portal/card-preview', label: '名刺プレビュー', icon: CreditCard },
+]
+
+function NavGroup({ label, items, pathname }: { label: string; items: NavItem[]; pathname: string }) {
+  return (
+    <SidebarGroup>
+      <SidebarGroupLabel>{label}</SidebarGroupLabel>
+      <SidebarGroupContent>
+        <SidebarMenu>
+          {items.map((item) => {
+            const Icon = item.icon
+            return (
+              <SidebarMenuItem key={item.href}>
+                <SidebarMenuButton asChild isActive={item.href === '/portal' ? pathname === '/portal' : pathname.startsWith(item.href)}>
+                  <Link href={item.href}>
+                    <Icon size={18} />
+                    <span>{item.label}</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            )
+          })}
+        </SidebarMenu>
+      </SidebarGroupContent>
+    </SidebarGroup>
+  )
+}
+
 export function PortalSidebar() {
   const pathname = usePathname()
-  const { member, companyName, companyLogoUrl, profileName, profilePhotoUrl, signOut } = usePortalAuth()
+  const { member, companyName, companyLogoUrl, slogan, profileName, profilePhotoUrl, signOut } = usePortalAuth()
 
   const brandInitial = companyName?.slice(0, 1) || 'B'
 
@@ -73,9 +117,9 @@ export function PortalSidebar() {
                     <span className="text-sm font-bold">{brandInitial}</span>
                   )}
                 </div>
-                <div className="flex flex-col gap-0.5 leading-none">
-                  <span className="font-medium">{companyName || 'brandcommit'}</span>
-                  <span className="text-xs">ブランドポータル</span>
+                <div className={`flex flex-col leading-none ${slogan ? 'gap-0.5' : 'justify-center'}`}>
+                  <span className="font-semibold">{companyName || 'brandcommit'}</span>
+                  {slogan && <span className="text-xs text-sidebar-foreground/70">{slogan}</span>}
                 </div>
               </Link>
             </SidebarMenuButton>
@@ -84,14 +128,15 @@ export function PortalSidebar() {
       </SidebarHeader>
 
       <SidebarContent>
+        {/* 浸透（ラベルなし） */}
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
-              {navItems.map((item) => {
+              {engagementItems.map((item) => {
                 const Icon = item.icon
                 return (
                   <SidebarMenuItem key={item.href}>
-                    <SidebarMenuButton asChild isActive={pathname.startsWith(item.href)}>
+                    <SidebarMenuButton asChild isActive={item.href === '/portal' ? pathname === '/portal' : pathname.startsWith(item.href)}>
                       <Link href={item.href}>
                         <Icon size={18} />
                         <span>{item.label}</span>
@@ -103,6 +148,8 @@ export function PortalSidebar() {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+        <NavGroup label="ブランド掲示" items={brandItems} pathname={pathname} />
+        <NavGroup label="マイページ" items={myPageItems} pathname={pathname} />
       </SidebarContent>
 
       {/* ユーザーメニュー */}
