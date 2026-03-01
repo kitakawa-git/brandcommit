@@ -250,9 +250,7 @@ export default function PortalTopPage() {
     const fetchAll = async () => {
       try {
         const now = new Date()
-        const currentMonthStart = new Date(now.getFullYear(), now.getMonth(), 1)
         const ninetyDaysAgo = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000)
-        const currentMonthISO = currentMonthStart.toISOString()
 
         // === Group 1: base queries (parallel) ===
         const [missionRes, userPosts90Res, userRecent3Res, companyRecent3Res, announcementsRes, kpiGoalsRes, goalPeriodRes, goalPeriodsRes] =
@@ -388,14 +386,11 @@ export default function PortalTopPage() {
         setShowReviewBanner(showReviewBannerData)
 
         // --- Personal stats ---
-        const monthlyPosts = allUserPosts.filter(
-          (p) => p.created_at >= currentMonthISO
-        )
         const currentStreak = calculateCurrentStreak(allUserPosts)
 
-        // Category distribution (this month)
+        // Category distribution (90日間)
         const catMap = new Map<string, number>()
-        monthlyPosts.forEach((p) => {
+        allUserPosts.forEach((p) => {
           catMap.set(p.category, (catMap.get(p.category) || 0) + 1)
         })
         const categoryDistribution = [...catMap.entries()]
@@ -403,7 +398,7 @@ export default function PortalTopPage() {
           .sort((a, b) => b.count - a.count)
 
         // === Group 2: dependent queries (parallel) ===
-        const myPostIds = monthlyPosts.map((p) => p.id)
+        const myPostIds = allUserPosts.map((p) => p.id)
         const myRecentIds = myRecentData.map((p) => p.id)
         const companyRecentIds = companyRecentData.map((p) => p.id)
         const allRecentIds = [...new Set([...myRecentIds, ...companyRecentIds])]
@@ -413,13 +408,12 @@ export default function PortalTopPage() {
 
         const [monthlyLikesRes, recentLikesRes, recentCommentsRes, membersRes] =
           await Promise.allSettled([
-            // [0] Monthly likes on my posts
+            // [0] Likes on my posts (90日間)
             myPostIds.length > 0
               ? supabase
                   .from('timeline_likes')
                   .select('id')
                   .in('post_id', myPostIds)
-                  .gte('created_at', currentMonthISO)
               : Promise.resolve({ data: [] as unknown[] }),
             // [1] Likes on all recent posts
             allRecentIds.length > 0
@@ -445,16 +439,16 @@ export default function PortalTopPage() {
               : Promise.resolve({ data: [] as { auth_id: string; display_name: string; profile: { name: string } | { name: string }[] | null }[] }),
           ])
 
-        // Monthly likes received
-        let monthlyLikesReceived = 0
+        // Likes received
+        let likesReceived = 0
         if (monthlyLikesRes.status === 'fulfilled') {
           const res = monthlyLikesRes.value as { data: unknown[] | null }
-          monthlyLikesReceived = res.data?.length || 0
+          likesReceived = res.data?.length || 0
         }
 
         setPersonalStats({
-          monthlyPosts: monthlyPosts.length,
-          monthlyLikesReceived,
+          monthlyPosts: allUserPosts.length,
+          monthlyLikesReceived: likesReceived,
           currentStreak,
           categoryDistribution,
         })
@@ -540,8 +534,8 @@ export default function PortalTopPage() {
         setPageCache(cacheKey, {
           mission: missionData?.mission || null,
           personalStats: {
-            monthlyPosts: monthlyPosts.length,
-            monthlyLikesReceived,
+            monthlyPosts: allUserPosts.length,
+            monthlyLikesReceived: likesReceived,
             currentStreak,
             categoryDistribution,
           },
