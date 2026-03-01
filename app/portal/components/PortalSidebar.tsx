@@ -7,7 +7,6 @@ import { usePortalAuth } from './PortalAuthProvider'
 import {
   Sidebar,
   SidebarContent,
-  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
@@ -16,13 +15,6 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from '@/components/ui/sidebar'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import {
   FileText,
   Compass,
@@ -33,8 +25,6 @@ import {
   LayoutDashboard,
   CircleUser,
   CreditCard,
-  LogOut,
-  ChevronsUpDown,
   type LucideIcon,
 } from 'lucide-react'
 
@@ -92,15 +82,9 @@ function NavGroup({ label, items, pathname }: { label: string; items: NavItem[];
 
 export function PortalSidebar() {
   const pathname = usePathname()
-  const { member, companyName, companyLogoUrl, slogan, profileName, profilePhotoUrl, signOut } = usePortalAuth()
+  const { companyName, companyLogoUrl, slogan } = usePortalAuth()
 
   const brandInitial = companyName?.slice(0, 1) || 'B'
-
-  const profileInitial = profileName
-    ? profileName.slice(0, 1)
-    : member?.display_name?.slice(0, 1) || '?'
-
-  const displayName = profileName || member?.display_name || member?.email
 
   return (
     <Sidebar variant="floating">
@@ -151,47 +135,6 @@ export function PortalSidebar() {
         <NavGroup label="ブランド掲示" items={brandItems} pathname={pathname} />
         <NavGroup label="マイページ" items={myPageItems} pathname={pathname} />
       </SidebarContent>
-
-      {/* ユーザーメニュー */}
-      <SidebarFooter>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <SidebarMenuButton size="lg" className="data-[state=open]:bg-sidebar-accent">
-                  <Avatar className="size-8 shrink-0">
-                    {profilePhotoUrl && <AvatarImage src={profilePhotoUrl} alt={displayName || ''} />}
-                    <AvatarFallback className="bg-sidebar-accent text-sidebar-accent-foreground text-xs">
-                      {profilePhotoUrl ? profileInitial : <CircleUser className="size-4" />}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="flex-1 min-w-0 leading-tight">
-                    <span className="block truncate text-sm font-semibold">
-                      {displayName}
-                    </span>
-                    {profileName && member?.email && (
-                      <span className="block truncate text-xs opacity-70">
-                        {member.email}
-                      </span>
-                    )}
-                  </div>
-                  <ChevronsUpDown className="ml-auto size-4 shrink-0 opacity-50" />
-                </SidebarMenuButton>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent
-                side="top"
-                align="start"
-                className="w-[--radix-dropdown-menu-trigger-width] min-w-56"
-              >
-                <DropdownMenuItem onClick={signOut}>
-                  <LogOut className="mr-2 size-4" />
-                  ログアウト
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </SidebarMenuItem>
-        </SidebarMenu>
-      </SidebarFooter>
     </Sidebar>
   )
 }
