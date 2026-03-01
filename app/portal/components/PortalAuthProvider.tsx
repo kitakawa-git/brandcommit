@@ -27,6 +27,7 @@ type PortalAuthContextType = {
   member: MemberInfo | null
   profileName: string | null
   profilePhotoUrl: string | null
+  profileSlug: string | null
   isAdmin: boolean
   loading: boolean
   signOut: () => Promise<void>
@@ -42,6 +43,7 @@ const PortalAuthContext = createContext<PortalAuthContextType>({
   member: null,
   profileName: null,
   profilePhotoUrl: null,
+  profileSlug: null,
   isAdmin: false,
   loading: true,
   signOut: async () => {},
@@ -60,6 +62,7 @@ export function PortalAuthProvider({ children }: { children: React.ReactNode }) 
   const [member, setMember] = useState<MemberInfo | null>(null)
   const [profileName, setProfileName] = useState<string | null>(null)
   const [profilePhotoUrl, setProfilePhotoUrl] = useState<string | null>(null)
+  const [profileSlug, setProfileSlug] = useState<string | null>(null)
   const [isAdmin, setIsAdmin] = useState(false)
   const [loading, setLoading] = useState(true)
   const router = useRouter()
@@ -71,7 +74,7 @@ export function PortalAuthProvider({ children }: { children: React.ReactNode }) 
     try {
       const { data, error } = await supabase
         .from('members')
-        .select('*, profile:profiles(name, photo_url)')
+        .select('*, profile:profiles(name, photo_url, slug)')
         .eq('auth_id', authId)
         .eq('is_active', true)
         .single()
@@ -90,10 +93,11 @@ export function PortalAuthProvider({ children }: { children: React.ReactNode }) 
       })
 
       // プロフィール情報を取得（join 結果から）
-      const profileRaw = data.profile as { name: string; photo_url: string } | { name: string; photo_url: string }[] | null
+      const profileRaw = data.profile as { name: string; photo_url: string; slug: string } | { name: string; photo_url: string; slug: string }[] | null
       const profile = Array.isArray(profileRaw) ? profileRaw[0] ?? null : profileRaw
       setProfileName(profile?.name || data.display_name || null)
       setProfilePhotoUrl(profile?.photo_url || null)
+      setProfileSlug(profile?.slug || null)
 
       // 会社情報を取得
       try {
@@ -213,10 +217,11 @@ export function PortalAuthProvider({ children }: { children: React.ReactNode }) 
     setMember(null)
     setProfileName(null)
     setProfilePhotoUrl(null)
+    setProfileSlug(null)
     router.push('/portal/login')
   }
 
-  const contextValue = { user, companyId, companyName, companyLogoUrl, portalSubtitles, slogan, member, profileName, profilePhotoUrl, isAdmin, loading, signOut }
+  const contextValue = { user, companyId, companyName, companyLogoUrl, portalSubtitles, slogan, member, profileName, profilePhotoUrl, profileSlug, isAdmin, loading, signOut }
 
   // 公開パスではそのまま表示
   if (isPublicPath) {
