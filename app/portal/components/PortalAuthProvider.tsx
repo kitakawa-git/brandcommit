@@ -1,7 +1,7 @@
 'use client'
 
 // ポータル認証プロバイダー: members テーブルを参照
-import { createContext, useContext, useEffect, useState } from 'react'
+import { createContext, useContext, useEffect, useRef, useState } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import type { User } from '@supabase/supabase-js'
@@ -150,6 +150,10 @@ export function PortalAuthProvider({ children }: { children: React.ReactNode }) 
     }
   }
 
+  // useRef で最新の値をコールバック内から参照（クロージャの古い値問題を回避）
+  const memberRef = useRef(member)
+  useEffect(() => { memberRef.current = member }, [member])
+
   // onAuthStateChange を唯一の認証ソースとして使用（Supabase推奨パターン）
   useEffect(() => {
     // 10秒経っても INITIAL_SESSION が来なければ強制リダイレクト
@@ -181,7 +185,7 @@ export function PortalAuthProvider({ children }: { children: React.ReactNode }) 
           setUser(currentUser)
 
           // TOKEN_REFRESHED: データ既取得済みなら再取得スキップ（スケルトン回避）
-          if (event === 'TOKEN_REFRESHED' && member) {
+          if (event === 'TOKEN_REFRESHED' && memberRef.current) {
             return
           }
 
