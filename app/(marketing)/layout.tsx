@@ -17,7 +17,7 @@ function Header() {
 
   return (
     <header className="sticky top-0 z-50 border-b bg-white/80 backdrop-blur-sm">
-      <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4">
+      <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-6">
         {/* ロゴ */}
         <Link href="/" className="text-lg font-bold text-gray-900 no-underline hover:opacity-80">
           brandconnect
@@ -85,7 +85,7 @@ function Header() {
 function Footer() {
   return (
     <footer className="border-t bg-gray-900 text-white">
-      <div className="mx-auto max-w-5xl px-4 py-14">
+      <div className="mx-auto max-w-7xl px-6 py-14">
         <div className="grid md:grid-cols-3 gap-10">
           {/* ブランド */}
           <div>

@@ -13,8 +13,8 @@ export const metadata: Metadata = {
 /* ─── セクション1: Hero ─── */
 function HeroSection() {
   return (
-    <section className="bg-white px-4 pt-20 pb-16 md:pt-28 md:pb-24">
-      <div className="mx-auto max-w-5xl text-center">
+    <section className="bg-white px-6 pt-20 pb-16 md:pt-28 md:pb-24">
+      <div className="mx-auto max-w-7xl text-center">
         <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-blue-50 px-4 py-1.5 text-sm text-blue-700">
           <Sparkles className="h-4 w-4" />
           Build — Embed — Deliver
@@ -78,8 +78,8 @@ const layers = [
 
 function LayersSection() {
   return (
-    <section className="bg-gray-50 px-4 py-16 md:py-24">
-      <div className="mx-auto max-w-5xl">
+    <section className="bg-gray-50 px-6 py-16 md:py-24">
+      <div className="mx-auto max-w-7xl">
         <h2 className="text-center text-2xl md:text-3xl font-bold text-gray-900 mb-4">
           3つのレイヤーで、ブランドを支える
         </h2>
@@ -116,8 +116,8 @@ function LayersSection() {
 /* ─── セクション3: About + YouTube ─── */
 function AboutSection() {
   return (
-    <section className="bg-white px-4 py-16 md:py-24">
-      <div className="mx-auto max-w-5xl">
+    <section className="bg-white px-6 py-16 md:py-24">
+      <div className="mx-auto max-w-7xl">
         <h2 className="text-center text-2xl md:text-3xl font-bold text-gray-900 mb-4">
           brandconnect とは
         </h2>
@@ -195,8 +195,8 @@ const features = [
 
 function FeaturesSection() {
   return (
-    <section className="bg-gray-50 px-4 py-16 md:py-24">
-      <div className="mx-auto max-w-5xl">
+    <section className="bg-gray-50 px-6 py-16 md:py-24">
+      <div className="mx-auto max-w-7xl">
         <h2 className="text-center text-2xl md:text-3xl font-bold text-gray-900 mb-4">
           主な機能
         </h2>
@@ -242,8 +242,8 @@ function FeaturesSection() {
 /* ─── セクション5: CTA ─── */
 function CTASection() {
   return (
-    <section className="bg-white px-4 py-16 md:py-24 text-center">
-      <div className="mx-auto max-w-2xl">
+    <section className="bg-white px-6 py-16 md:py-24 text-center">
+      <div className="mx-auto max-w-7xl">
         <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4">
           さぁ、&ldquo;らしさ&rdquo;をひろげよう
         </h2>

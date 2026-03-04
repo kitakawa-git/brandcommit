@@ -58,7 +58,7 @@ export default function ContactPage() {
   // 送信完了
   if (submitted) {
     return (
-      <section className="bg-white px-4 py-32 text-center">
+      <section className="bg-white px-6 py-32 text-center">
         <div className="mx-auto max-w-md">
           <div className="w-16 h-16 rounded-full bg-green-50 text-green-500 flex items-center justify-center mx-auto mb-6">
             <CheckCircle2 className="h-8 w-8" />
@@ -85,7 +85,7 @@ export default function ContactPage() {
   return (
     <>
       {/* ヒーロー */}
-      <section className="bg-white px-4 pt-16 pb-6 text-center">
+      <section className="bg-white px-6 pt-16 pb-6 text-center">
         <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
           お問い合わせ
         </h1>
@@ -95,8 +95,8 @@ export default function ContactPage() {
       </section>
 
       {/* フォーム */}
-      <section className="bg-white px-4 pb-16">
-        <form onSubmit={handleSubmit} className="mx-auto max-w-xl space-y-6">
+      <section className="bg-white px-6 pb-16">
+        <form onSubmit={handleSubmit} className="mx-auto max-w-2xl space-y-6">
           {/* 会社名 */}
           <div>
             <label className="block text-sm font-medium text-gray-900 mb-1.5">

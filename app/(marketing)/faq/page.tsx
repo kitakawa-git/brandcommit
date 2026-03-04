@@ -93,7 +93,7 @@ export default function FAQPage() {
   return (
     <>
       {/* ヒーロー */}
-      <section className="bg-white px-4 pt-16 pb-8 text-center">
+      <section className="bg-white px-6 pt-16 pb-8 text-center">
         <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
           よくある質問
         </h1>
@@ -103,8 +103,8 @@ export default function FAQPage() {
       </section>
 
       {/* FAQ本体 */}
-      <section className="bg-white px-4 pb-16">
-        <div className="mx-auto max-w-3xl space-y-12">
+      <section className="bg-white px-6 pb-16">
+        <div className="mx-auto max-w-5xl space-y-12">
           {faqCategories.map((category) => (
             <div key={category.title}>
               <h2 className="text-lg font-bold text-gray-900 mb-4 pb-2 border-b border-gray-200">
@@ -128,7 +128,7 @@ export default function FAQPage() {
       </section>
 
       {/* CTA */}
-      <section className="bg-gray-50 px-4 py-16 text-center">
+      <section className="bg-gray-50 px-6 py-16 text-center">
         <p className="text-gray-500 mb-6">
           ご不明な点がございましたら、お気軽にお問い合わせください。
         </p>

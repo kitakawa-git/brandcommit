@@ -55,7 +55,7 @@ export default function ColorsLandingPage() {
     <div className="min-h-screen bg-white">
       {/* ヘッダー */}
       <header className="border-b">
-        <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4">
+        <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-6">
           <Link
             href="/tools/colors"
             className="text-lg font-bold text-gray-900 no-underline"
@@ -69,8 +69,8 @@ export default function ColorsLandingPage() {
       </header>
 
       {/* ヒーロー */}
-      <section className="mx-auto max-w-5xl px-4 py-16 text-center md:py-24">
-        <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-blue-50 px-4 py-1.5 text-sm text-blue-700">
+      <section className="mx-auto max-w-7xl px-6 py-16 text-center md:py-24">
+        <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-blue-50 px-6 py-1.5 text-sm text-blue-700">
           <Sparkles className="h-4 w-4" />
           AIガイドで約5〜10分
         </div>
@@ -92,7 +92,7 @@ export default function ColorsLandingPage() {
 
       {/* カラーパレット例 */}
       <section className="bg-gray-50 py-16">
-        <div className="mx-auto max-w-5xl px-4">
+        <div className="mx-auto max-w-7xl px-6">
           <h2 className="mb-8 text-center text-2xl font-bold text-gray-900">
             こんなパレットが作れます
           </h2>
@@ -130,7 +130,7 @@ export default function ColorsLandingPage() {
 
       {/* ステップ説明 */}
       <section className="py-16">
-        <div className="mx-auto max-w-5xl px-4">
+        <div className="mx-auto max-w-7xl px-6">
           <h2 className="mb-12 text-center text-2xl font-bold text-gray-900">
             5ステップでカラーを確定
           </h2>
@@ -158,7 +158,7 @@ export default function ColorsLandingPage() {
 
       {/* 機能ハイライト */}
       <section className="bg-gray-50 py-16">
-        <div className="mx-auto max-w-5xl px-4">
+        <div className="mx-auto max-w-7xl px-6">
           <div className="grid gap-8 md:grid-cols-3">
             <div className="flex items-start gap-3">
               <Palette className="mt-0.5 h-5 w-5 flex-shrink-0 text-blue-600" />
@@ -187,7 +187,7 @@ export default function ColorsLandingPage() {
 
       {/* CTA */}
       <section className="py-16">
-        <div className="mx-auto max-w-5xl px-4 text-center">
+        <div className="mx-auto max-w-7xl px-6 text-center">
           <h2 className="mb-4 text-2xl font-bold text-gray-900">
             今すぐカラーパレットを作成
           </h2>
@@ -215,7 +215,7 @@ export default function ColorsLandingPage() {
 
       {/* フッター */}
       <footer className="border-t py-8">
-        <div className="mx-auto max-w-5xl px-4 text-center text-sm text-gray-400">
+        <div className="mx-auto max-w-7xl px-6 text-center text-sm text-gray-400">
           &copy; {new Date().getFullYear()} brandconnect. All rights reserved.
         </div>
       </footer>
