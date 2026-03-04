@@ -31,45 +31,45 @@ export function ToolsAuthProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<MiniAppSession | null>(null)
   const [loading, setLoading] = useState(true)
   const router = useRouter()
-  const loadedRef = useRef(false)
-  const loadingRef = useRef(true)
 
-  // loading状態をRefにも同期（タイムアウトのクロージャ対策）
-  const updateLoading = (value: boolean) => {
-    loadingRef.current = value
-    setLoading(value)
-  }
+  // useRef で最新の値をコールバック内から参照（クロージャの古い値問題を回避）
+  const loadedRef = useRef(false)
+  const sessionRef = useRef<MiniAppSession | null>(null)
+  useEffect(() => { sessionRef.current = session }, [session])
 
   useEffect(() => {
+    // 10秒タイムアウト: INITIAL_SESSION が来なければ強制リダイレクト
+    const timeoutId = setTimeout(() => {
+      console.warn('[ToolsAuth] 10秒タイムアウト: ランディングへリダイレクト')
+      setLoading(false)
+      router.replace('/tools/colors')
+    }, 10000)
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, authSession) => {
-        console.log('[ToolsAuth] event:', event)
+        console.log('[ToolsAuth] onAuthStateChange:', event, authSession?.user?.email)
 
-        if (event === 'SIGNED_OUT') {
-          setUser(null)
-          setSession(null)
-          updateLoading(false)
-          router.replace('/tools/colors')
-          return
-        }
+        if (event === 'INITIAL_SESSION' || event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+          // イベントが来た時点でタイムアウトは不要
+          clearTimeout(timeoutId)
 
-        if (
-          event === 'INITIAL_SESSION' ||
-          event === 'SIGNED_IN' ||
-          event === 'TOKEN_REFRESHED'
-        ) {
           if (!authSession?.user) {
-            // 未認証 → Landing へリダイレクト
-            updateLoading(false)
-            router.replace('/tools/colors')
+            // 未認証 → ランディングへ（INITIAL_SESSION + session=null のケース）
+            setUser(null)
+            setLoading(false)
             return
           }
 
           setUser(authSession.user)
 
-          // データ読込済み & 初回セッションでない場合はスキップ
-          if (loadedRef.current && event !== 'INITIAL_SESSION') {
-            updateLoading(false)
+          // TOKEN_REFRESHED: データ取得済みなら再取得スキップ（リダイレクトもしない）
+          if (event === 'TOKEN_REFRESHED' && loadedRef.current) {
+            return
+          }
+
+          // SIGNED_IN: データ取得済みなら再取得スキップ
+          if (event === 'SIGNED_IN' && loadedRef.current) {
+            setLoading(false)
             return
           }
 
@@ -92,23 +92,21 @@ export function ToolsAuthProvider({ children }: { children: React.ReactNode }) {
             console.error('[ToolsAuth] セッション取得エラー:', err)
           }
 
-          updateLoading(false)
+          setLoading(false)
+        } else if (event === 'SIGNED_OUT') {
+          clearTimeout(timeoutId)
+          setUser(null)
+          setSession(null)
+          loadedRef.current = false
+          setLoading(false)
+          router.replace('/tools/colors')
         }
       }
     )
 
-    // 10秒タイムアウト（loadingRefで最新値を参照）
-    const timeout = setTimeout(() => {
-      if (loadingRef.current) {
-        console.warn('[ToolsAuth] 初期セッション取得タイムアウト')
-        updateLoading(false)
-        router.replace('/tools/colors')
-      }
-    }, 10000)
-
     return () => {
+      clearTimeout(timeoutId)
       subscription.unsubscribe()
-      clearTimeout(timeout)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
