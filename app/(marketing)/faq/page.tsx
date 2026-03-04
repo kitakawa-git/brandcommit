@@ -1,5 +1,7 @@
 import Link from 'next/link'
+import { ArrowRight } from 'lucide-react'
 import type { Metadata } from 'next'
+import { Button } from '@/components/ui/button'
 import {
   Accordion,
   AccordionContent,
@@ -91,18 +93,18 @@ export default function FAQPage() {
   return (
     <>
       {/* ヒーロー */}
-      <section className="bg-white px-6 pt-20 pb-12 text-center">
-        <h1 className="font-comfortaa text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+      <section className="bg-white px-4 pt-16 pb-8 text-center">
+        <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
           よくある質問
         </h1>
-        <p className="text-lp-gray max-w-[480px] mx-auto">
+        <p className="text-gray-600 max-w-lg mx-auto">
           brandconnect についてよくいただくご質問にお答えします。
         </p>
       </section>
 
       {/* FAQ本体 */}
-      <section className="bg-white px-6 pb-20">
-        <div className="max-w-[800px] mx-auto space-y-12">
+      <section className="bg-white px-4 pb-16">
+        <div className="mx-auto max-w-3xl space-y-12">
           {faqCategories.map((category) => (
             <div key={category.title}>
               <h2 className="text-lg font-bold text-gray-900 mb-4 pb-2 border-b border-gray-200">
@@ -114,7 +116,7 @@ export default function FAQPage() {
                     <AccordionTrigger className="text-left text-sm font-medium text-gray-900 hover:no-underline">
                       {item.q}
                     </AccordionTrigger>
-                    <AccordionContent className="text-sm text-lp-gray leading-relaxed">
+                    <AccordionContent className="text-sm text-gray-500 leading-relaxed">
                       {item.a}
                     </AccordionContent>
                   </AccordionItem>
@@ -126,15 +128,15 @@ export default function FAQPage() {
       </section>
 
       {/* CTA */}
-      <section className="bg-lp-gray-bg px-6 py-16 text-center">
-        <p className="text-lp-gray mb-6">
+      <section className="bg-gray-50 px-4 py-16 text-center">
+        <p className="text-gray-500 mb-6">
           ご不明な点がございましたら、お気軽にお問い合わせください。
         </p>
-        <Link
-          href="/contact"
-          className="inline-flex items-center h-12 px-8 text-sm font-bold text-white bg-gray-900 rounded-full hover:opacity-80 transition-opacity"
-        >
-          お問い合わせ
+        <Link href="/contact">
+          <Button size="lg" className="h-12 px-8 text-base font-bold">
+            お問い合わせ
+            <ArrowRight className="ml-2 h-4 w-4" />
+          </Button>
         </Link>
       </section>
     </>

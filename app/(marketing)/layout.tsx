@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { useState } from 'react'
 import { Menu, X } from 'lucide-react'
+import { Button } from '@/components/ui/button'
 
 const navItems = [
   { href: '/', label: 'トップ' },
@@ -15,10 +16,10 @@ function Header() {
   const [menuOpen, setMenuOpen] = useState(false)
 
   return (
-    <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-[10px] border-b border-gray-100">
-      <div className="max-w-[1200px] mx-auto px-6 h-16 flex items-center justify-between">
+    <header className="sticky top-0 z-50 border-b bg-white/80 backdrop-blur-sm">
+      <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4">
         {/* ロゴ */}
-        <Link href="/" className="font-comfortaa text-xl font-bold text-gray-900 tracking-tight">
+        <Link href="/" className="text-lg font-bold text-gray-900 no-underline hover:opacity-80">
           brandconnect
         </Link>
 
@@ -28,16 +29,13 @@ function Header() {
             <Link
               key={item.href}
               href={item.href}
-              className="px-4 py-2 text-sm font-noto-sans-jp text-lp-gray rounded-md hover:bg-gray-100 transition-colors"
+              className="px-3 py-2 text-sm text-gray-600 rounded-md hover:text-gray-900 hover:bg-gray-100 transition-colors"
             >
               {item.label}
             </Link>
           ))}
-          <Link
-            href="/portal/login"
-            className="ml-3 px-5 py-2 text-sm font-bold text-white bg-gray-900 rounded-full hover:opacity-80 transition-opacity"
-          >
-            ログイン
+          <Link href="/portal/login" className="ml-3">
+            <Button variant="outline" size="sm">ログイン</Button>
           </Link>
         </nav>
 
@@ -53,12 +51,12 @@ function Header() {
 
       {/* モバイルメニュー */}
       {menuOpen && (
-        <nav className="md:hidden bg-white border-t border-gray-100 px-6 py-4 space-y-1">
+        <nav className="md:hidden bg-white border-t px-4 py-3 space-y-1">
           {navItems.map((item) => (
             <Link
               key={item.href}
               href={item.href}
-              className="block px-4 py-3 text-sm text-lp-gray rounded-md hover:bg-gray-100"
+              className="block px-3 py-2.5 text-sm text-gray-600 rounded-md hover:bg-gray-100 hover:text-gray-900"
               onClick={() => setMenuOpen(false)}
             >
               {item.label}
@@ -66,14 +64,14 @@ function Header() {
           ))}
           <Link
             href="/portal/login"
-            className="block px-4 py-3 text-sm font-bold text-teal"
+            className="block px-3 py-2.5 text-sm font-medium text-gray-900"
             onClick={() => setMenuOpen(false)}
           >
             ログイン
           </Link>
           <Link
             href="/admin/login"
-            className="block px-4 py-3 text-xs text-lp-gray-light"
+            className="block px-3 py-2.5 text-xs text-gray-400"
             onClick={() => setMenuOpen(false)}
           >
             管理者ログイン
@@ -86,12 +84,12 @@ function Header() {
 
 function Footer() {
   return (
-    <footer className="bg-gray-900 text-white">
-      <div className="max-w-[1200px] mx-auto px-6 py-16">
+    <footer className="border-t bg-gray-900 text-white">
+      <div className="mx-auto max-w-5xl px-4 py-14">
         <div className="grid md:grid-cols-3 gap-10">
           {/* ブランド */}
           <div>
-            <p className="font-comfortaa text-xl font-bold mb-3">brandconnect</p>
+            <p className="text-lg font-bold mb-3">brandconnect</p>
             <p className="text-sm text-gray-400 leading-relaxed">
               ブランドを「作る → 根づかせる → 届ける」まで<br />
               一貫支援するSaaS
@@ -136,18 +134,10 @@ export default function MarketingLayout({
   children: React.ReactNode
 }) {
   return (
-    <>
-      <link rel="preconnect" href="https://fonts.googleapis.com" />
-      <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-      <link
-        href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;600;700&family=Noto+Sans+JP:wght@300;400;500;600;700&family=Open+Sans:wght@400;600;700&display=swap"
-        rel="stylesheet"
-      />
-      <div className="font-noto-sans-jp">
-        <Header />
-        <main>{children}</main>
-        <Footer />
-      </div>
-    </>
+    <div>
+      <Header />
+      <main>{children}</main>
+      <Footer />
+    </div>
   )
 }

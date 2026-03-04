@@ -1,6 +1,8 @@
 import Link from 'next/link'
-import { Check, Minus } from 'lucide-react'
+import { Check, Minus, ArrowRight } from 'lucide-react'
 import type { Metadata } from 'next'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent } from '@/components/ui/card'
 
 export const metadata: Metadata = {
   title: '料金プラン',
@@ -77,39 +79,39 @@ export default function PlanPage() {
   return (
     <>
       {/* ヒーロー */}
-      <section className="bg-white px-6 pt-20 pb-12 text-center">
-        <h1 className="font-comfortaa text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+      <section className="bg-white px-4 pt-16 pb-8 text-center">
+        <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
           料金プラン
         </h1>
-        <p className="text-lp-gray max-w-[480px] mx-auto">
+        <p className="text-gray-600 max-w-lg mx-auto">
           チーム規模に合わせて選べる3つのプラン。<br />
           すべてのプランで主要機能をお使いいただけます。
         </p>
       </section>
 
       {/* プランカード */}
-      <section className="bg-white px-6 pb-20">
-        <div className="max-w-[1000px] mx-auto grid md:grid-cols-3 gap-6">
+      <section className="bg-white px-4 pb-16">
+        <div className="mx-auto max-w-5xl grid md:grid-cols-3 gap-6">
           {plans.map((plan) => (
             <div
               key={plan.name}
-              className={`rounded-2xl p-8 text-center ${
+              className={`rounded-xl p-8 text-center transition-shadow ${
                 plan.highlight
-                  ? 'bg-gray-900 text-white ring-2 ring-teal shadow-xl'
-                  : 'bg-lp-gray-bg border border-gray-200'
+                  ? 'bg-gray-900 text-white ring-2 ring-blue-600 shadow-xl'
+                  : 'bg-gray-50 border border-gray-200 hover:shadow-md'
               }`}
             >
-              <p className={`text-sm font-medium mb-1 ${plan.highlight ? 'text-teal' : 'text-lp-gray'}`}>
+              <p className={`text-sm font-medium mb-1 ${plan.highlight ? 'text-blue-400' : 'text-gray-500'}`}>
                 {plan.subtitle}
               </p>
-              <h3 className="font-comfortaa text-2xl font-bold mb-4">{plan.name}</h3>
+              <h3 className="text-2xl font-bold mb-4">{plan.name}</h3>
 
               {plan.price ? (
                 <div className="mb-2">
                   <span className="text-4xl font-bold tracking-tight" style={{ letterSpacing: '-2px' }}>
                     ¥{plan.price}
                   </span>
-                  <span className={`text-sm ml-1 ${plan.highlight ? 'text-gray-300' : 'text-lp-gray'}`}>/月</span>
+                  <span className={`text-sm ml-1 ${plan.highlight ? 'text-gray-300' : 'text-gray-500'}`}>/月</span>
                 </div>
               ) : (
                 <div className="mb-2">
@@ -117,31 +119,34 @@ export default function PlanPage() {
                 </div>
               )}
 
-              <p className={`text-sm mb-6 ${plan.highlight ? 'text-gray-300' : 'text-lp-gray'}`}>
+              <p className={`text-sm mb-6 ${plan.highlight ? 'text-gray-300' : 'text-gray-500'}`}>
                 {plan.userLimit}
               </p>
 
               {plan.perUser && (
-                <p className={`text-xs mb-6 ${plan.highlight ? 'text-gray-400' : 'text-lp-gray-light'}`}>
+                <p className={`text-xs mb-6 ${plan.highlight ? 'text-gray-400' : 'text-gray-400'}`}>
                   1ユーザーあたり ¥{plan.perUser}
                 </p>
               )}
 
-              <Link
-                href="/contact"
-                className={`inline-flex items-center justify-center w-full h-12 rounded-full font-bold text-sm transition-opacity hover:opacity-80 ${
-                  plan.highlight ? 'bg-teal text-white' : 'bg-gray-900 text-white'
-                }`}
-              >
-                {plan.price ? 'お申し込み' : 'お問い合わせ'}
+              <Link href="/contact">
+                {plan.highlight ? (
+                  <Button size="lg" className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-bold">
+                    {plan.price ? 'お申し込み' : 'お問い合わせ'}
+                  </Button>
+                ) : (
+                  <Button variant="outline" size="lg" className="w-full h-12 font-bold bg-gray-900 text-white hover:bg-gray-800 border-0">
+                    {plan.price ? 'お申し込み' : 'お問い合わせ'}
+                  </Button>
+                )}
               </Link>
             </div>
           ))}
         </div>
 
         {/* オプション */}
-        <div className="max-w-[1000px] mx-auto mt-10 text-center">
-          <p className="text-sm text-lp-gray">
+        <div className="mx-auto max-w-5xl mt-8 text-center">
+          <p className="text-sm text-gray-500">
             ※ 初期設定サービス：<span className="font-bold">¥30,000</span>（別途）
             <span className="ml-4">※ ブランディングサポート：別途有料オプション</span>
           </p>
@@ -149,16 +154,16 @@ export default function PlanPage() {
       </section>
 
       {/* 機能比較テーブル */}
-      <section className="bg-lp-gray-bg px-6 py-20">
-        <div className="max-w-[800px] mx-auto">
-          <h2 className="font-comfortaa text-center text-2xl font-bold text-gray-900 mb-10">
+      <section className="bg-gray-50 px-4 py-16">
+        <div className="mx-auto max-w-3xl">
+          <h2 className="text-center text-2xl font-bold text-gray-900 mb-10">
             機能比較
           </h2>
-          <div className="bg-white rounded-2xl overflow-hidden shadow-sm">
+          <Card className="overflow-hidden">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-gray-200">
-                  <th className="text-left py-4 px-6 font-medium text-lp-gray">機能</th>
+                  <th className="text-left py-4 px-6 font-medium text-gray-500">機能</th>
                   <th className="py-4 px-4 font-bold text-center">Starter</th>
                   <th className="py-4 px-4 font-bold text-center">Growth</th>
                 </tr>
@@ -166,17 +171,17 @@ export default function PlanPage() {
               <tbody>
                 {featureRows.map((row, i) => (
                   <tr key={row.label} className={i < featureRows.length - 1 ? 'border-b border-gray-100' : ''}>
-                    <td className="py-3 px-6 text-lp-gray-dark">{row.label}</td>
+                    <td className="py-3 px-6 text-gray-700">{row.label}</td>
                     <td className="py-3 px-4 text-center">
                       {row.starter ? (
-                        <Check size={18} className="inline text-teal" />
+                        <Check size={18} className="inline text-green-500" />
                       ) : (
                         <Minus size={18} className="inline text-gray-300" />
                       )}
                     </td>
                     <td className="py-3 px-4 text-center">
                       {row.growth ? (
-                        <Check size={18} className="inline text-teal" />
+                        <Check size={18} className="inline text-green-500" />
                       ) : (
                         <Minus size={18} className="inline text-gray-300" />
                       )}
@@ -185,27 +190,27 @@ export default function PlanPage() {
                 ))}
               </tbody>
             </table>
-          </div>
-          <p className="text-center text-xs text-lp-gray-light mt-4">
+          </Card>
+          <p className="text-center text-xs text-gray-400 mt-4">
             Enterprise プランはすべての機能に加え、カスタマイズ対応が可能です。
           </p>
         </div>
       </section>
 
       {/* 導入ステップ */}
-      <section className="bg-white px-6 py-20">
-        <div className="max-w-[800px] mx-auto">
-          <h2 className="font-comfortaa text-center text-2xl font-bold text-gray-900 mb-12">
+      <section className="bg-white px-4 py-16">
+        <div className="mx-auto max-w-3xl">
+          <h2 className="text-center text-2xl font-bold text-gray-900 mb-12">
             かんたん3ステップで導入
           </h2>
           <div className="grid md:grid-cols-3 gap-8">
             {steps.map((step) => (
               <div key={step.num} className="text-center">
-                <div className="w-12 h-12 rounded-full bg-teal/10 text-teal font-comfortaa font-bold text-lg flex items-center justify-center mx-auto mb-4">
+                <div className="w-10 h-10 rounded-full bg-gray-900 text-white font-bold text-sm flex items-center justify-center mx-auto mb-4">
                   {step.num}
                 </div>
                 <h3 className="font-bold text-gray-900 mb-2">{step.title}</h3>
-                <p className="text-sm text-lp-gray leading-relaxed">{step.description}</p>
+                <p className="text-sm text-gray-500 leading-relaxed">{step.description}</p>
               </div>
             ))}
           </div>
@@ -213,21 +218,21 @@ export default function PlanPage() {
       </section>
 
       {/* CTA */}
-      <section className="bg-lp-gray-bg px-6 py-20 text-center">
-        <div className="max-w-[600px] mx-auto">
-          <h2 className="font-comfortaa text-2xl font-bold text-gray-900 mb-4">
+      <section className="bg-gray-50 px-4 py-16 text-center">
+        <div className="mx-auto max-w-xl">
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">
             無料トライアルのお申し込み
           </h2>
-          <p className="text-sm text-lp-gray mb-8">
+          <p className="text-sm text-gray-500 mb-8">
             利用規約 & プライバシーポリシーをよく読み、お問い合わせフォームよりお申し込みください。
           </p>
-          <Link
-            href="/contact"
-            className="inline-flex items-center h-14 px-10 text-base font-bold text-white bg-gray-900 rounded-full hover:opacity-80 transition-opacity"
-          >
-            お問い合わせ
+          <Link href="/contact">
+            <Button size="lg" className="h-12 px-8 text-base font-bold">
+              お問い合わせ
+              <ArrowRight className="ml-2 h-4 w-4" />
+            </Button>
           </Link>
-          <p className="mt-6 text-xs text-lp-gray-light">
+          <p className="mt-6 text-xs text-gray-400">
             ※ 業種業態によっては、ご利用をお断りさせていただく場合がございます。
           </p>
         </div>
