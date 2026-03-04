@@ -6,8 +6,13 @@ import { Card, CardContent } from '@/components/ui/card'
 import { ArrowRight, Sparkles } from 'lucide-react'
 
 export const metadata: Metadata = {
-  title: 'brandconnect — ブランドを、つくり、根づかせ、届ける',
-  description: '中小企業のブランドを「構築→浸透→発信」まで一貫支援するSaaS。ミニアプリでブランドを作り、社内に根づかせ、スマート名刺で届ける。',
+  title: 'branding.bz — AIで、ブランディングを加速させる。',
+  description: '社員が体現し、顧客に届く。ブランドの構築・浸透・発信をひとつのプラットフォームで。branding.bz はブランディング会社の現場から生まれたSaaSです。',
+  openGraph: {
+    title: 'branding.bz — AIで、ブランディングを加速させる。',
+    description: '社員が体現し、顧客に届く。ブランドの構築・浸透・発信をひとつのプラットフォームで。',
+    siteName: 'branding.bz',
+  },
 }
 
 /* ─── セクション1: Hero ─── */
@@ -15,20 +20,12 @@ function HeroSection() {
   return (
     <section className="bg-white px-6 pt-20 pb-16 md:pt-28 md:pb-24">
       <div className="mx-auto max-w-7xl text-center">
-        <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-blue-50 px-4 py-1.5 text-sm text-blue-700">
-          <Sparkles className="h-4 w-4" />
-          Build — Embed — Deliver
-        </div>
         <h1 className="mb-4 text-3xl font-bold tracking-tight text-gray-900 md:text-5xl">
-          ブランドを、つくり、<br className="sm:hidden" />
-          根づかせ、届ける。
+          AIで、ブランディングを加速させる。
         </h1>
-        <p className="mx-auto mb-4 max-w-2xl text-lg text-gray-600 leading-relaxed">
-          中小企業のためのブランディングSaaS。<br className="hidden sm:block" />
-          AIでブランドを構築し、社内に浸透させ、スマート名刺で社外に届ける。
-        </p>
-        <p className="text-blue-600 text-base font-semibold mb-8">
-          &ldquo;らしさ&rdquo;をひろげよう
+        <p className="mx-auto mb-8 max-w-2xl text-lg text-gray-600 leading-relaxed">
+          社員が体現し、顧客に届く。<br className="hidden sm:block" />
+          ブランドの構築・浸透・発信を、ひとつのプラットフォームで。
         </p>
         <div className="flex gap-4 justify-center flex-wrap">
           <Link href="/contact">
@@ -48,44 +45,68 @@ function HeroSection() {
   )
 }
 
-/* ─── セクション2: 3レイヤー ─── */
+/* ─── セクション2: 課題提起（新規） ─── */
+function ProblemSection() {
+  return (
+    <section className="bg-gray-50 px-6 py-16 md:py-24">
+      <div className="mx-auto max-w-3xl text-center">
+        <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-10">
+          ブランド、作って終わりに<br className="sm:hidden" />なっていませんか？
+        </h2>
+        <div className="space-y-4 text-gray-600 leading-relaxed mb-10">
+          <p>立派な理念を掲げても、社員に伝わっていない。</p>
+          <p>ロゴやカラーを刷新しても、日々の行動は変わらない。</p>
+          <p>名刺交換しても、会社の&ldquo;らしさ&rdquo;は何も伝わらない。</p>
+        </div>
+        <div className="space-y-2">
+          <p className="text-gray-900 font-semibold leading-relaxed">
+            ブランディングの本当の課題は、「作ること」ではなく「届けること」。
+          </p>
+          <p className="text-gray-900 font-semibold leading-relaxed">
+            branding.bz は、この課題を解決するために生まれました。
+          </p>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+/* ─── セクション3: 3レイヤー ─── */
 const layers = [
   {
     num: '01',
     label: '構築',
-    title: 'ミニアプリでブランドを作る',
+    title: '"らしさ"を、言葉にする。',
     description:
-      '理念・コピー・カラー・ペルソナをAIがガイド。専門知識がなくても、プロ品質のブランドアイデンティティを短時間で策定できます。',
+      '理念、コピー、カラー、ペルソナ——ブランドの核をAIがガイド。専門知識がなくても、対話するだけでプロ品質のアイデンティティが生まれます。',
     icon: '/marketing/icons/auto-awesome.svg',
   },
   {
     num: '02',
     label: '浸透',
-    title: 'brandconnect で社内に根づかせる',
+    title: '"らしさ"を、日常にする。',
     description:
-      'ブランド掲示・Good Job タイムライン・KPI管理・学習コンテンツを統合。日々の業務のなかでブランドが自然と「わがこと」になります。',
+      'ブランド掲示・Good Job タイムライン・KPI・学習をひとつの場所に。日々の業務のなかで、ブランドが自然と「わがこと」になっていきます。',
     icon: '/marketing/icons/explore.svg',
   },
   {
     num: '03',
     label: '発信',
-    title: 'スマート名刺で社外に届ける',
+    title: '"らしさ"を、一人ひとりが届ける。',
     description:
-      'QRコードから個人プロフィール＋企業ブランドの簡易ページを表示。ブランドの「らしさ」を一人ひとりが体現する発信ツールです。',
+      'QRコードを読み取ると、社員のプロフィールと企業のブランドストーリーが一体になったページが開く。名刺交換の瞬間が、ブランド体験に変わります。',
     icon: '/marketing/icons/accessibility_new.svg',
   },
 ]
 
 function LayersSection() {
   return (
-    <section className="bg-gray-50 px-6 py-16 md:py-24">
+    <section className="bg-white px-6 py-16 md:py-24">
       <div className="mx-auto max-w-7xl">
-        <h2 className="text-center text-2xl md:text-3xl font-bold text-gray-900 mb-4">
-          3つのレイヤーで、ブランドを支える
+        <h2 className="text-center text-2xl md:text-3xl font-bold text-gray-900 mb-12">
+          構築・浸透・発信。<br className="sm:hidden" />
+          3つのステップで、ブランドが走り出す。
         </h2>
-        <p className="text-center text-gray-600 mb-12 max-w-2xl mx-auto">
-          作って終わりにしない。構築から浸透・発信まで、ブランドの旅路をまるごとサポートします。
-        </p>
 
         <div className="grid md:grid-cols-3 gap-6">
           {layers.map((layer) => (
@@ -113,24 +134,32 @@ function LayersSection() {
   )
 }
 
-/* ─── セクション3: About + YouTube ─── */
+/* ─── セクション4: About ─── */
 function AboutSection() {
   return (
-    <section className="bg-white px-6 py-16 md:py-24">
+    <section className="bg-gray-50 px-6 py-16 md:py-24">
       <div className="mx-auto max-w-7xl">
-        <h2 className="text-center text-2xl md:text-3xl font-bold text-gray-900 mb-4">
-          brandconnect とは
+        <h2 className="text-center text-2xl md:text-3xl font-bold text-gray-900 mb-10">
+          ブランディング会社の現場から生まれたSaaS
         </h2>
-        <p className="text-center text-gray-600 mb-12 max-w-2xl mx-auto leading-relaxed">
-          ノーコードでブランド構築から学習・運用・共有まで実現するクラウドサービス。<br className="hidden md:block" />
-          3つのレイヤーが連動し、企業のブランド力を日々少しずつ底上げします。
-        </p>
+
+        <div className="mx-auto max-w-3xl space-y-4 text-gray-600 leading-relaxed text-center">
+          <p>
+            ID INC. は15年以上、企業のブランディングを手がけてきました。<br className="hidden md:block" />
+            その現場で何度も直面したのは、「作ったブランドが浸透しない」という壁。<br className="hidden md:block" />
+            どれだけ良い理念を作っても、社員の行動が変わらなければ意味がない。
+          </p>
+          <p className="text-gray-900 font-semibold">
+            この「浸透の壁」をAIとテクノロジーで壊すために、branding.bz は生まれました。<br className="hidden md:block" />
+            構築から浸透、発信まで——ブランドの旅路をまるごと支える、はじめてのプラットフォームです。
+          </p>
+        </div>
 
         {/* YouTube 埋め込み */}
-        <div className="aspect-video max-w-3xl mx-auto rounded-xl overflow-hidden shadow-lg">
+        <div className="aspect-video max-w-3xl mx-auto rounded-xl overflow-hidden shadow-lg mt-12">
           <iframe
             src="https://www.youtube.com/embed/AhhiwxAgnxM"
-            title="brandconnect紹介動画"
+            title="branding.bz 紹介動画"
             className="w-full h-full"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             allowFullScreen
@@ -141,7 +170,7 @@ function AboutSection() {
   )
 }
 
-/* ─── セクション4: 機能紹介 ─── */
+/* ─── セクション5: 機能紹介 ─── */
 const features = [
   {
     title: 'ダッシュボード',
@@ -163,7 +192,7 @@ const features = [
   },
   {
     title: 'ブランド掲示',
-    description: 'ブランド方針・戦略・ビジュアルID・バーバルIDを全社に掲示。いつでも「らしさ」を参照できます。',
+    description: 'ブランド方針・戦略・ビジュアルID・バーバルIDを全社に掲示。いつでも"らしさ"を参照できます。',
     gif: '/marketing/gifs/guidelines.gif',
     icon: '/marketing/icons/folder_special.svg',
   },
@@ -195,10 +224,10 @@ const features = [
 
 function FeaturesSection() {
   return (
-    <section className="bg-gray-50 px-6 py-16 md:py-24">
+    <section className="bg-white px-6 py-16 md:py-24">
       <div className="mx-auto max-w-7xl">
         <h2 className="text-center text-2xl md:text-3xl font-bold text-gray-900 mb-4">
-          主な機能
+          ブランドを加速させる機能
         </h2>
         <p className="text-center text-gray-500 mb-12">
           ブランドの浸透に必要なすべてを、ひとつのプラットフォームに。
@@ -239,16 +268,17 @@ function FeaturesSection() {
   )
 }
 
-/* ─── セクション5: CTA ─── */
+/* ─── セクション6: CTA ─── */
 function CTASection() {
   return (
-    <section className="bg-white px-6 py-16 md:py-24 text-center">
+    <section className="bg-gray-50 px-6 py-16 md:py-24 text-center">
       <div className="mx-auto max-w-7xl">
         <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4">
-          さぁ、&ldquo;らしさ&rdquo;をひろげよう
+          さぁ、&ldquo;らしさ&rdquo;をひろげよう。
         </h2>
-        <p className="text-gray-500 mb-6">
-          brandconnect で、ブランドを社内に根づかせ、社外に届けましょう。
+        <p className="text-gray-600 mb-6 leading-relaxed">
+          ブランドは、作った瞬間から走り出す。<br className="hidden sm:block" />
+          branding.bz で、その加速を始めませんか。
         </p>
 
         {/* βテスター募集 */}
@@ -284,6 +314,7 @@ export default function MarketingPage() {
   return (
     <>
       <HeroSection />
+      <ProblemSection />
       <LayersSection />
       <AboutSection />
       <FeaturesSection />

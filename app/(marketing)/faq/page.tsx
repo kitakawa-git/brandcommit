@@ -11,7 +11,7 @@ import {
 
 export const metadata: Metadata = {
   title: 'よくある質問',
-  description: 'brandconnectに関するよくある質問と回答。料金・機能・導入方法について。',
+  description: 'branding.bzに関するよくある質問と回答。料金・機能・導入方法について。',
 }
 
 const faqCategories = [
@@ -19,8 +19,8 @@ const faqCategories = [
     title: 'サービスについて',
     items: [
       {
-        q: 'brandconnect とはどんなサービスですか？',
-        a: 'brandconnect は、中小企業のブランドを「構築→浸透→発信」まで一貫支援するSaaSです。AIを活用したブランド構築ミニアプリ群、社内浸透のための本体アプリ（Good Jobタイムライン・ダッシュボード・KPI管理等）、そしてスマート名刺による社外発信を提供します。',
+        q: 'branding.bz とはどんなサービスですか？',
+        a: 'branding.bz は、中小企業のブランドを「構築→浸透→発信」まで一貫支援するSaaSです。AIを活用したブランド構築ミニアプリ群、社内浸透のための本体アプリ（Good Jobタイムライン・ダッシュボード・KPI管理等）、そしてスマート名刺による社外発信を提供します。',
       },
       {
         q: 'どのような企業に向いていますか？',
@@ -98,7 +98,7 @@ export default function FAQPage() {
           よくある質問
         </h1>
         <p className="text-gray-600 max-w-lg mx-auto">
-          brandconnect についてよくいただくご質問にお答えします。
+          branding.bz についてよくいただくご質問にお答えします。
         </p>
       </section>
 

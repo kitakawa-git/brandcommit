@@ -6,7 +6,7 @@ import { Card, CardContent } from '@/components/ui/card'
 
 export const metadata: Metadata = {
   title: '料金プラン',
-  description: 'brandconnectの料金プラン。Starter・Growth・Enterpriseの3プランをご用意。',
+  description: 'branding.bzの料金プラン。Starter・Growth・Enterpriseの3プランをご用意。',
 }
 
 /* ─── プラン定義 ─── */

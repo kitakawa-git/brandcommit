@@ -20,7 +20,7 @@ function Header() {
       <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-6">
         {/* ロゴ */}
         <Link href="/" className="text-lg font-bold text-gray-900 no-underline hover:opacity-80">
-          brandconnect
+          branding.bz
         </Link>
 
         {/* デスクトップナビ */}
@@ -89,10 +89,9 @@ function Footer() {
         <div className="grid md:grid-cols-3 gap-10">
           {/* ブランド */}
           <div>
-            <p className="text-lg font-bold mb-3">brandconnect</p>
+            <p className="text-lg font-bold mb-3">branding.bz</p>
             <p className="text-sm text-gray-400 leading-relaxed">
-              ブランドを「作る → 根づかせる → 届ける」まで<br />
-              一貫支援するSaaS
+              AIで、ブランディングを加速させる。
             </p>
           </div>
 
@@ -120,7 +119,7 @@ function Footer() {
         </div>
 
         <div className="mt-12 pt-8 border-t border-gray-800 flex flex-col sm:flex-row justify-between items-center gap-4">
-          <p className="text-xs text-gray-500">&copy; {new Date().getFullYear()} brandconnect — ID INC.</p>
+          <p className="text-xs text-gray-500">&copy; {new Date().getFullYear()} branding.bz — ID INC.</p>
           <p className="text-xs text-gray-500">川崎市 | CEO 北川巧</p>
         </div>
       </div>

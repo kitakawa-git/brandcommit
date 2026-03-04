@@ -15,10 +15,10 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    template: '%s | brandconnect',
-    default: 'brandconnect',
+    template: '%s | branding.bz',
+    default: 'branding.bz',
   },
-  description: 'ブランドアイデンティティ管理プラットフォーム',
+  description: 'AIで、ブランディングを加速させる。構築・浸透・発信をひとつのプラットフォームで。',
 };
 
 export default function RootLayout({
