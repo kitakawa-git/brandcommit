@@ -1,12 +1,35 @@
 // カラーパレット PDF テンプレート（@react-pdf/renderer）
-import { Document, Page, View, Text, StyleSheet } from '@react-pdf/renderer'
+import { Document, Page, View, Text, StyleSheet, Font } from '@react-pdf/renderer'
+import path from 'path'
 import type { PaletteProposal, ColorValue } from '@/lib/types/color-tool'
+
+// NotoSansJP フォント登録（日本語テキスト対応）
+// サーバーサイド（API Route）: ファイルパスで読み込み
+// クライアント: public/ からの相対URLで読み込み
+const fontSrc = (file: string) =>
+  typeof window === 'undefined'
+    ? path.join(process.cwd(), 'public', 'fonts', file)
+    : `/fonts/${file}`
+
+Font.register({
+  family: 'NotoSansJP',
+  fonts: [
+    { src: fontSrc('NotoSansJP-Regular.ttf'), fontWeight: 400 },
+    { src: fontSrc('NotoSansJP-Bold.ttf'), fontWeight: 700 },
+  ],
+})
+
+// 日本語テキストのハイフネーション無効化
+Font.registerHyphenationCallback((word) => [word])
+
+const FONT = 'NotoSansJP'
 
 const styles = StyleSheet.create({
   page: {
     padding: 48,
     fontSize: 10,
     color: '#333333',
+    fontFamily: FONT,
   },
   header: {
     marginBottom: 32,
