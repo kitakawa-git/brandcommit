@@ -3,7 +3,7 @@ import Link from 'next/link'
 import type { Metadata } from 'next'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
-import { ArrowRight, Sparkles } from 'lucide-react'
+import { ArrowRight, Sparkles, MessageSquareText, ChartLine, CreditCard } from 'lucide-react'
 
 export const metadata: Metadata = {
   title: 'branding.bz — AIで、ブランディングを加速させる。',
@@ -49,7 +49,7 @@ function HeroSection() {
             </Button>
           </Link>
           <Link href="/plan">
-            <Button variant="outline" size="lg" className="h-12 w-48 text-base font-medium">
+            <Button variant="outline" size="lg" className="h-12 w-48 text-base font-bold">
               料金を見る
             </Button>
           </Link>
@@ -64,26 +64,26 @@ const layers = [
   {
     num: '01',
     label: '構築',
-    title: '"らしさ"を、言葉にする。',
+    title: 'AIが、ブランドの言語化を支える',
     description:
-      '理念、コピー、カラー、ペルソナ——ブランドの核をAIがガイド。専門知識がなくても、対話するだけでプロ品質のアイデンティティが生まれます。',
-    icon: '/marketing/icons/auto-awesome.svg',
+      '「自社の"らしさ"は分かっているけど、うまく言葉にできない」そんな悩みに、AIが壁打ち相手として伴走。理念・スローガン・カラー・ペルソナを、対話しながら形にします。',
+    icon: MessageSquareText,
   },
   {
     num: '02',
     label: '浸透',
-    title: '"らしさ"を、日常にする。',
+    title: 'AIが、ブランドの定着を支える',
     description:
-      'ブランド掲示・Good Job タイムライン・KPI・学習をひとつの場所に。日々の業務のなかで、ブランドが自然と「わがこと」になっていきます。',
-    icon: '/marketing/icons/explore.svg',
+      'ブランド掲示・タイムライン・KPIを統合した浸透プラットフォーム。AIが社員の活動データから浸透度を分析し、「どこが根づいていて、どこに手を打つべきか」を可視化します。',
+    icon: ChartLine,
   },
   {
     num: '03',
     label: '発信',
-    title: '"らしさ"を、一人ひとりが届ける。',
+    title: 'スマート名刺が、ブランドの発信を支える',
     description:
-      'QRコードを読み取ると、社員のプロフィールと企業ブランドストーリーが一体になったページが開く。名刺交換がブランド体験に変わります。',
-    icon: '/marketing/icons/accessibility_new.svg',
+      'QRコードから社員プロフィール＋企業ブランドページへ。社内で根づいた"らしさ"が、一人ひとりの名刺を通じて社外に届きます。',
+    icon: CreditCard,
   },
 ]
 
@@ -92,7 +92,7 @@ function LayersSection() {
     <section className="px-6 py-16">
       <div className="mx-auto max-w-7xl">
         <h2 className="text-center text-2xl font-bold text-gray-900 mb-8">
-          3つのステップで、ブランドが走り出す
+          ブランディングのすべてのステップを、AIが支える。
         </h2>
 
         <div className="grid md:grid-cols-3 gap-6">
@@ -136,7 +136,7 @@ function LayersSection() {
                   </span>
                 </div>
                 <div className="mb-4 flex justify-center">
-                  <Image src={layer.icon} alt="" width={56} height={56} className="opacity-70" />
+                  <layer.icon size={32} strokeWidth={1.5} className="text-foreground" />
                 </div>
                 <h3 className="text-lg font-bold text-gray-900 mb-3">{layer.title}</h3>
                 <p className="text-sm text-gray-600 leading-relaxed">{layer.description}</p>
