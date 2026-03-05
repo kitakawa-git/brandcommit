@@ -124,7 +124,9 @@ function LayersSection() {
                 <div className="mb-4 flex justify-center">
                   <layer.icon size={32} strokeWidth={1.5} className="text-foreground" />
                 </div>
-                <h3 className="text-lg font-bold text-gray-900 mb-3">{layer.title}</h3>
+                <h3 className="text-lg font-bold text-gray-900 mb-3">
+                  {layer.title.split('、')[0]}、<br />{layer.title.split('、')[1]}
+                </h3>
                 <p className="text-sm text-gray-600 leading-relaxed">{layer.description}</p>
               </div>
             </div>
