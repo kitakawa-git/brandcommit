@@ -63,14 +63,14 @@ function HeroSection() {
 const layers = [
   {
     label: '構築',
-    title: 'ブランドの言語化を、AIがサポート',
+    title: 'ブランドの言語化を、対話型AIがサポート',
     description:
       '「自社の"らしさ"は分かっているけど、うまく言葉にできない」そんな悩みに、AIが壁打ち相手として伴走。理念・スローガン・カラー・ペルソナを、対話しながら形にします。',
     icon: MessageSquareText,
   },
   {
     label: '浸透',
-    title: 'ブランドの定着を、AIがサポート',
+    title: 'ブランドの定着と可視化を、AIがサポート',
     description:
       'ブランド掲示・タイムライン・KPIを統合した浸透プラットフォーム。AIが社員の活動データから浸透度を分析し、「どこが根づいていて、どこに手を打つべきか」を可視化します。',
     icon: ChartLine,
@@ -89,7 +89,7 @@ function LayersSection() {
     <section className="px-6 py-16">
       <div className="mx-auto max-w-7xl">
         <h2 className="text-center text-2xl font-bold text-gray-900 mb-8">
-          あらゆるステップを、AIがサポート。
+          あらゆるステップを、AIがサポート
         </h2>
 
         <div className="grid md:grid-cols-3 gap-6">
