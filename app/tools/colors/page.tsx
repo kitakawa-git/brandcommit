@@ -40,6 +40,39 @@ const EXAMPLE_PALETTES = [
       { hex: '#27272A', label: 'Dark', flex: 1 },
     ],
   },
+  {
+    name: '情熱のレッド',
+    concept: '飲食・エンタメ業界の活気とエネルギーを表現',
+    colors: [
+      { hex: '#DC2626', label: 'Primary', flex: 3 },
+      { hex: '#F87171', label: 'Secondary', flex: 2 },
+      { hex: '#FBBF24', label: 'Accent', flex: 1.5 },
+      { hex: '#FFF7ED', label: 'Light', flex: 1 },
+      { hex: '#1C1917', label: 'Dark', flex: 1 },
+    ],
+  },
+  {
+    name: '癒しのパステル',
+    concept: '美容・ヘルスケア向けのやさしく上品な配色',
+    colors: [
+      { hex: '#F9A8D4', label: 'Primary', flex: 3 },
+      { hex: '#C4B5FD', label: 'Secondary', flex: 2 },
+      { hex: '#6EE7B7', label: 'Accent', flex: 1.5 },
+      { hex: '#FFF1F2', label: 'Light', flex: 1 },
+      { hex: '#374151', label: 'Dark', flex: 1 },
+    ],
+  },
+  {
+    name: 'テクノロジーパープル',
+    concept: 'AI・テック企業の革新性と未来感を演出',
+    colors: [
+      { hex: '#7C3AED', label: 'Primary', flex: 3 },
+      { hex: '#A78BFA', label: 'Secondary', flex: 2 },
+      { hex: '#06B6D4', label: 'Accent', flex: 1.5 },
+      { hex: '#F5F3FF', label: 'Light', flex: 1 },
+      { hex: '#1E1B4B', label: 'Dark', flex: 1 },
+    ],
+  },
 ]
 
 const STEPS = [
@@ -108,9 +141,24 @@ export default function ColorsLandingPage() {
           <h2 className="mb-8 text-center text-2xl font-bold text-gray-900">
             こんなパレットが作れます
           </h2>
-          <div className="grid gap-6 md:grid-cols-3">
-            {EXAMPLE_PALETTES.map((palette) => (
-              <Card key={palette.name} className="overflow-hidden transition-shadow hover:shadow-lg">
+        </div>
+        <style>{`
+          @keyframes marquee-scroll {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+          }
+        `}</style>
+        <div className="overflow-hidden">
+          <div
+            className="flex gap-6 hover:[animation-play-state:paused]"
+            style={{
+              animation: 'marquee-scroll 30s linear infinite',
+              willChange: 'transform',
+              width: 'max-content',
+            }}
+          >
+            {[...EXAMPLE_PALETTES, ...EXAMPLE_PALETTES].map((palette, idx) => (
+              <Card key={`${palette.name}-${idx}`} className="w-[350px] flex-shrink-0 overflow-hidden transition-shadow hover:shadow-lg">
                 <div className="flex h-20">
                   {palette.colors.map((color, i) => (
                     <div
