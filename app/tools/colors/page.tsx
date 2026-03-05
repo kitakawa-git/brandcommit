@@ -54,7 +54,7 @@ export default function ColorsLandingPage() {
   return (
     <div className="min-h-screen bg-white">
       {/* ヘッダー */}
-      <header className="border-b">
+      <header className="fixed top-0 left-0 right-0 z-50 bg-transparent">
         <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-6">
           <Link
             href="/tools/colors"
@@ -70,24 +70,36 @@ export default function ColorsLandingPage() {
 
       {/* ヒーロー */}
       <section className="mx-auto max-w-7xl px-6 py-16 text-center md:py-24">
-        <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-blue-50 px-6 py-1.5 text-sm text-blue-700">
-          <Sparkles className="h-4 w-4" />
-          AIガイドで約5〜10分
+        <div
+          className="mb-8 inline-flex items-center gap-2 rounded-full px-6 py-1.5 text-sm text-blue-700 relative overflow-hidden"
+          style={{
+            background: 'rgba(0, 97, 255, 0.1)',
+            backdropFilter: 'blur(12px) saturate(120%)',
+            WebkitBackdropFilter: 'blur(12px) saturate(120%)',
+            border: '1px solid rgba(255, 255, 255, 0.2)',
+            boxShadow: '0px 8px 24px 0 rgba(12, 74, 110, 0.15), inset 0px 0px 4px 2px rgba(255, 255, 255, 0.2)',
+          }}
+        >
+          <div className="absolute inset-0 pointer-events-none rounded-full"
+            style={{ background: 'linear-gradient(to left top, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 50%)' }} />
+          <Sparkles className="h-4 w-4 relative z-10" />
+          <span className="relative z-10">AIガイドで約5〜10分</span>
         </div>
-        <h1 className="mb-4 text-3xl font-bold tracking-tight text-gray-900 md:text-5xl">
+        <h1 className="text-3xl font-bold tracking-tight text-gray-900 md:text-5xl">
           ブランドカラー定義ツール
         </h1>
-        <p className="mx-auto mb-8 max-w-2xl text-lg text-gray-600">
+        <p className="mt-6 mx-auto max-w-2xl text-lg text-gray-600 leading-relaxed">
           ブランドのパーソナリティや業種に合わせて、
           AIがプロ品質のカラーパレットを提案します。
           経営者・ブランド担当者のための無料ツール。
         </p>
-        <Link href="/tools/colors/auth">
-          <Button size="lg" className="h-12 px-8 text-base font-bold">
-            無料でカラーを作る
-            <ArrowRight className="ml-2 h-4 w-4" />
-          </Button>
-        </Link>
+        <div className="mt-10">
+          <Link href="/tools/colors/auth">
+            <Button size="lg" className="h-12 px-8 text-base font-bold">
+              無料でカラーを作る
+            </Button>
+          </Link>
+        </div>
       </section>
 
       {/* カラーパレット例 */}

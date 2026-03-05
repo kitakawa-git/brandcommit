@@ -18,24 +18,38 @@ export const metadata: Metadata = {
 /* ─── セクション1: Hero ─── */
 function HeroSection() {
   return (
-    <section className="bg-white px-6 pt-20 pb-16 md:pt-28 md:pb-24">
-      <div className="mx-auto max-w-7xl text-center">
-        <h1 className="mb-4 text-3xl font-bold tracking-tight text-gray-900 md:text-5xl">
-          AIで、ブランディングを加速させる。
+    <section className="text-center">
+      <div className="w-full max-w-4xl mx-auto px-6 pt-16 pb-16 md:pt-24 md:pb-24">
+        <div
+          className="mb-8 inline-flex items-center gap-2 rounded-full px-6 py-1.5 text-sm text-blue-700 relative overflow-hidden"
+          style={{
+            background: 'rgba(0, 97, 255, 0.1)',
+            backdropFilter: 'blur(12px) saturate(120%)',
+            WebkitBackdropFilter: 'blur(12px) saturate(120%)',
+            border: '1px solid rgba(255, 255, 255, 0.2)',
+            boxShadow: '0px 8px 24px 0 rgba(12, 74, 110, 0.15), inset 0px 0px 4px 2px rgba(255, 255, 255, 0.2)',
+          }}
+        >
+          <div className="absolute inset-0 pointer-events-none rounded-full"
+            style={{ background: 'linear-gradient(to left top, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 50%)' }} />
+          <Sparkles className="h-4 w-4 relative z-10" />
+          <span className="relative z-10">AIガイドで約5〜10分</span>
+        </div>
+        <h1 className="text-3xl md:text-5xl font-bold tracking-tight text-gray-900">
+          AIで、ブランディングを加速させる
         </h1>
-        <p className="mx-auto mb-8 max-w-2xl text-lg text-gray-600 leading-relaxed">
+        <p className="mt-6 text-lg md:text-xl text-gray-700 max-w-2xl mx-auto leading-relaxed">
           社員が体現し、顧客に届く。<br className="hidden sm:block" />
           ブランドの構築・浸透・発信を、ひとつのプラットフォームで。
         </p>
-        <div className="flex gap-4 justify-center flex-wrap">
+        <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
           <Link href="/contact">
-            <Button size="lg" className="h-12 px-8 text-base font-bold">
+            <Button size="lg" className="h-12 w-48 text-base font-bold">
               無料で始める
-              <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           </Link>
           <Link href="/plan">
-            <Button variant="outline" size="lg" className="h-12 px-8 text-base font-medium">
+            <Button variant="outline" size="lg" className="h-12 w-48 text-base font-medium">
               料金を見る
             </Button>
           </Link>
@@ -45,33 +59,7 @@ function HeroSection() {
   )
 }
 
-/* ─── セクション2: 課題提起（新規） ─── */
-function ProblemSection() {
-  return (
-    <section className="bg-gray-50 px-6 py-16 md:py-24">
-      <div className="mx-auto max-w-3xl text-center">
-        <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-10">
-          ブランド、作って終わりに<br className="sm:hidden" />なっていませんか？
-        </h2>
-        <div className="space-y-4 text-gray-600 leading-relaxed mb-10">
-          <p>立派な理念を掲げても、社員に伝わっていない。</p>
-          <p>ロゴやカラーを刷新しても、日々の行動は変わらない。</p>
-          <p>名刺交換しても、会社の&ldquo;らしさ&rdquo;は何も伝わらない。</p>
-        </div>
-        <div className="space-y-2">
-          <p className="text-gray-900 font-semibold leading-relaxed">
-            ブランディングの本当の課題は、「作ること」ではなく「届けること」。
-          </p>
-          <p className="text-gray-900 font-semibold leading-relaxed">
-            branding.bz は、この課題を解決するために生まれました。
-          </p>
-        </div>
-      </div>
-    </section>
-  )
-}
-
-/* ─── セクション3: 3レイヤー ─── */
+/* ─── セクション2: 3レイヤー ─── */
 const layers = [
   {
     num: '01',
@@ -94,26 +82,53 @@ const layers = [
     label: '発信',
     title: '"らしさ"を、一人ひとりが届ける。',
     description:
-      'QRコードを読み取ると、社員のプロフィールと企業のブランドストーリーが一体になったページが開く。名刺交換の瞬間が、ブランド体験に変わります。',
+      'QRコードを読み取ると、社員のプロフィールと企業ブランドストーリーが一体になったページが開く。名刺交換がブランド体験に変わります。',
     icon: '/marketing/icons/accessibility_new.svg',
   },
 ]
 
 function LayersSection() {
   return (
-    <section className="bg-white px-6 py-16 md:py-24">
+    <section className="px-6 py-16">
       <div className="mx-auto max-w-7xl">
-        <h2 className="text-center text-2xl md:text-3xl font-bold text-gray-900 mb-12">
-          構築・浸透・発信。<br className="sm:hidden" />
-          3つのステップで、ブランドが走り出す。
+        <h2 className="text-center text-2xl font-bold text-gray-900 mb-8">
+          3つのステップで、ブランドが走り出す
         </h2>
 
         <div className="grid md:grid-cols-3 gap-6">
           {layers.map((layer) => (
-            <Card key={layer.num} className="overflow-hidden transition-shadow hover:shadow-lg">
-              <CardContent className="p-8">
+            <div
+              key={layer.num}
+              className="relative rounded-2xl overflow-hidden transition-all hover:scale-[1.02] hover:shadow-2xl"
+              style={{
+                background: 'rgba(255, 255, 255, 0.12)',
+                backdropFilter: 'blur(12px) saturate(120%)',
+                WebkitBackdropFilter: 'blur(12px) saturate(120%)',
+                border: '1px solid rgba(255, 255, 255, 0.25)',
+                boxShadow: '0px 8px 24px 0 rgba(12, 74, 110, 0.12), inset 0px 0px 4px 2px rgba(255, 255, 255, 0.15)',
+              }}
+            >
+              {/* リフレクションハイライト */}
+              <div
+                className="absolute inset-0 pointer-events-none rounded-2xl"
+                style={{ background: 'linear-gradient(to left top, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 50%)' }}
+              />
+              <div
+                className="absolute inset-0 pointer-events-none rounded-2xl"
+                style={{ background: 'linear-gradient(to bottom, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0) 100%)' }}
+              />
+              {/* カードコンテンツ */}
+              <div className="relative z-10 p-8">
                 <div className="flex items-center gap-3 mb-5">
-                  <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-gray-900 text-sm font-bold text-white">
+                  <div
+                    className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full text-sm font-bold text-gray-900"
+                    style={{
+                      background: 'rgba(255, 255, 255, 0.15)',
+                      border: '1px solid rgba(255, 255, 255, 0.3)',
+                      backdropFilter: 'blur(8px)',
+                      WebkitBackdropFilter: 'blur(8px)',
+                    }}
+                  >
                     {layer.num}
                   </div>
                   <span className="text-sm font-semibold tracking-wide text-gray-700">
@@ -124,9 +139,9 @@ function LayersSection() {
                   <Image src={layer.icon} alt="" width={56} height={56} className="opacity-70" />
                 </div>
                 <h3 className="text-lg font-bold text-gray-900 mb-3">{layer.title}</h3>
-                <p className="text-sm text-gray-500 leading-relaxed">{layer.description}</p>
-              </CardContent>
-            </Card>
+                <p className="text-sm text-gray-600 leading-relaxed">{layer.description}</p>
+              </div>
+            </div>
           ))}
         </div>
       </div>
@@ -313,12 +328,30 @@ function CTASection() {
 export default function MarketingPage() {
   return (
     <>
-      <HeroSection />
-      <ProblemSection />
-      <LayersSection />
-      <AboutSection />
-      <FeaturesSection />
-      <CTASection />
+      {/* パララックス背景画像（ビューポートに固定） */}
+      <div className="fixed inset-0 z-0">
+        <Image
+          src="/marketing/images/hero-bg.jpg"
+          alt=""
+          fill
+          className="object-cover"
+          priority
+          unoptimized
+        />
+      </div>
+
+      {/* Hero + Layers（背景画像の上をスクロール） */}
+      <div className="relative z-10">
+        <HeroSection />
+        <LayersSection />
+      </div>
+
+      {/* 以降のセクション（背景色で固定画像を隠す） */}
+      <div className="relative z-10">
+        <AboutSection />
+        <FeaturesSection />
+        <CTASection />
+      </div>
     </>
   )
 }
