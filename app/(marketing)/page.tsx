@@ -121,7 +121,7 @@ function LayersSection() {
                     {layer.label}
                   </span>
                 </div>
-                <div className="mb-4 flex justify-center">
+                <div className="mb-4">
                   <layer.icon size={32} strokeWidth={1.5} className="text-foreground" />
                 </div>
                 <h3 className="text-lg font-bold text-gray-900 mb-3">
