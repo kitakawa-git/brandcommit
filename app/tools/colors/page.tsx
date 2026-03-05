@@ -63,7 +63,7 @@ export default function ColorsLandingPage() {
             branding.bz
           </Link>
           <Link href="/tools/colors/auth">
-            <Button variant="outline" size="sm">ログイン</Button>
+            <Button variant="outline" size="sm" className="font-semibold">ログイン</Button>
           </Link>
         </div>
       </header>
@@ -159,8 +159,8 @@ export default function ColorsLandingPage() {
                   )}
                 </div>
                 <div className="md:mt-0">
-                  <h3 className="text-sm font-bold text-gray-900">{step.title}</h3>
-                  <p className="text-xs text-gray-500">{step.description}</p>
+                  <h3 className="text-base font-bold text-gray-900">{step.title}</h3>
+                  <p className="text-sm text-gray-500">{step.description}</p>
                 </div>
               </div>
             ))}
