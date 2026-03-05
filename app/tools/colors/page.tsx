@@ -103,7 +103,7 @@ export default function ColorsLandingPage() {
       </section>
 
       {/* カラーパレット例 */}
-      <section className="bg-gray-50 py-24">
+      <section className="bg-gray-50 py-16">
         <div className="mx-auto max-w-7xl px-6">
           <h2 className="mb-8 text-center text-2xl font-bold text-gray-900">
             こんなパレットが作れます
@@ -141,7 +141,7 @@ export default function ColorsLandingPage() {
       </section>
 
       {/* ステップ説明 */}
-      <section className="py-24">
+      <section className="py-16">
         <div className="mx-auto max-w-7xl px-6">
           <h2 className="mb-12 text-center text-2xl font-bold text-gray-900">
             5ステップでカラーを確定
@@ -165,7 +165,7 @@ export default function ColorsLandingPage() {
       </section>
 
       {/* 機能ハイライト */}
-      <section className="bg-gray-50 py-24">
+      <section className="bg-gray-50 py-16">
         <div className="mx-auto max-w-7xl px-6">
           <div className="grid gap-8 md:grid-cols-3">
             <div className="flex items-start gap-3">
@@ -194,7 +194,7 @@ export default function ColorsLandingPage() {
       </section>
 
       {/* CTA */}
-      <section className="py-24">
+      <section className="py-16">
         <div className="mx-auto max-w-7xl px-6 text-center">
           <h2 className="mb-4 text-2xl font-bold text-gray-900">
             今すぐカラーパレットを作成
