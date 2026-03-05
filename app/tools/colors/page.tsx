@@ -146,17 +146,13 @@ export default function ColorsLandingPage() {
           <h2 className="mb-12 text-center text-2xl font-bold text-gray-900">
             5ステップでカラーを確定
           </h2>
-          <div className="flex flex-col gap-4 md:flex-row md:items-start md:gap-0">
-            {STEPS.map((step, i) => (
+          <div className="relative flex flex-col gap-4 md:flex-row md:items-start md:gap-0">
+            {/* デスクトップ: ステップ間の接続線（丸の中心を横断） */}
+            <div className="hidden md:block absolute top-5 left-[10%] right-[10%] h-px bg-gray-300" />
+            {STEPS.map((step) => (
               <div key={step.title} className="flex items-center gap-3 md:flex-1 md:flex-col md:gap-0 md:text-center">
-                <div className="flex items-center gap-3 md:mb-3 md:flex-col md:gap-0">
-                  <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-gray-900 text-sm font-bold text-white">
-                    {step.icon}
-                  </div>
-                  {/* モバイルでは非表示、デスクトップでも最後のステップでは非表示 */}
-                  {i < STEPS.length - 1 && (
-                    <div className="hidden h-px w-full bg-gray-300 md:mt-5 md:block" />
-                  )}
+                <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-gray-900 text-sm font-bold text-white md:mb-3">
+                  {step.icon}
                 </div>
                 <div className="md:mt-0">
                   <h3 className="text-base font-bold text-gray-900">{step.title}</h3>
