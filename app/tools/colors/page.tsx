@@ -148,7 +148,7 @@ export default function ColorsLandingPage() {
         <div className="mt-10">
           <Link href="/tools/colors/auth">
             <button
-              className="relative h-12 w-48 rounded-full text-base font-bold text-white overflow-hidden transition-all hover:scale-105 hover:shadow-2xl"
+              className="relative h-12 px-12 rounded-full text-base font-bold text-white overflow-hidden transition-all hover:scale-105 hover:shadow-2xl"
               style={{
                 background: 'rgba(0, 0, 0, 0.75)',
                 backdropFilter: 'blur(12px) saturate(120%)',
@@ -354,7 +354,7 @@ export default function ColorsLandingPage() {
           <div className="mt-10">
             <Link href="/tools/colors/auth">
               <button
-                className="relative h-12 w-48 rounded-full text-base font-bold text-white overflow-hidden transition-all hover:scale-105 hover:shadow-2xl"
+                className="relative h-12 px-12 rounded-full text-base font-bold text-white overflow-hidden transition-all hover:scale-105 hover:shadow-2xl"
                 style={{
                   background: 'rgba(0, 0, 0, 0.75)',
                   backdropFilter: 'blur(12px) saturate(120%)',
