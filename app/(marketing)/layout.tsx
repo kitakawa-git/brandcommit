@@ -111,7 +111,7 @@ function Header() {
               }}
             >
               {toolItems.map((tool) => (
-                <DropdownMenuItem key={tool.href} asChild>
+                <DropdownMenuItem key={tool.href} asChild className="focus:bg-white/30 focus:text-foreground rounded-sm">
                   <Link href={tool.href} className="cursor-pointer">
                     {tool.label}
                   </Link>
