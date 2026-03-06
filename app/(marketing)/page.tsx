@@ -332,7 +332,7 @@ function CTASection() {
         {/* βテスター募集 */}
         <div className="inline-flex items-center gap-2 rounded-full bg-blue-50 px-5 py-2 mb-8">
           <span className="text-blue-700 font-bold text-sm">残り2社限定</span>
-          <span className="text-gray-700 text-sm">βテスター企業 募集中！</span>
+          <span className="text-blue-700 text-sm">無料で最新バージョンをいち早くお試しいただけます</span>
         </div>
 
         <div className="flex gap-4 justify-center flex-wrap">
