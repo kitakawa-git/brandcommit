@@ -106,7 +106,7 @@ function LayersSection() {
   return (
     <section className="px-6 py-16">
       <div className="mx-auto max-w-7xl">
-        <h2 className="text-center text-2xl font-bold text-gray-900 mb-8">
+        <h2 className="text-center text-2xl md:text-3xl font-bold text-gray-900 mb-8">
           あらゆるステップを、AIがサポート
         </h2>
 
