@@ -4,7 +4,7 @@
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
-import { Palette, Sparkles, Download, ArrowRight } from 'lucide-react'
+import { Palette, Sparkles, Download, ArrowRight, CheckCircle2 } from 'lucide-react'
 import Footer from '@/components/Footer'
 
 const EXAMPLE_PALETTES = [
@@ -352,9 +352,14 @@ export default function ColorsLandingPage() {
           >
             <div className="absolute inset-0 pointer-events-none rounded-full"
               style={{ background: 'linear-gradient(to left top, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 50%)' }} />
-            <span className="relative z-10">クレジットカード不要</span>
-            <span className="relative z-10 opacity-40">|</span>
-            <span className="relative z-10">約5〜10分で完了</span>
+            <span className="relative z-10 flex items-center gap-1">
+              <CheckCircle2 className="h-3.5 w-3.5" />
+              クレジットカード不要
+            </span>
+            <span className="relative z-10 flex items-center gap-1">
+              <CheckCircle2 className="h-3.5 w-3.5" />
+              約5〜10分で完了
+            </span>
           </div>
         </div>
       </section>
