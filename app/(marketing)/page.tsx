@@ -81,21 +81,21 @@ function HeroSection() {
 const layers = [
   {
     label: '構築',
-    title: 'ブランドの言語化を、対話型AIがサポート',
+    title: 'ブランドの言語化を対話型AIがサポート',
     description:
       '「自社の"らしさ"は分かっているけど、うまく言葉にできない」そんな悩みに、AIが壁打ち相手として伴走。理念・スローガン・カラー・ペルソナを、対話しながら形にします。',
     icon: MessageSquareText,
   },
   {
     label: '浸透',
-    title: 'ブランドの定着と可視化を、AIがサポート',
+    title: 'ブランドの定着と可視化をAIがサポート',
     description:
       'ブランド掲示・タイムライン・KPIを統合した浸透プラットフォーム。AIが社員の活動データから浸透度を分析し、「どこが根づいていて、どこに手を打つべきか」を可視化します。',
     icon: ChartLine,
   },
   {
     label: '発信',
-    title: 'ブランドの発信を、スマート名刺がサポート',
+    title: 'ブランドの発信をスマート名刺がサポート',
     description:
       'QRコードから社員プロフィール＋企業ブランドページへ。社内で根づいた"らしさ"が、一人ひとりの名刺を通じて社外に届きます。誰の名刺が、いつ、どれだけ見られたかも把握できます。',
     icon: CreditCard,
@@ -143,7 +143,7 @@ function LayersSection() {
                   <layer.icon size={32} strokeWidth={1.5} className="text-foreground" />
                 </div>
                 <h3 className="text-lg font-bold text-gray-900 mb-3">
-                  {layer.title.split('、')[0]}、<br />{layer.title.split('、')[1]}
+                  {layer.title.split('を')[0]}を<br />{layer.title.split('を').slice(1).join('を')}
                 </h3>
                 <p className="text-sm text-gray-600 leading-relaxed">{layer.description}</p>
               </div>
