@@ -318,6 +318,27 @@ export default function ColorsLandingPage() {
           ].join(', '),
         }} />
         <div className="relative z-10 w-full max-w-4xl mx-auto">
+          <div
+            className="mb-8 inline-flex items-center gap-2 rounded-full px-6 py-1.5 text-sm text-blue-700 relative overflow-hidden"
+            style={{
+              background: 'rgba(0, 97, 255, 0.1)',
+              backdropFilter: 'blur(12px) saturate(120%)',
+              WebkitBackdropFilter: 'blur(12px) saturate(120%)',
+              border: '1px solid rgba(255, 255, 255, 0.2)',
+              boxShadow: '0px 8px 24px 0 rgba(12, 74, 110, 0.15), inset 0px 0px 4px 2px rgba(255, 255, 255, 0.2)',
+            }}
+          >
+            <div className="absolute inset-0 pointer-events-none rounded-full"
+              style={{ background: 'linear-gradient(to left top, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 50%)' }} />
+            <span className="relative z-10 flex items-center gap-1">
+              <CheckCircle2 className="h-3.5 w-3.5" />
+              クレジットカード不要
+            </span>
+            <span className="relative z-10 flex items-center gap-1">
+              <CheckCircle2 className="h-3.5 w-3.5" />
+              約5〜10分で完了
+            </span>
+          </div>
           <h2 className="text-3xl md:text-5xl font-bold tracking-tight text-gray-900">
             今すぐカラーパレットを作成
           </h2>
@@ -339,27 +360,6 @@ export default function ColorsLandingPage() {
                 <span className="relative z-10">無料でカラーを作る</span>
               </button>
             </Link>
-          </div>
-          <div
-            className="mt-6 inline-flex items-center gap-2 rounded-full px-6 py-1.5 text-sm text-blue-700 relative overflow-hidden"
-            style={{
-              background: 'rgba(0, 97, 255, 0.1)',
-              backdropFilter: 'blur(12px) saturate(120%)',
-              WebkitBackdropFilter: 'blur(12px) saturate(120%)',
-              border: '1px solid rgba(255, 255, 255, 0.2)',
-              boxShadow: '0px 8px 24px 0 rgba(12, 74, 110, 0.15), inset 0px 0px 4px 2px rgba(255, 255, 255, 0.2)',
-            }}
-          >
-            <div className="absolute inset-0 pointer-events-none rounded-full"
-              style={{ background: 'linear-gradient(to left top, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 50%)' }} />
-            <span className="relative z-10 flex items-center gap-1">
-              <CheckCircle2 className="h-3.5 w-3.5" />
-              クレジットカード不要
-            </span>
-            <span className="relative z-10 flex items-center gap-1">
-              <CheckCircle2 className="h-3.5 w-3.5" />
-              約5〜10分で完了
-            </span>
           </div>
         </div>
       </section>
