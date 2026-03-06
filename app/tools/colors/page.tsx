@@ -248,26 +248,26 @@ export default function ColorsLandingPage() {
               {
                 label: 'アクセシビリティ',
                 icon: Palette,
-                title: 'WCAG準拠チェック',
-                description: 'アクセシビリティ基準を自動で検証し、誰にでも見やすい配色を提案',
+                title: 'WCAG準拠の配色チェック',
+                description: 'アクセシビリティ基準を自動で検証し、誰にでも見やすい配色を提案します',
               },
               {
                 label: '対話型調整',
                 icon: Sparkles,
-                title: 'AIチャットで磨き込み',
-                description: '「もう少し温かみがほしい」など、自然な言葉でカラーを調整',
+                title: 'AIチャットで自由に調整',
+                description: '「もう少し温かみがほしい」など、自然な言葉でカラーを何度でも調整できます',
               },
               {
                 label: '出力',
                 icon: Download,
-                title: 'PDF・CSS出力',
-                description: 'パレットカードPDFやCSSカスタムプロパティをワンクリックで出力',
+                title: 'PDF・CSSをワンクリック出力',
+                description: 'パレットカードPDFやCSSカスタムプロパティをワンクリックでダウンロードできます',
               },
               {
                 label: '連携',
                 icon: Plug,
-                title: 'branding.bzにワンクリック連携',
-                description: '確定したカラーパレットをCI要素としてbranding.bz本体にそのまま登録。ビジュアルアイデンティティに即反映',
+                title: 'ブランド管理ツールに即登録',
+                description: '確定したカラーをブランディングSaaS「branding.bz」に登録。社内ガイドラインや名刺に即反映',
               },
             ].map((item) => (
               <div
