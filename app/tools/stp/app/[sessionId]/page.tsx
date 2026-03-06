@@ -11,7 +11,7 @@ import { Step1BasicInfo } from './components/Step1BasicInfo'
 import { Step2Segmentation } from './components/Step2Segmentation'
 import { Step3Targeting } from './components/Step3Targeting'
 import { Step4Positioning } from './components/Step4Positioning'
-import { StepPlaceholder } from './components/StepPlaceholder'
+import { Step5Result } from './components/Step5Result'
 
 // STPセッションデータの型
 interface STPSessionData {
@@ -226,12 +226,14 @@ export default function STPSessionPage() {
         />
       )}
       {currentStep === 5 && (
-        <StepPlaceholder
-          stepNumber={5}
-          title="確認・出力"
-          description="STP分析の結果を確認し、出力します"
+        <Step5Result
+          sessionId={sessionId}
+          basicInfo={session.session_data.basic_info}
+          segmentation={session.session_data.segmentation}
+          targeting={session.session_data.targeting}
+          positioning={session.session_data.positioning}
+          companyId={session.company_id}
           onBack={() => saveAndAdvance(4)}
-          isLast
         />
       )}
     </div>
