@@ -90,7 +90,7 @@ export default function Footer() {
         </div>
 
         {/* 下部: ブランド + コピーライト */}
-        <div className="mt-14 pt-8 flex flex-col items-start gap-2">
+        <div className="pt-8 flex flex-col items-start gap-2">
           <div className="flex items-center gap-3">
             <Link href="/" className="text-lg font-bold text-gray-900 no-underline">
               branding.bz
