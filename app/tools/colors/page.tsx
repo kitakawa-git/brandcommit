@@ -217,8 +217,8 @@ export default function ColorsLandingPage() {
       </section>
 
       {/* ステップ説明 */}
-      <section className="py-16">
-        <div className="mx-auto max-w-7xl px-6">
+      <section className="bg-white px-6 py-16 md:py-24">
+        <div className="mx-auto max-w-7xl">
           <h2 className="mb-12 text-center text-xl md:text-[1.625rem] font-bold text-gray-900">
             5ステップでカラーを確定
           </h2>
