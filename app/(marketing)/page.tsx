@@ -236,13 +236,11 @@ function FeaturesSection() {
           必要なすべてを、ひとつのプラットフォームに
         </p>
 
-        <div className="grid md:grid-cols-2 gap-6">
-          {features.map((feature, i) => (
+        <div className="columns-1 md:columns-2 gap-6 space-y-6">
+          {features.map((feature) => (
             <Card
               key={feature.title}
-              className={`overflow-hidden transition-shadow hover:shadow-lg ${
-                i === features.length - 1 && features.length % 2 !== 0 ? 'md:col-span-2 md:max-w-[calc(50%-0.75rem)] md:mx-auto' : ''
-              }`}
+              className="overflow-hidden transition-shadow hover:shadow-lg break-inside-avoid"
             >
               <CardContent className="p-6 flex items-start gap-4">
                 <feature.icon size={32} strokeWidth={1.5} className="mt-1 text-gray-900 shrink-0" />
