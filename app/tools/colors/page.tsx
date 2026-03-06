@@ -338,18 +338,18 @@ export default function ColorsLandingPage() {
               style={{ background: 'linear-gradient(to left top, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 50%)' }} />
             <span className="relative z-10 flex items-center gap-1">
               <CheckCircle2 className="h-3.5 w-3.5" />
-              クレジットカード不要
+              アカウント登録は30秒
             </span>
             <span className="relative z-10 flex items-center gap-1">
               <CheckCircle2 className="h-3.5 w-3.5" />
-              約5〜10分で完了
+              クレジットカード不要
             </span>
           </div>
           <h2 className="text-2xl md:text-4xl font-bold tracking-tight text-gray-900">
             今すぐカラーパレットを作成
           </h2>
           <p className="mt-6 text-lg md:text-xl text-gray-700 max-w-2xl mx-auto leading-relaxed">
-            無料で3回まで利用可能<br />アカウント登録は30秒で完了
+            約5〜10分で作成完了<br />無料で3回まで利用可能
           </p>
           <div className="mt-10">
             <Link href="/tools/colors/auth">
