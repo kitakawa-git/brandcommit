@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Palette, Sparkles, Download, ArrowRight, CheckCircle2 } from 'lucide-react'
+import Footer from '@/components/Footer'
 
 const EXAMPLE_PALETTES = [
   {
@@ -285,7 +286,7 @@ export default function ColorsLandingPage() {
             今すぐカラーパレットを作成
           </h2>
           <p className="mt-6 text-lg md:text-xl text-gray-700 max-w-2xl mx-auto leading-relaxed">
-            無料で3回まで利用可能。アカウント登録は30秒で完了。
+            無料で3回まで利用可能。アカウント登録は30秒で完了
           </p>
           <div className="mt-10">
             <Link href="/tools/colors/auth">
@@ -316,12 +317,8 @@ export default function ColorsLandingPage() {
         </div>
       </section>
 
-      {/* フッター */}
-      <footer className="border-t py-8">
-        <div className="mx-auto max-w-7xl px-6 text-center text-sm text-gray-400">
-          &copy; {new Date().getFullYear()} branding.bz — ID INC.
-        </div>
-      </footer>
+      {/* フッター（共通コンポーネント） */}
+      <Footer />
     </div>
   )
 }
