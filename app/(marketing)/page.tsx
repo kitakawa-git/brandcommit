@@ -245,9 +245,9 @@ function FeaturesSection() {
               }`}
             >
               <CardContent className="p-6 flex items-start gap-4">
-                <feature.icon size={24} strokeWidth={1.5} className="mt-1 text-gray-900 shrink-0" />
+                <feature.icon size={32} strokeWidth={1.5} className="mt-1 text-gray-900 shrink-0" />
                 <div>
-                  <h3 className="text-base font-bold text-gray-900 mb-2">{feature.title}</h3>
+                  <h3 className="text-lg font-bold text-gray-900 mb-2">{feature.title}</h3>
                   <p className="text-sm text-gray-500 leading-relaxed">{feature.description}</p>
                 </div>
               </CardContent>
