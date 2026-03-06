@@ -313,10 +313,10 @@ function CTASection() {
       {/* グラデーション背景（ヒーローの色違い: ラベンダー・アンバー・ミント） */}
       <div className="absolute inset-0 -z-10" style={{
         background: [
-          'radial-gradient(ellipse 120% 100% at 10% 30%, rgba(196, 181, 253, 0.7) 0%, transparent 60%)',
-          'radial-gradient(ellipse 100% 90% at 80% 20%, rgba(253, 186, 116, 0.6) 0%, transparent 60%)',
-          'radial-gradient(ellipse 100% 80% at 50% 80%, rgba(167, 243, 208, 0.55) 0%, transparent 60%)',
-          'radial-gradient(ellipse 80% 70% at 90% 70%, rgba(251, 207, 232, 0.5) 0%, transparent 60%)',
+          'radial-gradient(ellipse 180% 160% at 5% 20%, rgba(196, 181, 253, 0.8) 0%, transparent 55%)',
+          'radial-gradient(ellipse 160% 140% at 85% 10%, rgba(253, 186, 116, 0.7) 0%, transparent 55%)',
+          'radial-gradient(ellipse 150% 130% at 50% 90%, rgba(167, 243, 208, 0.65) 0%, transparent 55%)',
+          'radial-gradient(ellipse 130% 110% at 95% 65%, rgba(251, 207, 232, 0.6) 0%, transparent 55%)',
           'linear-gradient(135deg, rgba(245, 243, 255, 1) 0%, rgba(255, 251, 245, 1) 50%, rgba(243, 255, 251, 1) 100%)',
         ].join(', '),
       }} />
