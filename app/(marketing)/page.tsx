@@ -3,7 +3,7 @@ import Link from 'next/link'
 import type { Metadata } from 'next'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
-import { ArrowRight, Sparkles, MessageSquareText, ChartLine, CreditCard } from 'lucide-react'
+import { ArrowRight, Sparkles, MessageSquareText, ChartLine, CreditCard, LayoutDashboard, Trophy, Target, FileText, Bell, BarChart3, Headset, type LucideIcon } from 'lucide-react'
 
 export const metadata: Metadata = {
   title: 'branding.bz — AIで、ブランディングを加速させる。',
@@ -174,54 +174,54 @@ function AboutSection() {
 }
 
 /* ─── セクション5: 機能紹介 ─── */
-const features = [
+const features: { title: string; description: string; gif: string | null; icon: LucideIcon }[] = [
   {
     title: 'ダッシュボード',
     description: '行動指針別の投稿数やKPI進捗をリアルタイムで表示。チームのブランド浸透度が一目でわかります。',
     gif: '/marketing/gifs/dashboard.gif',
-    icon: '/marketing/icons/splitscreen.svg',
+    icon: LayoutDashboard,
   },
   {
     title: 'Good Job タイムライン',
     description: '行動指針に基づいた行動を、タイムラインで手軽にシェア。互いに称え合う文化を醸成します。',
     gif: '/marketing/gifs/timeline.gif',
-    icon: '/marketing/icons/explore.svg',
+    icon: Trophy,
   },
   {
     title: '個人目標と KPI',
     description: '年度目標に沿ったKPIを設定し、達成状況を管理。優先順位と期限を見える化します。',
     gif: '/marketing/gifs/kpi.gif',
-    icon: '/marketing/icons/fact_check.svg',
+    icon: Target,
   },
   {
     title: 'ブランド掲示',
     description: 'ブランド方針・戦略・ビジュアルID・バーバルIDを全社に掲示。いつでも"らしさ"を参照できます。',
     gif: '/marketing/gifs/guidelines.gif',
-    icon: '/marketing/icons/folder_special.svg',
+    icon: FileText,
   },
   {
     title: 'お知らせ',
     description: '社内イベントやブランド戦略の進捗を全メンバーに配信。情報の一元化で認識を揃えます。',
     gif: '/marketing/gifs/announcements.gif',
-    icon: '/marketing/icons/notifications-1.svg',
+    icon: Bell,
   },
   {
     title: 'スマート名刺',
     description: 'QRコードからプロフィール＋企業ブランドページを表示。名刺交換の瞬間がブランド体験になります。',
     gif: null,
-    icon: '/marketing/icons/accessibility_new.svg',
+    icon: CreditCard,
   },
   {
     title: '効果計測',
     description: '利用率や投稿分類などを計測。ブランド浸透を定量評価し、次のアクションにつなげます。',
     gif: null,
-    icon: '/marketing/icons/pie_chart.svg',
+    icon: BarChart3,
   },
   {
     title: 'ブランディングサポート',
     description: 'ブランド構築の専門サポートをオプションで提供。戦略策定からデザイン相談まで対応します。',
     gif: '/marketing/gifs/support.gif',
-    icon: '/marketing/icons/design_services.svg',
+    icon: Headset,
   },
 ]
 
@@ -257,7 +257,7 @@ function FeaturesSection() {
                 </div>
               )}
               <CardContent className="p-6 flex items-start gap-4">
-                <Image src={feature.icon} alt="" width={32} height={32} className="mt-1 opacity-60 shrink-0" />
+                <feature.icon size={24} strokeWidth={1.5} className="mt-1 text-gray-400 shrink-0" />
                 <div>
                   <h3 className="text-base font-bold text-gray-900 mb-2">{feature.title}</h3>
                   <p className="text-sm text-gray-500 leading-relaxed">{feature.description}</p>
