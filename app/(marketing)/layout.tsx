@@ -2,8 +2,14 @@
 
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
-import { Menu, X } from 'lucide-react'
+import { Menu, X, ChevronDown, Palette, Target } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 import Footer from '@/components/Footer'
 
 const navItems = [
@@ -11,6 +17,11 @@ const navItems = [
   { href: '/plan', label: '料金' },
   { href: '/faq', label: 'FAQ' },
   { href: '/contact', label: 'お問い合わせ' },
+]
+
+const toolItems = [
+  { href: '/tools/colors', label: 'ブランドカラー定義', icon: Palette },
+  { href: '/tools/stp', label: 'STP分析', icon: Target },
 ]
 
 function Header() {
@@ -52,12 +63,51 @@ function Header() {
 
     <header className="fixed top-0 left-0 right-0 z-50 bg-transparent">
       <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-6">
-        {/* ロゴの幅分のスペーサー */}
-        <div className="text-lg font-bold invisible" aria-hidden="true">branding.bz</div>
+        {/* ロゴの幅分のスペーサー（クリックでトップへ遷移） */}
+        <Link href="/" className="text-lg font-bold opacity-0">branding.bz</Link>
 
         {/* デスクトップナビ */}
         <nav className="hidden md:flex items-center gap-1">
-          {navItems.map((item) => (
+          {/* トップ */}
+          <Link
+            href="/"
+            className={`px-3 py-2 text-sm font-semibold rounded-md transition-colors duration-300 ${
+              isOverDark
+                ? 'text-gray-300 hover:text-white hover:bg-white/10'
+                : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+            }`}
+          >
+            トップ
+          </Link>
+
+          {/* ツールドロップダウン */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button
+                className={`flex items-center gap-1 px-3 py-2 text-sm font-semibold rounded-md transition-colors duration-300 outline-none ${
+                  isOverDark
+                    ? 'text-gray-300 hover:text-white hover:bg-white/10'
+                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                }`}
+              >
+                ツール
+                <ChevronDown className="h-3.5 w-3.5" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="bg-white">
+              {toolItems.map((tool) => (
+                <DropdownMenuItem key={tool.href} asChild>
+                  <Link href={tool.href} className="flex items-center gap-2 cursor-pointer">
+                    <tool.icon className="h-4 w-4" />
+                    {tool.label}
+                  </Link>
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          {/* 料金・FAQ・お問い合わせ */}
+          {navItems.slice(1).map((item) => (
             <Link
               key={item.href}
               href={item.href}
@@ -101,7 +151,27 @@ function Header() {
       {/* モバイルメニュー */}
       {menuOpen && (
         <nav className="md:hidden bg-white border-t px-4 py-3 space-y-1">
-          {navItems.map((item) => (
+          <Link
+            href="/"
+            className="block px-3 py-2.5 text-sm text-gray-600 rounded-md hover:bg-gray-100 hover:text-gray-900"
+            onClick={() => setMenuOpen(false)}
+          >
+            トップ
+          </Link>
+          {/* ツール */}
+          <div className="px-3 pt-2 pb-1 text-xs font-semibold text-gray-400">ツール</div>
+          {toolItems.map((tool) => (
+            <Link
+              key={tool.href}
+              href={tool.href}
+              className="flex items-center gap-2 px-3 py-2.5 pl-5 text-sm text-gray-600 rounded-md hover:bg-gray-100 hover:text-gray-900"
+              onClick={() => setMenuOpen(false)}
+            >
+              <tool.icon className="h-4 w-4" />
+              {tool.label}
+            </Link>
+          ))}
+          {navItems.slice(1).map((item) => (
             <Link
               key={item.href}
               href={item.href}

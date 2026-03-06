@@ -2,7 +2,7 @@
 
 // STP分析ツール ランディングページ
 import Link from 'next/link'
-import { Sparkles, LayoutGrid, Target, MapPin, ArrowRight, CheckCircle2, Lightbulb, SlidersHorizontal, FileText } from 'lucide-react'
+import { Sparkles, LayoutGrid, Target, MapPin, ArrowRight, CheckCircle2, Lightbulb, SlidersHorizontal, Download, Unplug } from 'lucide-react'
 import Footer from '@/components/Footer'
 
 const STP_CARDS = [
@@ -39,19 +39,25 @@ const HIGHLIGHTS = [
     label: 'AI提案',
     icon: Lightbulb,
     title: ['AI自動', 'セグメント提案'],
-    description: '業種や商品特性に合わせた最適なセグメント変数をAIが提案します。',
+    description: '業種や商品特性をもとに、最適なセグメント変数をAIが自動提案。市場分析を大幅に短縮します。',
   },
   {
     label: 'マップ',
     icon: SlidersHorizontal,
     title: ['インタラクティブ', 'ポジショニングマップ'],
-    description: 'スライダーで直感的に自社・競合をマップ上に配置できます。',
+    description: 'スライダーで直感的に自社・競合をマップ上に配置。ポジショニングの空白地帯が一目でわかります。',
   },
   {
-    label: '出力・連携',
-    icon: FileText,
-    title: ['PDF・branding.bz', '連携出力'],
-    description: '分析結果をPDFでダウンロード。branding.bzのブランド戦略に直接連携も可能。',
+    label: '出力',
+    icon: Download,
+    title: ['PDF・画像を', 'ワンクリック出力'],
+    description: '分析結果をPDFでワンクリックダウンロード。ポジショニングマップも画像で保存できます。',
+  },
+  {
+    label: '連携',
+    icon: Unplug,
+    title: ['ワンクリックで', 'branding.bz に連携'],
+    description: '確定したSTP分析をブランディングプラットフォームに登録。ブランド戦略に即反映。',
   },
 ]
 
@@ -64,7 +70,7 @@ export default function STPLandingPage() {
         style={{ mixBlendMode: 'difference' }}
       >
         <div className="mx-auto flex h-14 max-w-7xl items-center px-6">
-          <Link href="/tools/stp" className="text-lg font-bold text-white no-underline hover:opacity-80 pointer-events-auto">
+          <Link href="/" className="text-lg font-bold text-white no-underline hover:opacity-80 pointer-events-auto">
             branding.bz
           </Link>
         </div>
@@ -73,7 +79,7 @@ export default function STPLandingPage() {
       {/* ヘッダー */}
       <header className="fixed top-0 left-0 right-0 z-50 bg-transparent">
         <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-6">
-          <div className="text-lg font-bold invisible" aria-hidden="true">branding.bz</div>
+          <Link href="/" className="text-lg font-bold opacity-0">branding.bz</Link>
           <Link href="/tools/stp/auth">
             <button
               className="relative h-8 px-4 rounded-full text-sm font-semibold text-gray-900 overflow-hidden transition-all hover:scale-105 hover:shadow-lg"
@@ -111,10 +117,10 @@ export default function STPLandingPage() {
         <h1 className="text-3xl font-bold tracking-tight text-gray-900 md:text-5xl">
           STP分析ツール
         </h1>
-        <p className="mt-6 mx-auto max-w-2xl text-lg text-gray-600 leading-relaxed">
-          市場のセグメンテーション、ターゲティング、
-          ポジショニングマップまで。
-          AIが分析をサポートします。
+        <p className="mt-6 mx-auto max-w-2xl text-[20px] text-gray-600 leading-relaxed">
+          市場分析からポジショニングマップまで。
+          <br />
+          AIがあなたのSTP戦略をサポートします。
         </p>
         <div className="mt-10">
           <Link href="/tools/stp/auth">
@@ -135,7 +141,7 @@ export default function STPLandingPage() {
       </section>
 
       {/* STP分析とは？ */}
-      <section className="bg-gray-50 px-6 py-16 md:py-24">
+      <section className="bg-gray-50 px-6 py-12 md:py-16">
         <div className="mx-auto max-w-7xl">
           <h2 className="text-center text-xl md:text-[1.625rem] font-bold text-gray-900 mb-8">
             STP分析とは？
@@ -210,7 +216,7 @@ export default function STPLandingPage() {
       {/* 機能ハイライト */}
       <section className="bg-gray-50 px-6 py-16 md:py-24">
         <div className="mx-auto max-w-7xl">
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {HIGHLIGHTS.map((item) => (
               <div
                 key={item.label}

@@ -81,7 +81,7 @@ const STEPS = [
   { icon: '2', title: 'イメージ選択', description: 'キーワードやムードボードで方向性を設定' },
   { icon: '3', title: 'AI提案', description: 'AIが3パターンのカラーパレットを提案' },
   { icon: '4', title: '調整・磨き込み', description: 'AIチャットで色味やトーンを細かく調整' },
-  { icon: '5', title: '確定・出力', description: 'PDFカード出力やbranding.bzへの連携' },
+  { icon: '5', title: '確定・出力', description: 'カードのPDF出力やbranding.bzへの連携' },
 ]
 
 export default function ColorsLandingPage() {
@@ -93,7 +93,7 @@ export default function ColorsLandingPage() {
         style={{ mixBlendMode: 'difference' }}
       >
         <div className="mx-auto flex h-14 max-w-7xl items-center px-6">
-          <Link href="/tools/colors" className="text-lg font-bold text-white no-underline hover:opacity-80 pointer-events-auto">
+          <Link href="/" className="text-lg font-bold text-white no-underline hover:opacity-80 pointer-events-auto">
             branding.bz
           </Link>
         </div>
@@ -102,7 +102,7 @@ export default function ColorsLandingPage() {
       {/* ヘッダー */}
       <header className="fixed top-0 left-0 right-0 z-50 bg-transparent">
         <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-6">
-          <div className="text-lg font-bold invisible" aria-hidden="true">branding.bz</div>
+          <Link href="/" className="text-lg font-bold opacity-0">branding.bz</Link>
           <Link href="/tools/colors/auth">
             <button
               className="relative h-8 px-4 rounded-full text-sm font-semibold text-gray-900 overflow-hidden transition-all hover:scale-105 hover:shadow-lg"
@@ -140,7 +140,7 @@ export default function ColorsLandingPage() {
         <h1 className="text-3xl font-bold tracking-tight text-gray-900 md:text-5xl">
           ブランドカラー定義ツール
         </h1>
-        <p className="mt-6 mx-auto max-w-2xl text-lg text-gray-600 leading-relaxed">
+        <p className="mt-6 mx-auto max-w-2xl text-[20px] text-gray-600 leading-relaxed">
           ブランドのパーソナリティや業種に合わせて、
           AIがプロ品質のカラーパレットを提案します。
           経営者・ブランド担当者のための無料ツール。
