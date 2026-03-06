@@ -146,9 +146,18 @@ export default function ColorsLandingPage() {
         </p>
         <div className="mt-10">
           <Link href="/tools/colors/auth">
-            <Button size="lg" className="h-12 px-8 text-base font-bold">
-              無料でカラーを作る
-            </Button>
+            <button
+              className="relative h-12 w-48 rounded-full text-base font-bold text-white overflow-hidden transition-all hover:scale-105 hover:shadow-2xl"
+              style={{
+                background: 'rgba(0, 0, 0, 0.75)',
+                backdropFilter: 'blur(12px) saturate(120%)',
+                WebkitBackdropFilter: 'blur(12px) saturate(120%)',
+                border: '1px solid rgba(255, 255, 255, 0.15)',
+                boxShadow: '0px 8px 24px 0 rgba(0, 0, 0, 0.2), inset 0px 1px 0px 0px rgba(255, 255, 255, 0.15)',
+              }}
+            >
+              <span className="relative z-10">無料でカラーを作る</span>
+            </button>
           </Link>
         </div>
       </section>
@@ -269,10 +278,18 @@ export default function ColorsLandingPage() {
             無料で3回まで利用可能。アカウント登録は30秒で完了。
           </p>
           <Link href="/tools/colors/auth">
-            <Button size="lg" className="h-12 px-8 text-base font-bold">
-              無料でカラーを作る
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
+            <button
+              className="relative h-12 w-48 rounded-full text-base font-bold text-white overflow-hidden transition-all hover:scale-105 hover:shadow-2xl"
+              style={{
+                background: 'rgba(0, 0, 0, 0.75)',
+                backdropFilter: 'blur(12px) saturate(120%)',
+                WebkitBackdropFilter: 'blur(12px) saturate(120%)',
+                border: '1px solid rgba(255, 255, 255, 0.15)',
+                boxShadow: '0px 8px 24px 0 rgba(0, 0, 0, 0.2), inset 0px 1px 0px 0px rgba(255, 255, 255, 0.15)',
+              }}
+            >
+              <span className="relative z-10">無料でカラーを作る</span>
+            </button>
           </Link>
           <div className="mt-4 flex items-center justify-center gap-4 text-sm text-gray-500">
             <span className="flex items-center gap-1">
