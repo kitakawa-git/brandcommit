@@ -101,7 +101,14 @@ function Header() {
             </DropdownMenuTrigger>
             <DropdownMenuContent
               align="start"
-              className="p-1 rounded-xl bg-white/70 backdrop-blur-[12px] backdrop-saturate-[1.2] border border-white/80 shadow-[0px_8px_24px_0_rgba(12,74,110,0.12),inset_0px_0px_4px_2px_rgba(255,255,255,0.15)]"
+              className="p-1 rounded-xl"
+              style={{
+                background: 'rgba(255, 255, 255, 0.12)',
+                backdropFilter: 'blur(12px) saturate(120%)',
+                WebkitBackdropFilter: 'blur(12px) saturate(120%)',
+                border: '1px solid rgba(255, 255, 255, 0.25)',
+                boxShadow: '0px 8px 24px 0 rgba(12, 74, 110, 0.12), inset 0px 0px 4px 2px rgba(255, 255, 255, 0.15)',
+              }}
             >
               {toolItems.map((tool) => (
                 <DropdownMenuItem key={tool.href} asChild>
