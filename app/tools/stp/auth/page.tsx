@@ -22,6 +22,23 @@ export default function STPAuthPage() {
   const [loading, setLoading] = useState(false)
   const router = useRouter()
 
+  // セッション作成してリダイレクト
+  const createSessionAndRedirect = async (userId: string) => {
+    const res = await fetch('/api/tools/stp/sessions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId }),
+    })
+
+    if (!res.ok) {
+      const data = await res.json()
+      throw new Error(data.error || 'セッション作成に失敗しました')
+    }
+
+    const { sessionId } = await res.json()
+    router.replace(`/tools/stp/app/${sessionId}`)
+  }
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
@@ -38,7 +55,7 @@ export default function STPAuthPage() {
         return
       }
 
-      router.replace('/tools/stp/app')
+      await createSessionAndRedirect(data.user.id)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'ログイン中にエラーが発生しました')
     } finally {
@@ -64,18 +81,20 @@ export default function STPAuthPage() {
     }
 
     try {
-      // サインアップ
-      const { data, error: signupError } = await supabase.auth.signUp({
-        email,
-        password,
+      // サインアップAPI経由でAuth user作成
+      const res = await fetch('/api/tools/stp/sessions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password, isNewUser: true }),
       })
 
-      if (signupError) {
-        throw new Error(signupError.message)
+      if (!res.ok) {
+        const data = await res.json()
+        throw new Error(data.error || 'アカウント作成に失敗しました')
       }
 
       // 作成成功 → ログイン
-      const { error: loginError } = await supabase.auth.signInWithPassword({
+      const { data: loginData, error: loginError } = await supabase.auth.signInWithPassword({
         email,
         password,
       })
@@ -84,7 +103,8 @@ export default function STPAuthPage() {
         throw new Error('アカウントは作成されましたがログインに失敗しました。ログイン画面からお試しください。')
       }
 
-      router.replace('/tools/stp/app')
+      const { sessionId } = await res.json()
+      router.replace(`/tools/stp/app/${sessionId}`)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'アカウント作成中にエラーが発生しました')
     } finally {
