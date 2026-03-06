@@ -36,12 +36,23 @@ function Header() {
   }, [])
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-transparent">
-      <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-6">
-        {/* ロゴ */}
-        <Link href="/" className={`text-lg font-bold no-underline hover:opacity-80 transition-colors duration-300 ${isOverDark ? 'text-white' : 'text-gray-900'}`}>
+    <>
+    {/* ロゴ（独立レイヤー: mix-blend-mode: difference で背景色に応じて自動反転） */}
+    <div
+      className="fixed top-0 left-0 right-0 z-50 pointer-events-none"
+      style={{ mixBlendMode: 'difference' }}
+    >
+      <div className="mx-auto flex h-14 max-w-7xl items-center px-6">
+        <Link href="/" className="text-lg font-bold text-white no-underline hover:opacity-80 pointer-events-auto">
           branding.bz
         </Link>
+      </div>
+    </div>
+
+    <header className="fixed top-0 left-0 right-0 z-50 bg-transparent">
+      <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-6">
+        {/* ロゴの幅分のスペーサー */}
+        <div className="text-lg font-bold invisible" aria-hidden="true">branding.bz</div>
 
         {/* デスクトップナビ */}
         <nav className="hidden md:flex items-center gap-1">
@@ -116,6 +127,7 @@ function Header() {
         </nav>
       )}
     </header>
+    </>
   )
 }
 
