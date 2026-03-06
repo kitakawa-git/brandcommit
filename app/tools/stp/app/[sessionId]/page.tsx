@@ -10,6 +10,7 @@ import { ProgressBar } from '../components/ProgressBar'
 import { Step1BasicInfo } from './components/Step1BasicInfo'
 import { Step2Segmentation } from './components/Step2Segmentation'
 import { Step3Targeting } from './components/Step3Targeting'
+import { Step4Positioning } from './components/Step4Positioning'
 import { StepPlaceholder } from './components/StepPlaceholder'
 
 // STPセッションデータの型
@@ -46,7 +47,17 @@ interface STPSessionData {
     sub_targets: string[]
     target_description: string
   }
-  positioning: Record<string, unknown>
+  positioning: {
+    x_axis: { left: string; right: string }
+    y_axis: { bottom: string; top: string }
+    items: Array<{
+      name: string
+      x: number
+      y: number
+      color: string
+      is_self: boolean
+    }>
+  }
   completed: boolean
 }
 
@@ -172,7 +183,7 @@ export default function STPSessionPage() {
   const currentStep = session.current_step
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-8">
+    <div className={`mx-auto px-4 py-8 ${currentStep === 4 ? 'max-w-5xl' : 'max-w-3xl'}`}>
       {/* プログレスバー */}
       <div className="mb-8">
         <ProgressBar currentStep={currentStep} />
@@ -205,12 +216,13 @@ export default function STPSessionPage() {
         />
       )}
       {currentStep === 4 && (
-        <StepPlaceholder
-          stepNumber={4}
-          title="ポジショニング"
-          description="競合との差別化ポイントを明確にします"
-          onNext={() => saveAndAdvance(5)}
+        <Step4Positioning
+          positioning={session.session_data.positioning}
+          basicInfo={session.session_data.basic_info}
+          targeting={session.session_data.targeting}
+          onNext={(data) => saveAndAdvance(5, { positioning: data })}
           onBack={() => saveAndAdvance(3)}
+          onSaveField={(data) => saveField({ positioning: data })}
         />
       )}
       {currentStep === 5 && (
