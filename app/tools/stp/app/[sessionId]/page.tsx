@@ -1,70 +1,204 @@
 'use client'
 
-// STP分析ツール — セッション付きメインページ（プレースホルダー）
-import { useEffect, useState } from 'react'
-import { useParams, useRouter } from 'next/navigation'
-import { supabase } from '@/lib/supabase'
+// STP分析ツール — ステップ管理ページ
+// current_step に基づいて Step1〜5 のコンポーネントを動的レンダリング
+import { useEffect, useState, useCallback } from 'react'
+import { useParams } from 'next/navigation'
+import { toast } from 'sonner'
+import { Skeleton } from '@/components/ui/skeleton'
+import { ProgressBar } from '../components/ProgressBar'
+import { Step1BasicInfo } from './components/Step1BasicInfo'
+import { StepPlaceholder } from './components/StepPlaceholder'
+
+// STPセッションデータの型
+interface STPSessionData {
+  current_step: number
+  basic_info: {
+    company_name: string
+    industry: string
+    industry_other?: string
+    products: string
+    current_customers: string
+    competitors: string
+  }
+  segmentation: Record<string, unknown>
+  targeting: Record<string, unknown>
+  positioning: Record<string, unknown>
+  completed: boolean
+}
+
+interface STPSession {
+  id: string
+  user_id: string
+  app_type: string
+  status: string
+  current_step: number
+  session_data: STPSessionData
+  company_id: string | null
+  created_at: string
+}
 
 export default function STPSessionPage() {
-  const { sessionId } = useParams<{ sessionId: string }>()
+  const params = useParams()
+  const sessionId = params.sessionId as string
+
+  const [session, setSession] = useState<STPSession | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
-  const [session, setSession] = useState<Record<string, unknown> | null>(null)
-  const router = useRouter()
 
+  // セッションデータ取得
   useEffect(() => {
-    const init = async () => {
-      // 認証チェック
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) {
-        router.replace('/tools/stp/auth')
-        return
-      }
-
-      // セッション取得
+    const fetchData = async () => {
       try {
         const res = await fetch(`/api/tools/stp/sessions/${sessionId}`)
         if (!res.ok) {
           const data = await res.json()
-          setError(data.error || 'セッションの取得に失敗しました')
+          setError(data.error || 'データの取得に失敗しました')
           return
         }
-        const { session: sessionData } = await res.json()
-        setSession(sessionData)
+
+        const { session: s } = await res.json()
+        setSession(s)
       } catch (err) {
         setError(err instanceof Error ? err.message : 'エラーが発生しました')
       } finally {
         setLoading(false)
       }
     }
-    init()
-  }, [sessionId, router])
+
+    fetchData()
+  }, [sessionId])
+
+  // ステップ進行 + データ保存
+  const saveAndAdvance = useCallback(async (
+    nextStep: number,
+    sessionData?: Record<string, unknown>
+  ) => {
+    try {
+      const res = await fetch(`/api/tools/stp/sessions/${sessionId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ step: nextStep, sessionData }),
+      })
+
+      if (!res.ok) {
+        const resData = await res.json()
+        toast.error(resData.error || '保存に失敗しました')
+        return false
+      }
+
+      setSession(prev => {
+        if (!prev) return prev
+        return {
+          ...prev,
+          current_step: nextStep,
+          session_data: sessionData
+            ? { ...prev.session_data, ...sessionData } as STPSessionData
+            : prev.session_data,
+        }
+      })
+      return true
+    } catch {
+      toast.error('保存中にエラーが発生しました')
+      return false
+    }
+  }, [sessionId])
+
+  // 部分保存（オートセーブ用、ステップ変更なし）
+  const saveField = useCallback(async (sessionData: Record<string, unknown>) => {
+    try {
+      await fetch(`/api/tools/stp/sessions/${sessionId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sessionData }),
+      })
+      setSession(prev => {
+        if (!prev) return prev
+        return {
+          ...prev,
+          session_data: { ...prev.session_data, ...sessionData } as STPSessionData,
+        }
+      })
+    } catch {
+      console.error('[STP AutoSave] 保存エラー')
+    }
+  }, [sessionId])
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-white">
-        <p className="text-sm text-gray-500">読み込み中...</p>
+      <div className="mx-auto max-w-3xl px-4 py-8">
+        <Skeleton className="mb-8 h-10 w-full" />
+        <Skeleton className="mb-4 h-8 w-48" />
+        <Skeleton className="mb-2 h-12 w-full" />
+        <Skeleton className="mb-2 h-12 w-full" />
+        <Skeleton className="h-12 w-full" />
       </div>
     )
   }
 
-  if (error) {
+  if (error || !session) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-white">
+      <div className="flex min-h-[60vh] items-center justify-center">
         <div className="rounded-lg bg-red-50 px-6 py-4 text-sm text-red-600">
-          {error}
+          {error || 'セッションデータが見つかりません'}
         </div>
       </div>
     )
   }
 
+  const currentStep = session.current_step
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-white">
-      <div className="text-center">
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">STP分析ツール</h1>
-        <p className="text-gray-500 mb-4">準備中です。もうしばらくお待ちください。</p>
-        <p className="text-xs text-gray-400">セッションID: {sessionId}</p>
+    <div className="mx-auto max-w-3xl px-4 py-8">
+      {/* プログレスバー */}
+      <div className="mb-8">
+        <ProgressBar currentStep={currentStep} />
       </div>
+
+      {/* ステップコンテンツ */}
+      {currentStep === 1 && (
+        <Step1BasicInfo
+          basicInfo={session.session_data.basic_info}
+          onNext={(data) => saveAndAdvance(2, { basic_info: data })}
+          onSaveField={(data) => saveField({ basic_info: data })}
+        />
+      )}
+      {currentStep === 2 && (
+        <StepPlaceholder
+          stepNumber={2}
+          title="セグメンテーション"
+          description="市場を分割する基準を設定します"
+          onNext={() => saveAndAdvance(3)}
+          onBack={() => saveAndAdvance(1)}
+        />
+      )}
+      {currentStep === 3 && (
+        <StepPlaceholder
+          stepNumber={3}
+          title="ターゲティング"
+          description="狙うべきセグメントを選定します"
+          onNext={() => saveAndAdvance(4)}
+          onBack={() => saveAndAdvance(2)}
+        />
+      )}
+      {currentStep === 4 && (
+        <StepPlaceholder
+          stepNumber={4}
+          title="ポジショニング"
+          description="競合との差別化ポイントを明確にします"
+          onNext={() => saveAndAdvance(5)}
+          onBack={() => saveAndAdvance(3)}
+        />
+      )}
+      {currentStep === 5 && (
+        <StepPlaceholder
+          stepNumber={5}
+          title="確認・出力"
+          description="STP分析の結果を確認し、出力します"
+          onBack={() => saveAndAdvance(4)}
+          isLast
+        />
+      )}
     </div>
   )
 }
