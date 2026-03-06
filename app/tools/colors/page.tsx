@@ -4,7 +4,7 @@
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
-import { Palette, Sparkles, Download, ArrowRight, CheckCircle2 } from 'lucide-react'
+import { Palette, Sparkles, Download, ArrowRight, CheckCircle2, Plug } from 'lucide-react'
 import Footer from '@/components/Footer'
 
 const EXAMPLE_PALETTES = [
@@ -243,7 +243,7 @@ export default function ColorsLandingPage() {
       {/* 機能ハイライト */}
       <section className="bg-gray-50 px-6 py-16">
         <div className="mx-auto max-w-7xl">
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {[
               {
                 label: 'アクセシビリティ',
@@ -262,6 +262,12 @@ export default function ColorsLandingPage() {
                 icon: Download,
                 title: 'PDF・CSS出力',
                 description: 'パレットカードPDFやCSSカスタムプロパティをワンクリックで出力',
+              },
+              {
+                label: '連携',
+                icon: Plug,
+                title: 'branding.bzにワンクリック連携',
+                description: '確定したカラーパレットをCI要素としてbranding.bz本体にそのまま登録。ビジュアルアイデンティティに即反映',
               },
             ].map((item) => (
               <div
