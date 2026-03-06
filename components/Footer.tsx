@@ -34,7 +34,6 @@ export default function Footer() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-10 md:gap-8">
           {/* プロダクト */}
           <div>
-            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4">Product</p>
             <ul className="space-y-2.5">
               {footerLinks.product.map((link) => (
                 <li key={link.href}>
@@ -48,7 +47,6 @@ export default function Footer() {
 
           {/* ツール */}
           <div>
-            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4">Tools</p>
             <ul className="space-y-2.5">
               {footerLinks.tools.map((link) => (
                 <li key={link.href}>
@@ -62,7 +60,6 @@ export default function Footer() {
 
           {/* リーガル */}
           <div>
-            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4">Legal</p>
             <ul className="space-y-2.5">
               {footerLinks.legal.map((link) => (
                 <li key={link.href}>
@@ -76,7 +73,6 @@ export default function Footer() {
 
           {/* ログイン */}
           <div>
-            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4">Account</p>
             <ul className="space-y-2.5">
               {footerLinks.login.map((link) => (
                 <li key={link.href}>
