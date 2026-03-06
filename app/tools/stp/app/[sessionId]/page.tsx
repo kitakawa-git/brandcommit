@@ -8,6 +8,7 @@ import { toast } from 'sonner'
 import { Skeleton } from '@/components/ui/skeleton'
 import { ProgressBar } from '../components/ProgressBar'
 import { Step1BasicInfo } from './components/Step1BasicInfo'
+import { Step2Segmentation } from './components/Step2Segmentation'
 import { StepPlaceholder } from './components/StepPlaceholder'
 
 // STPセッションデータの型
@@ -21,7 +22,18 @@ interface STPSessionData {
     current_customers: string
     competitors: string
   }
-  segmentation: Record<string, unknown>
+  segmentation: {
+    mode: 'ai' | 'manual'
+    variables: Array<{
+      name: string
+      segments: Array<{
+        name: string
+        description: string
+        size_hint: '大' | '中' | '小'
+        selected: boolean
+      }>
+    }>
+  }
   targeting: Record<string, unknown>
   positioning: Record<string, unknown>
   completed: boolean
@@ -164,12 +176,12 @@ export default function STPSessionPage() {
         />
       )}
       {currentStep === 2 && (
-        <StepPlaceholder
-          stepNumber={2}
-          title="セグメンテーション"
-          description="市場を分割する基準を設定します"
-          onNext={() => saveAndAdvance(3)}
+        <Step2Segmentation
+          segmentation={session.session_data.segmentation}
+          basicInfo={session.session_data.basic_info}
+          onNext={(data) => saveAndAdvance(3, { segmentation: data })}
           onBack={() => saveAndAdvance(1)}
+          onSaveField={(data) => saveField({ segmentation: data })}
         />
       )}
       {currentStep === 3 && (
