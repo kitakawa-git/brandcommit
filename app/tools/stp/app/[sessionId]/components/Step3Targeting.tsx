@@ -374,11 +374,18 @@ export function Step3Targeting({
             {sortedEvaluations
               .filter((ev) => ev.segment_name !== mainTarget)
               .map((ev) => (
-                <button
+                <div
                   key={ev.segment_name}
-                  type="button"
+                  role="button"
+                  tabIndex={0}
                   onClick={() => toggleSubTarget(ev.segment_name)}
-                  className={`flex w-full items-center gap-3 rounded-lg border p-3 text-left transition-colors ${
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault()
+                      toggleSubTarget(ev.segment_name)
+                    }
+                  }}
+                  className={`flex w-full cursor-pointer items-center gap-3 rounded-lg border p-3 text-left transition-colors ${
                     subTargets.includes(ev.segment_name)
                       ? 'border-blue-500 bg-blue-50'
                       : 'border-gray-200 bg-white hover:border-gray-300'
@@ -399,7 +406,7 @@ export function Step3Targeting({
                       </p>
                     )}
                   </div>
-                </button>
+                </div>
               ))}
           </div>
         </div>
