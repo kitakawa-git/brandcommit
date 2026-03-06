@@ -368,10 +368,6 @@ function CTASection() {
             </button>
           </Link>
         </div>
-
-        <p className="mt-6 text-xs text-gray-400">
-          無料で最新バージョンをいち早くお試しいただけます
-        </p>
       </div>
     </section>
   )
