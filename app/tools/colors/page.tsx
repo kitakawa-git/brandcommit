@@ -269,28 +269,40 @@ export default function ColorsLandingPage() {
       </section>
 
       {/* CTA */}
-      <section className="py-16">
-        <div className="mx-auto max-w-7xl px-6 text-center">
-          <h2 className="mb-4 text-2xl font-bold text-gray-900">
+      <section className="relative overflow-hidden px-6 py-16 md:py-24 text-center">
+        {/* グラデーション背景 */}
+        <div className="absolute inset-0 z-0" style={{
+          background: [
+            'radial-gradient(ellipse 180% 160% at 5% 20%, rgba(196, 181, 253, 0.8) 0%, transparent 55%)',
+            'radial-gradient(ellipse 160% 140% at 85% 10%, rgba(253, 186, 116, 0.7) 0%, transparent 55%)',
+            'radial-gradient(ellipse 150% 130% at 50% 90%, rgba(167, 243, 208, 0.65) 0%, transparent 55%)',
+            'radial-gradient(ellipse 130% 110% at 95% 65%, rgba(251, 207, 232, 0.6) 0%, transparent 55%)',
+            'linear-gradient(135deg, rgba(245, 243, 255, 1) 0%, rgba(255, 251, 245, 1) 50%, rgba(243, 255, 251, 1) 100%)',
+          ].join(', '),
+        }} />
+        <div className="relative z-10 w-full max-w-4xl mx-auto">
+          <h2 className="text-3xl md:text-5xl font-bold tracking-tight text-gray-900">
             今すぐカラーパレットを作成
           </h2>
-          <p className="mb-6 text-gray-500">
+          <p className="mt-6 text-lg md:text-xl text-gray-700 max-w-2xl mx-auto leading-relaxed">
             無料で3回まで利用可能。アカウント登録は30秒で完了。
           </p>
-          <Link href="/tools/colors/auth">
-            <button
-              className="relative h-12 w-48 rounded-full text-base font-bold text-white overflow-hidden transition-all hover:scale-105 hover:shadow-2xl"
-              style={{
-                background: 'rgba(0, 0, 0, 0.75)',
-                backdropFilter: 'blur(12px) saturate(120%)',
-                WebkitBackdropFilter: 'blur(12px) saturate(120%)',
-                border: '1px solid rgba(255, 255, 255, 0.15)',
-                boxShadow: '0px 8px 24px 0 rgba(0, 0, 0, 0.2), inset 0px 1px 0px 0px rgba(255, 255, 255, 0.15)',
-              }}
-            >
-              <span className="relative z-10">無料でカラーを作る</span>
-            </button>
-          </Link>
+          <div className="mt-10">
+            <Link href="/tools/colors/auth">
+              <button
+                className="relative h-12 w-48 rounded-full text-base font-bold text-white overflow-hidden transition-all hover:scale-105 hover:shadow-2xl"
+                style={{
+                  background: 'rgba(0, 0, 0, 0.75)',
+                  backdropFilter: 'blur(12px) saturate(120%)',
+                  WebkitBackdropFilter: 'blur(12px) saturate(120%)',
+                  border: '1px solid rgba(255, 255, 255, 0.15)',
+                  boxShadow: '0px 8px 24px 0 rgba(0, 0, 0, 0.2), inset 0px 1px 0px 0px rgba(255, 255, 255, 0.15)',
+                }}
+              >
+                <span className="relative z-10">無料でカラーを作る</span>
+              </button>
+            </Link>
+          </div>
           <div className="mt-4 flex items-center justify-center gap-4 text-sm text-gray-500">
             <span className="flex items-center gap-1">
               <CheckCircle2 className="h-3.5 w-3.5 text-green-500" />
