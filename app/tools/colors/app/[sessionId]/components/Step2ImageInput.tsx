@@ -5,7 +5,7 @@ import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent } from '@/components/ui/card'
-import { ArrowLeft, Plus, Trash2, Type, Palette } from 'lucide-react'
+import { ArrowLeft, Plus, Trash2 } from 'lucide-react'
 
 import { KeywordSelector } from '../../components/KeywordSelector'
 import { MoodboardPairSelector } from '../../components/MoodboardPair'
@@ -113,23 +113,22 @@ export function Step2ImageInput({ project, onNext, onBack, onSaveField }: Step2P
 
       {/* タブ切替 */}
       <div className="flex gap-6 border-b mb-5">
-            {([
-              { value: 'keyword' as const, label: 'キーワード', icon: Type },
-              { value: 'moodboard' as const, label: 'ムードボード', icon: Palette },
-            ]).map(tab => (
-              <button
-                key={tab.value}
-                onClick={() => { setApproach(tab.value); setErrors({}) }}
-                className={`flex items-center gap-1.5 pb-2 text-sm font-semibold border-b-2 -mb-px transition-colors ${
-                  approach === tab.value
-                    ? 'border-foreground text-foreground'
-                    : 'border-transparent text-muted-foreground hover:text-foreground'
-                }`}
-              >
-                <tab.icon className="h-4 w-4" />
-                {tab.label}
-              </button>
-            ))}
+        {([
+          { value: 'keyword' as const, label: 'イメージするキーワードを選ぶ' },
+          { value: 'moodboard' as const, label: 'ムードボードから選ぶ' },
+        ]).map(tab => (
+          <button
+            key={tab.value}
+            onClick={() => { setApproach(tab.value); setErrors({}) }}
+            className={`pb-2 text-sm font-semibold border-b-2 -mb-px transition-colors ${
+              approach === tab.value
+                ? 'border-foreground text-foreground'
+                : 'border-transparent text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            {tab.label}
+          </button>
+        ))}
       </div>
 
       <Card className="bg-[hsl(0_0%_97%)] border shadow-none">
