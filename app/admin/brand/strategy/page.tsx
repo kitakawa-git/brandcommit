@@ -17,6 +17,7 @@ import { Label } from '@/components/ui/label'
 import { Slider } from '@/components/ui/slider'
 import { PositioningMap } from '@/components/PositioningMap'
 import { Plus, Trash2 } from 'lucide-react'
+import { TitleDescriptionList } from '@/components/shared/TitleDescriptionList'
 import type { PositioningMapData, PositioningMapItem, PositioningMapSize } from '@/lib/types/positioning-map'
 
 type PersonaItem = {
@@ -30,6 +31,11 @@ type PersonaItem = {
 
 type ActionGuideline = {
   title: string
+  description: string
+}
+
+type TargetSegment = {
+  name: string
   description: string
 }
 
@@ -67,7 +73,7 @@ const DEFAULT_COLORS = [
 ]
 
 type StrategyCache = {
-  target: string
+  targetSegments: TargetSegment[]
   personas: PersonaItem[]
   positioningMapData: PositioningMapData | null
   actionGuidelines: ActionGuideline[]
@@ -79,7 +85,7 @@ export default function BrandStrategyPage() {
   const { companyId } = useAuth()
   const cacheKey = `admin-brand-strategy-${companyId}`
   const cached = companyId ? getPageCache<StrategyCache>(cacheKey) : null
-  const [target, setTarget] = useState(cached?.target ?? '')
+  const [targetSegments, setTargetSegments] = useState<TargetSegment[]>(cached?.targetSegments ?? [])
   const [personas, setPersonas] = useState<PersonaItem[]>(cached?.personas ?? [])
   const [positioningMapData, setPositioningMapData] = useState<PositioningMapData | null>(cached?.positioningMapData ?? null)
   const [actionGuidelines, setActionGuidelines] = useState<ActionGuideline[]>(cached?.actionGuidelines ?? [])
@@ -106,7 +112,7 @@ export default function BrandStrategyPage() {
       try {
         const { data: companyData } = await supabase
           .from('companies')
-          .select('portal_subtitles')
+          .select('portal_subtitles, target_segments')
           .eq('id', companyId)
           .single()
         if (companyData) {
@@ -120,9 +126,15 @@ export default function BrandStrategyPage() {
         // サブタイトル取得失敗は無視
       }
 
+      // target_segments 構造化データ: companies.target_segments 優先
+      const rawTs = ((companyData as Record<string, unknown> | null)?.target_segments as TargetSegment[]) || []
+      const companyTargetSegments = rawTs
+        .filter(ts => ts && ts.name)
+        .map(ts => ({ name: ts.name || '', description: ts.description || '' }))
+
       if (data && data.length > 0) {
         const first = data[0] as Record<string, unknown>
-        const parsedTarget = (first.target as string) || ''
+        const parsedTargetText = (first.target as string) || ''
         const parsedMapData = (first.positioning_map_data as PositioningMapData) || null
         const parsedActionGuidelines = (first.action_guidelines as ActionGuideline[]) || []
         const parsedPersonas = data.map((d: Record<string, unknown>) => ({
@@ -134,18 +146,31 @@ export default function BrandStrategyPage() {
           pain_points: (d.pain_points as string[]) || [],
         }))
 
-        setTarget(parsedTarget)
+        // ターゲットセグメント: companies.target_segments → brand_personas.target テキストのフォールバック
+        let parsedTargetSegments: TargetSegment[]
+        if (companyTargetSegments.length > 0) {
+          parsedTargetSegments = companyTargetSegments
+        } else if (parsedTargetText) {
+          parsedTargetSegments = [{ name: 'ターゲット', description: parsedTargetText }]
+        } else {
+          parsedTargetSegments = []
+        }
+
+        setTargetSegments(parsedTargetSegments)
         setPositioningMapData(parsedMapData)
         setActionGuidelines(parsedActionGuidelines)
         setPersonas(parsedPersonas)
         setPageCache<StrategyCache>(cacheKey, {
-          target: parsedTarget,
+          targetSegments: parsedTargetSegments,
           personas: parsedPersonas,
           positioningMapData: parsedMapData,
           actionGuidelines: parsedActionGuidelines,
           portalSubtitle: fetchedSubtitle,
           portalSubtitlesData: fetchedSubtitlesData,
         })
+      } else if (companyTargetSegments.length > 0) {
+        // brand_personas レコードなしでも companies のデータがあれば表示
+        setTargetSegments(companyTargetSegments)
       }
     } catch (err) {
       console.error('[BrandStrategy] データ取得エラー:', err)
@@ -320,6 +345,17 @@ export default function BrandStrategyPage() {
       g.title.trim() !== '' || g.description.trim() !== ''
     )
 
+    // ターゲットセグメントをクリーンアップ＋テキスト生成（brand_personas.target 用）
+    const validSegments = targetSegments
+      .filter(ts => ts.name.trim())
+      .map(ts => ({ name: ts.name.trim(), description: ts.description?.trim() || '' }))
+    const targetText = validSegments
+      .map(ts => {
+        const desc = ts.description ? `：${ts.description}` : ''
+        return `・${ts.name}${desc}`
+      })
+      .join('\n')
+
     try {
       // 1. 既存を全削除
       const delRes = await fetch(`${supabaseUrl}/rest/v1/brand_personas?company_id=eq.${companyId}`, {
@@ -346,7 +382,7 @@ export default function BrandStrategyPage() {
           needs: p.needs.filter(n => n.trim() !== ''),
           pain_points: p.pain_points.filter(pp => pp.trim() !== ''),
           sort_order: i,
-          target: i === 0 ? (target || null) : null,
+          target: i === 0 ? (targetText || null) : null,
           positioning_map_url: null,
           positioning_map_data: i === 0 ? (positioningMapData || null) : null,
           action_guidelines: i === 0 ? (cleanedGuidelines.length > 0 ? cleanedGuidelines : null) : null,
@@ -363,12 +399,12 @@ export default function BrandStrategyPage() {
         }
       } else {
         // ペルソナがなくてもtarget等を保存するためダミーレコードを作成
-        if (target || positioningMapData || cleanedGuidelines.length > 0) {
+        if (targetText || positioningMapData || cleanedGuidelines.length > 0) {
           const insertData = [{
             company_id: companyId,
             name: '',
             sort_order: 0,
-            target: target || null,
+            target: targetText || null,
             positioning_map_url: null,
             positioning_map_data: positioningMapData || null,
             action_guidelines: cleanedGuidelines.length > 0 ? cleanedGuidelines : null,
@@ -386,7 +422,7 @@ export default function BrandStrategyPage() {
         }
       }
 
-      // ポータルサブタイトル保存
+      // ポータルサブタイトル + ターゲットセグメント保存（companies テーブル）
       const updatedSubtitles = { ...(portalSubtitlesData || {}) }
       if (portalSubtitle.trim()) {
         updatedSubtitles.strategy = portalSubtitle.trim()
@@ -398,12 +434,14 @@ export default function BrandStrategyPage() {
         headers: { ...headers, 'Prefer': 'return=minimal' },
         body: JSON.stringify({
           portal_subtitles: Object.keys(updatedSubtitles).length > 0 ? updatedSubtitles : null,
+          target_segments: validSegments.length > 0 ? validSegments : null,
         }),
       })
       setPortalSubtitlesData(updatedSubtitles)
 
       setPersonas(cleanedPersonas)
       setActionGuidelines(cleanedGuidelines)
+      setTargetSegments(validSegments)
       toast.success('保存しました')
     } catch (err) {
       console.error('[BrandStrategy Save] エラー:', err)
@@ -488,15 +526,16 @@ export default function BrandStrategyPage() {
         {/* Card 1: ターゲット＋ペルソナ */}
         <Card className="bg-[hsl(0_0%_97%)] border shadow-none">
           <CardContent className="p-5 space-y-5">
-            <div>
-              <h2 className="text-sm font-bold mb-3">ターゲット</h2>
-              <AutoResizeTextarea
-                value={target}
-                onChange={(e) => setTarget(e.target.value)}
-                placeholder="ブランドのターゲット市場や顧客層を記述"
-                className="min-h-[100px]"
-              />
-            </div>
+            <TitleDescriptionList
+              label="ターゲット"
+              items={targetSegments.map(ts => ({ title: ts.name, description: ts.description }))}
+              onChange={(newItems) => {
+                setTargetSegments(newItems.map(item => ({ name: item.title, description: item.description })))
+              }}
+              addButtonLabel="ターゲットを追加"
+              titlePlaceholder="セグメント名（例: 中小企業の経営者）"
+              descriptionPlaceholder="セグメントの説明"
+            />
 
             <div>
               <h2 className="text-sm font-bold mb-3">ペルソナ</h2>
