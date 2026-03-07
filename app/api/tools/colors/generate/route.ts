@@ -166,7 +166,7 @@ function buildUserPrompt(project: Record<string, unknown>): string {
   parts.push(`## ブランド基本情報`)
   parts.push(`- ブランド名: ${project.brand_name || '未設定'}`)
   parts.push(`- 業種: ${project.industry_category || ''} / ${project.industry_subcategory || ''}`)
-  parts.push(`- ステージ: ${project.brand_stage === 'new' ? '新規ブランド' : project.brand_stage === 'rebrand' ? 'リブランド' : '微調整'}`)
+  parts.push(`- ステージ: ${project.brand_stage === 'new' ? '新規ブランド' : 'リブランド'}`)
 
   const existingColors = project.existing_colors as { hex: string }[] | undefined
   if (existingColors && existingColors.length > 0) {

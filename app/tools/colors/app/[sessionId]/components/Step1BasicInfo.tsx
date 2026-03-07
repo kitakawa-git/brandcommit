@@ -27,8 +27,9 @@ export function Step1BasicInfo({ project, onNext, onSaveField }: Step1Props) {
   const [industryCategory, setIndustryCategory] = useState(project.industry_category || '')
   const [industrySubcategory, setIndustrySubcategory] = useState(project.industry_subcategory || '')
   const [brandStage, setBrandStage] = useState<BrandStage | ''>(
-    // 旧値 'refinement' → 'refine' 互換
-    project.brand_stage === ('refinement' as string) ? 'refine' : (project.brand_stage || '')
+    // 廃止された値は 'rebrand' にフォールバック
+    (project.brand_stage === ('refinement' as string) || project.brand_stage === ('refine' as string))
+      ? 'rebrand' : (project.brand_stage || '')
   )
   const [hasExistingColors, setHasExistingColors] = useState(
     (project.existing_colors?.length ?? 0) > 0
@@ -267,7 +268,6 @@ export function Step1BasicInfo({ project, onNext, onSaveField }: Step1Props) {
             {[
               { value: 'new' as BrandStage, label: '新規ブランド', desc: 'カラーをゼロから決める' },
               { value: 'rebrand' as BrandStage, label: 'リブランド', desc: '既存カラーを大幅に刷新' },
-              { value: 'refine' as BrandStage, label: '微調整', desc: '既存カラーを少し改善' },
             ].map((option) => (
               <button
                 key={option.value}

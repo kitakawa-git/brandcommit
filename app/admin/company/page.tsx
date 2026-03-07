@@ -47,7 +47,6 @@ type Company = {
 const BRAND_STAGES = [
   { value: 'new', label: '新規ブランド', description: 'ブランドをゼロから構築' },
   { value: 'rebrand', label: 'リブランド', description: '既存ブランドを大幅に刷新' },
-  { value: 'refine', label: '微調整', description: '既存ブランドを少し改善' },
 ] as const
 
 export default function CompanyPage() {

@@ -4,9 +4,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getSupabaseAdmin } from '@/lib/supabase-admin'
 
-// brand_stage の値を正規化（旧 'refinement' → 新 'refine' に統一）
+// brand_stage の値を正規化（廃止された値を有効な値に変換）
 function normalizeBrandStage(stage: string | null | undefined): string {
-  if (stage === 'refinement') return 'refine'
+  if (stage === 'refinement' || stage === 'refine') return 'rebrand'
   return stage || ''
 }
 

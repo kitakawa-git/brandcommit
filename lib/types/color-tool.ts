@@ -40,7 +40,7 @@ export interface AccessibilityScore {
 // Step 1: 基本情報
 // ============================================
 
-export type BrandStage = 'new' | 'rebrand' | 'refine'
+export type BrandStage = 'new' | 'rebrand'
 
 export interface CompetitorColor {
   name: string

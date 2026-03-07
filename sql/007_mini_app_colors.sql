@@ -36,7 +36,7 @@ CREATE TABLE IF NOT EXISTS brand_color_projects (
   brand_name VARCHAR(100),
   industry_category VARCHAR(50),
   industry_subcategory VARCHAR(50),
-  brand_stage VARCHAR(20),              -- 'new' | 'rebrand' | 'refine'
+  brand_stage VARCHAR(20),              -- 'new' | 'rebrand'
   existing_colors JSONB DEFAULT '[]',   -- [{hex: "#xxx"}]
   competitor_colors JSONB DEFAULT '[]', -- [{name: "xxx", hex: "#xxx"}]
 
