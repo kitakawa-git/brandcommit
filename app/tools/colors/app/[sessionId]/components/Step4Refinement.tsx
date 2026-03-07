@@ -132,7 +132,7 @@ export function Step4Refinement({
               showPreview={showPreview}
               onTogglePreview={() => setShowPreview(!showPreview)}
             />
-            <div className="sticky bottom-0 mt-6 -mx-4 bg-background/80 backdrop-blur border-t border-border px-4 py-3 flex gap-3">
+            <div className="sticky bottom-0 mt-6 -mx-4 bg-background/80 backdrop-blur border-t border-border px-4 py-4 flex gap-3">
               <Button variant="outline" onClick={onBack}>戻る</Button>
               <Button onClick={handleNext} className="flex-1">確定・出力へ進む</Button>
             </div>

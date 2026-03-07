@@ -364,7 +364,7 @@ export function Step1BasicInfo({ project, onNext, onSaveField }: Step1Props) {
       </Card>
 
       {/* 次へボタン（スティッキー） */}
-      <div className="sticky bottom-0 mt-6 -mx-4 bg-background/80 backdrop-blur border-t border-border px-4 py-3 flex justify-start">
+      <div className="sticky bottom-0 mt-6 -mx-4 bg-background/80 backdrop-blur border-t border-border px-4 py-4 flex justify-start">
         <Button
           onClick={handleNext}
           disabled={saving}

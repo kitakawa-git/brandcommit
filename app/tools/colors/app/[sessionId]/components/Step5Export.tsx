@@ -259,7 +259,7 @@ export function Step5Export({
       </Card>
 
       {/* ナビゲーション（スティッキー） */}
-      <div className="sticky bottom-0 mt-6 -mx-4 bg-background/80 backdrop-blur border-t border-border px-4 py-3 flex gap-3">
+      <div className="sticky bottom-0 mt-6 -mx-4 bg-background/80 backdrop-blur border-t border-border px-4 py-4 flex gap-3">
         <Button variant="outline" onClick={onBack}>
           調整に戻る
         </Button>
