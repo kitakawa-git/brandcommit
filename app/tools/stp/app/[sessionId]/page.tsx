@@ -6,7 +6,7 @@ import { useEffect, useState, useCallback } from 'react'
 import { useParams } from 'next/navigation'
 import { toast } from 'sonner'
 import { Skeleton } from '@/components/ui/skeleton'
-import { ProgressBar } from '../components/ProgressBar'
+import { StepProgressBar } from '@/components/shared/StepProgressBar'
 import { Step1BasicInfo } from './components/Step1BasicInfo'
 import { Step2Segmentation } from './components/Step2Segmentation'
 import { Step3Targeting } from './components/Step3Targeting'
@@ -191,7 +191,16 @@ export default function STPSessionPage() {
     <div className={`mx-auto px-4 py-8 ${currentStep === 4 ? 'max-w-5xl' : 'max-w-3xl'}`}>
       {/* プログレスバー */}
       <div className="mb-8">
-        <ProgressBar currentStep={currentStep} />
+        <StepProgressBar
+          steps={[
+            { label: '基本情報' },
+            { label: 'セグメンテーション' },
+            { label: 'ターゲティング' },
+            { label: 'ポジショニング' },
+            { label: '確認・出力' },
+          ]}
+          currentStep={currentStep}
+        />
       </div>
 
       {/* ステップコンテンツ */}
