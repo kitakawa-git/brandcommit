@@ -190,18 +190,17 @@ export default function STPSessionPage() {
   return (
     <div className={`mx-auto px-4 py-8 ${currentStep === 4 ? 'max-w-5xl' : 'max-w-3xl'}`}>
       {/* プログレスバー */}
-      <div className="mb-8">
-        <StepProgressBar
-          steps={[
-            { label: '基本情報' },
-            { label: 'セグメンテーション' },
-            { label: 'ターゲティング' },
-            { label: 'ポジショニング' },
-            { label: '確認・出力' },
-          ]}
-          currentStep={currentStep}
-        />
-      </div>
+      <StepProgressBar
+        steps={[
+          { label: '基本情報' },
+          { label: 'セグメンテーション' },
+          { label: 'ターゲティング' },
+          { label: 'ポジショニング' },
+          { label: '確認・出力' },
+        ]}
+        currentStep={currentStep}
+        className="mb-8"
+      />
 
       {/* ステップコンテンツ */}
       {currentStep === 1 && (
