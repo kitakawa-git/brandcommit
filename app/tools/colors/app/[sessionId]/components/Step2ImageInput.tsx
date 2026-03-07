@@ -109,7 +109,8 @@ export function Step2ImageInput({ project, onNext, onBack, onSaveField }: Step2P
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-foreground mb-6">Step 2: イメージ入力</h1>
+      <h1 className="text-2xl font-bold text-foreground mb-2">Step 2: イメージ入力</h1>
+      <p className="mb-5 text-[13px] text-muted-foreground">ブランドのイメージに近い方向性を選んでください</p>
 
       {/* タブ切替 */}
       <div className="flex gap-6 border-b mb-5">
