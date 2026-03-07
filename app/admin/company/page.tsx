@@ -463,7 +463,7 @@ export default function CompanyPage() {
       </form>
 
       {/* 固定保存バー */}
-      <div className="sticky bottom-0 -mx-6 -mb-6 mt-6 bg-background/80 backdrop-blur border-t border-border px-6 py-3 flex justify-start">
+      <div className="sticky bottom-0 -mx-6 -mb-6 mt-6 bg-background/80 backdrop-blur border-t border-border px-6 py-3 flex justify-end">
         <Button
           type="submit"
           form="company-form"
