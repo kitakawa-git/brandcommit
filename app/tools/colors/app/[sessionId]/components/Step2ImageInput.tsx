@@ -111,14 +111,8 @@ export function Step2ImageInput({ project, onNext, onBack, onSaveField }: Step2P
     <div>
       <h1 className="text-2xl font-bold text-foreground mb-6">Step 2: イメージ入力</h1>
 
-      <Card className="bg-[hsl(0_0%_97%)] border shadow-none">
-        <CardContent className="p-5">
-          <p className="mb-5 text-[13px] text-muted-foreground">
-            ブランドのイメージに近い方向性を選んでください
-          </p>
-
-          {/* タブ切替 */}
-          <div className="flex gap-6 border-b mb-5">
+      {/* タブ切替 */}
+      <div className="flex gap-6 border-b mb-5">
             {([
               { value: 'keyword' as const, label: 'キーワード', icon: Type },
               { value: 'moodboard' as const, label: 'ムードボード', icon: Palette },
@@ -136,8 +130,10 @@ export function Step2ImageInput({ project, onNext, onBack, onSaveField }: Step2P
                 {tab.label}
               </button>
             ))}
-          </div>
+      </div>
 
+      <Card className="bg-[hsl(0_0%_97%)] border shadow-none">
+        <CardContent className="p-5">
           {/* キーワードモード */}
           {approach === 'keyword' && (
             <div>
@@ -253,7 +249,6 @@ export function Step2ImageInput({ project, onNext, onBack, onSaveField }: Step2P
               </div>
             </div>
           )}
-
         </CardContent>
       </Card>
 
