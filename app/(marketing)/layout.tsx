@@ -101,7 +101,7 @@ function Header() {
             </DropdownMenuTrigger>
             <DropdownMenuContent
               align="start"
-              className="p-1 rounded-xl"
+              className="p-1 rounded-xl data-[state=open]:duration-300 data-[state=closed]:duration-200 data-[state=open]:ease-out data-[state=closed]:ease-in"
               style={{
                 background: 'rgba(255, 255, 255, 0.12)',
                 backdropFilter: 'blur(12px) saturate(120%)',
