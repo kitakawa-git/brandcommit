@@ -167,14 +167,12 @@ export function Step3Proposals({
   // 提案表示
   return (
     <div>
-      <h1 className="text-2xl font-bold text-foreground mb-6">Step 3: AI提案</h1>
+      <h1 className="text-2xl font-bold text-foreground mb-2">Step 3: AI提案</h1>
+      <p className="mb-5 text-[13px] text-muted-foreground">3パターンの提案からお好みのパレットを選んでください</p>
 
       <Card className="bg-[hsl(0_0%_97%)] border shadow-none">
         <CardContent className="p-5">
-          <div className="mb-5 flex items-center justify-between">
-            <p className="text-[13px] text-muted-foreground">
-              3パターンの提案からお好みのパレットを選んでください
-            </p>
+          <div className="mb-5 flex items-center justify-end">
             <Button
               variant="outline"
               size="sm"
