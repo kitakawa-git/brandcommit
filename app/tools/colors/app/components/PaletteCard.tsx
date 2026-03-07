@@ -86,11 +86,11 @@ export function PaletteCard({ proposal, selected, onSelect }: PaletteCardProps) 
           <PalettePreview proposal={proposal} />
         </div>
 
-        {/* 6行目: 選択ボタン（w-full） */}
+        {/* 6行目: 選択ボタン（右寄せ） */}
+        <div className="flex justify-end">
         <Button
           onClick={() => onSelect(proposal.id)}
           variant={selected ? 'default' : 'outline'}
-          className="w-full"
         >
           {selected ? (
             <>
@@ -101,6 +101,7 @@ export function PaletteCard({ proposal, selected, onSelect }: PaletteCardProps) 
             'この案を選ぶ'
           )}
         </Button>
+        </div>
       </div>
     </div>
   )
