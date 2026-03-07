@@ -171,7 +171,7 @@ export function ChatInterface({
         {messages.length === 0 && (
           <div className="flex h-full items-center justify-center text-center text-sm text-gray-400">
             <div>
-              <p className="mb-2">細部についての調整をAIに相談できます</p>
+              <p className="mb-2">細部の調整をAIに相談できます</p>
               <div className="space-y-1 text-xs">
                 <p>例：「もう少し落ち着いた雰囲気にしたい」</p>
                 <p>例：「アクセントカラーをオレンジ系に変えて」</p>
