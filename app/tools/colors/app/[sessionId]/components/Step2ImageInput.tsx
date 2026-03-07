@@ -252,8 +252,8 @@ export function Step2ImageInput({ project, onNext, onBack, onSaveField }: Step2P
         </CardContent>
       </Card>
 
-      {/* ナビゲーション */}
-      <div className="mt-6 flex gap-3">
+      {/* ナビゲーション（スティッキー） */}
+      <div className="sticky bottom-0 mt-6 -mx-4 bg-background/80 backdrop-blur border-t border-border px-4 py-3 flex gap-3">
         <Button variant="outline" onClick={onBack}>
           <ArrowLeft className="mr-1 h-4 w-4" />
           戻る
