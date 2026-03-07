@@ -133,11 +133,9 @@ export function Step1BasicInfo({ basicInfo, onNext, onSaveField }: Step1Props) {
   // デバウンス用タイマー
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  // プリフィル: 初回表示時に本体 or 過去セッションからデータを読み込み
+  // プリフィル: 本体(companies/brand_guidelines)の最新データを取得
+  // セッションに古い形式のデータがある場合でも、本体の構造化データで上書きする
   useEffect(() => {
-    // 既にフォームにデータがある場合はスキップ
-    if (basicInfo.company_name || basicInfo.industry_category || basicInfo.industry) return
-
     const fetchProfile = async () => {
       try {
         const { data: { user } } = await supabase.auth.getUser()
@@ -151,6 +149,8 @@ export function Step1BasicInfo({ basicInfo, onNext, onSaveField }: Step1Props) {
 
         const d = result.data
         let changed = false
+
+        // スカラー値: セッションが空の場合のみ補完
         if (d.brand_name && !companyName) {
           setCompanyName(d.brand_name)
           changed = true
@@ -163,15 +163,21 @@ export function Step1BasicInfo({ basicInfo, onNext, onSaveField }: Step1Props) {
           setIndustrySubcategory(d.industry_subcategory)
           changed = true
         }
-        if (d.business_descriptions?.length > 0 && businessDescriptions.length === 0) {
+
+        // 構造化データ: 本体のデータがセッションより項目数が多い場合は上書き
+        // （旧セッションのテキスト一括マイグレーション結果を正しい構造化データで置き換える）
+        if (d.business_descriptions?.length > 0 &&
+            d.business_descriptions.length > businessDescriptions.length) {
           setBusinessDescriptions(d.business_descriptions)
           changed = true
         }
-        if (d.target_segments?.length > 0 && targetSegments.length === 0) {
+        if (d.target_segments?.length > 0 &&
+            d.target_segments.length > targetSegments.length) {
           setTargetSegments(d.target_segments)
           changed = true
         }
-        if (d.competitors?.length > 0 && competitors.length === 0) {
+        if (d.competitors?.length > 0 &&
+            d.competitors.length > competitors.length) {
           setCompetitors(d.competitors)
           changed = true
         }
