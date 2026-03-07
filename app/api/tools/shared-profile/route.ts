@@ -4,6 +4,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getSupabaseAdmin } from '@/lib/supabase-admin'
 
+// brand_stage の値を正規化（旧 'refinement' → 新 'refine' に統一）
+function normalizeBrandStage(stage: string | null | undefined): string {
+  if (stage === 'refinement') return 'refine'
+  return stage || ''
+}
+
 // GET /api/tools/shared-profile?userId=xxx
 export async function GET(request: NextRequest) {
   try {
@@ -74,7 +80,7 @@ export async function GET(request: NextRequest) {
             brand_name: company.name || '',
             industry_category: company.industry_category || '',
             industry_subcategory: company.industry_subcategory || '',
-            brand_stage: company.brand_stage || '',
+            brand_stage: normalizeBrandStage(company.brand_stage),
             competitor_colors: extractCompetitorColors(company.competitors || []),
             // STPツール向け追加フィールド
             competitors: extractCompetitors(company.competitors || []),
@@ -104,7 +110,7 @@ export async function GET(request: NextRequest) {
             brand_name: meta.brand_name || '',
             industry_category: meta.industry_category || '',
             industry_subcategory: meta.industry_subcategory || '',
-            brand_stage: meta.brand_stage || '',
+            brand_stage: normalizeBrandStage(meta.brand_stage as string),
             competitor_colors: meta.competitor_colors || [],
             competitors: meta.competitors || [],
             business_descriptions: meta.business_descriptions || [],
@@ -162,7 +168,7 @@ export async function PATCH(request: NextRequest) {
     if (company_name !== undefined && company_name.trim()) updateData.name = company_name.trim()
     if (industry_category !== undefined) updateData.industry_category = industry_category || null
     if (industry_subcategory !== undefined) updateData.industry_subcategory = industry_subcategory || null
-    if (brand_stage !== undefined) updateData.brand_stage = brand_stage || null
+    if (brand_stage !== undefined) updateData.brand_stage = normalizeBrandStage(brand_stage) || null
 
     // カラーツールからの competitor_colors マージ
     if (competitor_colors !== undefined) {
