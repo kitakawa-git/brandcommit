@@ -92,7 +92,7 @@ export default function SessionPage() {
 
   if (loading) {
     return (
-      <div className="mx-auto max-w-4xl px-4 py-8">
+      <div className="mx-auto max-w-4xl px-5 py-8">
         <Skeleton className="mb-8 h-10 w-full" />
         <Skeleton className="mb-4 h-8 w-48" />
         <Skeleton className="mb-2 h-12 w-full" />
@@ -115,7 +115,7 @@ export default function SessionPage() {
   const currentStep = session.current_step
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-8">
+    <div className="mx-auto max-w-4xl px-5 py-8">
       {/* プログレスバー */}
       <StepProgressBar
         steps={[

@@ -201,7 +201,7 @@ export function Step4Refinement({
     </Card>
 
     {/* 【5】フッター */}
-    <div className="sticky bottom-0 mt-6 -mx-4 bg-background/80 backdrop-blur px-4 py-3 flex items-center justify-between">
+    <div className="sticky bottom-0 -mx-6 -mb-6 mt-6 bg-background/80 backdrop-blur border-t border-border px-6 py-3 flex items-center justify-between">
       <Button variant="outline" onClick={onBack}>
         <ArrowLeft className="mr-1 h-4 w-4" />
         戻る
