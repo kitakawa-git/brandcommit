@@ -43,9 +43,6 @@ export function Step1BasicInfo({ project, onNext, onSaveField }: Step1Props) {
 
   // プリフィル: 初回表示時に本体 or 過去セッションからデータを読み込み
   useEffect(() => {
-    // 既にフォームにデータがある場合はスキップ
-    if (project.brand_name || project.industry_category) return
-
     const fetchProfile = async () => {
       try {
         const { data: { user } } = await supabase.auth.getUser()
