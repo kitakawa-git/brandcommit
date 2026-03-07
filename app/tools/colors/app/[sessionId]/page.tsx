@@ -117,7 +117,7 @@ export default function SessionPage() {
   return (
     <div className={`mx-auto px-4 py-8 ${currentStep === 4 ? 'max-w-5xl' : 'max-w-3xl'}`}>
       {/* プログレスバー */}
-      <div className="mb-8">
+      <div className="mb-8 px-5">
         <ProgressBar currentStep={currentStep} />
       </div>
 
