@@ -124,12 +124,12 @@ export async function GET(request: NextRequest) {
 }
 
 // PATCH /api/tools/shared-profile
-// body: { userId, industry_category, industry_subcategory, brand_stage, competitor_colors?, competitors? }
+// body: { userId, company_name?, industry_category?, industry_subcategory?, brand_stage?, competitor_colors?, competitors?, business_descriptions?, target_segments? }
 export async function PATCH(request: NextRequest) {
   try {
     const supabaseAdmin = getSupabaseAdmin()
     const body = await request.json()
-    const { userId, industry_category, industry_subcategory, brand_stage, competitor_colors, competitors, business_descriptions, target_segments } = body
+    const { userId, company_name, industry_category, industry_subcategory, brand_stage, competitor_colors, competitors, business_descriptions, target_segments } = body
 
     if (!userId) {
       return NextResponse.json({ error: 'userId が必要です' }, { status: 400 })
@@ -159,6 +159,7 @@ export async function PATCH(request: NextRequest) {
 
     // companies を更新
     const updateData: Record<string, unknown> = {}
+    if (company_name !== undefined && company_name.trim()) updateData.name = company_name.trim()
     if (industry_category !== undefined) updateData.industry_category = industry_category || null
     if (industry_subcategory !== undefined) updateData.industry_subcategory = industry_subcategory || null
     if (brand_stage !== undefined) updateData.brand_stage = brand_stage || null

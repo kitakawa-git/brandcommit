@@ -263,6 +263,7 @@ export function Step5Result({
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               userId: user.id,
+              company_name: basicInfo.company_name,
               industry_category: basicInfo.industry_category,
               industry_subcategory: basicInfo.industry_subcategory,
               competitors: basicInfo.competitors,

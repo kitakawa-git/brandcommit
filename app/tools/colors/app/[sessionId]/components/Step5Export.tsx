@@ -49,6 +49,7 @@ export function Step5Export({
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             userId: user.id,
+            company_name: project.brand_name,
             industry_category: project.industry_category,
             industry_subcategory: project.industry_subcategory,
             brand_stage: project.brand_stage,
