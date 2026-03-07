@@ -21,7 +21,7 @@ export function ProgressBar({ currentStep, totalSteps = 5 }: ProgressBarProps) {
       {/* ステップインジケーター */}
       <div className="flex items-center justify-between">
         {STEPS.slice(0, totalSteps).map(({ step, label }, index) => (
-          <div key={step} className="flex flex-1 items-center">
+          <div key={step} className={cn("flex items-center", index < totalSteps - 1 ? "flex-1" : "")}>
             {/* ステップ丸 */}
             <div className="flex flex-col items-center">
               <div
