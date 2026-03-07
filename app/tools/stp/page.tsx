@@ -80,19 +80,18 @@ export default function STPLandingPage() {
       <header className="fixed top-0 left-0 right-0 z-50 bg-transparent">
         <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-6">
           <Link href="/" className="text-lg font-bold opacity-0">branding.bz</Link>
-          <Link href="/tools/stp/auth">
-            <button
-              className="relative h-8 px-4 rounded-full text-sm font-semibold text-gray-900 overflow-hidden transition-all hover:scale-105 hover:shadow-lg"
-              style={{
-                background: 'rgba(255, 255, 255, 0.25)',
-                backdropFilter: 'blur(12px) saturate(120%)',
-                WebkitBackdropFilter: 'blur(12px) saturate(120%)',
-                border: '1px solid rgba(255, 255, 255, 0.4)',
-                boxShadow: '0px 4px 12px 0 rgba(12, 74, 110, 0.08), inset 0px 1px 0px 0px rgba(255, 255, 255, 0.3)',
-              }}
-            >
-              <span className="relative z-10">ログイン</span>
-            </button>
+          <Link
+            href="/tools/stp/auth"
+            className="relative inline-flex items-center h-8 px-4 rounded-full text-sm font-semibold text-gray-900 overflow-hidden transition-all hover:scale-105 hover:shadow-lg"
+            style={{
+              background: 'rgba(255, 255, 255, 0.25)',
+              backdropFilter: 'blur(12px) saturate(120%)',
+              WebkitBackdropFilter: 'blur(12px) saturate(120%)',
+              border: '1px solid rgba(255, 255, 255, 0.4)',
+              boxShadow: '0px 4px 12px 0 rgba(12, 74, 110, 0.08), inset 0px 1px 0px 0px rgba(255, 255, 255, 0.3)',
+            }}
+          >
+            <span className="relative z-10">ログイン</span>
           </Link>
         </div>
       </header>
@@ -123,19 +122,18 @@ export default function STPLandingPage() {
           AIがあなたのSTP戦略を、分析からマップ作成までサポートします。
         </p>
         <div className="mt-10">
-          <Link href="/tools/stp/auth">
-            <button
-              className="relative h-12 px-12 rounded-full text-base font-bold text-white overflow-hidden transition-all hover:scale-105 hover:shadow-2xl"
-              style={{
-                background: 'rgba(0, 0, 0, 0.75)',
-                backdropFilter: 'blur(12px) saturate(120%)',
-                WebkitBackdropFilter: 'blur(12px) saturate(120%)',
-                border: '1px solid rgba(255, 255, 255, 0.15)',
-                boxShadow: '0px 8px 24px 0 rgba(0, 0, 0, 0.2), inset 0px 1px 0px 0px rgba(255, 255, 255, 0.15)',
-              }}
-            >
-              <span className="relative z-10">無料でSTP分析を始める</span>
-            </button>
+          <Link
+            href="/tools/stp/auth"
+            className="relative inline-flex items-center justify-center h-12 px-12 rounded-full text-base font-bold text-white overflow-hidden transition-all hover:scale-105 hover:shadow-2xl"
+            style={{
+              background: 'rgba(0, 0, 0, 0.75)',
+              backdropFilter: 'blur(12px) saturate(120%)',
+              WebkitBackdropFilter: 'blur(12px) saturate(120%)',
+              border: '1px solid rgba(255, 255, 255, 0.15)',
+              boxShadow: '0px 8px 24px 0 rgba(0, 0, 0, 0.2), inset 0px 1px 0px 0px rgba(255, 255, 255, 0.15)',
+            }}
+          >
+            <span className="relative z-10">無料でSTP分析を始める</span>
           </Link>
         </div>
       </section>
@@ -300,19 +298,18 @@ export default function STPLandingPage() {
             ブランドは、作った瞬間から走り出す。<br />branding.bz で、その加速を始めませんか。
           </p>
           <div className="mt-10">
-            <Link href="/tools/stp/auth">
-              <button
-                className="relative h-12 px-12 rounded-full text-base font-bold text-white overflow-hidden transition-all hover:scale-105 hover:shadow-2xl"
-                style={{
-                  background: 'rgba(0, 0, 0, 0.75)',
-                  backdropFilter: 'blur(12px) saturate(120%)',
-                  WebkitBackdropFilter: 'blur(12px) saturate(120%)',
-                  border: '1px solid rgba(255, 255, 255, 0.15)',
-                  boxShadow: '0px 8px 24px 0 rgba(0, 0, 0, 0.2), inset 0px 1px 0px 0px rgba(255, 255, 255, 0.15)',
-                }}
-              >
-                <span className="relative z-10">無料でSTP分析を始める</span>
-              </button>
+            <Link
+              href="/tools/stp/auth"
+              className="relative inline-flex items-center justify-center h-12 px-12 rounded-full text-base font-bold text-white overflow-hidden transition-all hover:scale-105 hover:shadow-2xl"
+              style={{
+                background: 'rgba(0, 0, 0, 0.75)',
+                backdropFilter: 'blur(12px) saturate(120%)',
+                WebkitBackdropFilter: 'blur(12px) saturate(120%)',
+                border: '1px solid rgba(255, 255, 255, 0.15)',
+                boxShadow: '0px 8px 24px 0 rgba(0, 0, 0, 0.2), inset 0px 1px 0px 0px rgba(255, 255, 255, 0.15)',
+              }}
+            >
+              <span className="relative z-10">無料でSTP分析を始める</span>
             </Link>
           </div>
         </div>

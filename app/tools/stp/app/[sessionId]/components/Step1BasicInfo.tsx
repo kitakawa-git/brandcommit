@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button'
 import { IndustrySelect } from '@/components/shared/IndustrySelect'
 import { TitleDescriptionList } from '@/components/shared/TitleDescriptionList'
 import { supabase } from '@/lib/supabase'
-import { ChevronRight } from 'lucide-react'
+import { ChevronRight, Plus, Trash2 } from 'lucide-react'
 
 interface Competitor {
   name: string
