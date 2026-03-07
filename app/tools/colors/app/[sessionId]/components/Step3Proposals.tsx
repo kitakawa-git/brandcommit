@@ -5,6 +5,7 @@ import { toast } from 'sonner'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
+import { ArrowLeft } from 'lucide-react'
 import { PaletteCard } from '../../components/PaletteCard'
 import type { BrandColorProject, PaletteProposal } from '@/lib/types/color-tool'
 
@@ -151,6 +152,7 @@ export function Step3Proposals({
           <p className="text-sm font-medium text-red-700">{error}</p>
           <div className="mt-4 flex justify-center gap-3">
             <Button variant="outline" onClick={onBack}>
+              <ArrowLeft className="mr-1 h-4 w-4" />
               戻る
             </Button>
             <Button onClick={generateProposals}>
@@ -200,6 +202,7 @@ export function Step3Proposals({
       {/* ナビゲーション（スティッキー） */}
       <div className="sticky bottom-0 mt-6 -mx-4 bg-background/80 backdrop-blur border-t border-border px-4 py-3 flex gap-3">
         <Button variant="outline" onClick={onBack}>
+          <ArrowLeft className="mr-1 h-4 w-4" />
           戻る
         </Button>
         <Button

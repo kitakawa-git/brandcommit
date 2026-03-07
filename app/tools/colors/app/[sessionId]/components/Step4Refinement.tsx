@@ -4,6 +4,7 @@ import { useState, useCallback } from 'react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
+import { ArrowLeft } from 'lucide-react'
 import { useIsMobile } from '@/hooks/use-mobile'
 import { ColorPicker } from '../../components/ColorPicker'
 import { AccessibilityBadge } from '../../components/AccessibilityBadge'
@@ -133,7 +134,7 @@ export function Step4Refinement({
               onTogglePreview={() => setShowPreview(!showPreview)}
             />
             <div className="sticky bottom-0 mt-6 -mx-4 bg-background/80 backdrop-blur border-t border-border px-4 py-3 flex gap-3">
-              <Button variant="outline" onClick={onBack}>戻る</Button>
+              <Button variant="outline" onClick={onBack}><ArrowLeft className="mr-1 h-4 w-4" />戻る</Button>
               <Button onClick={handleNext} className="flex-1">確定・出力へ進む</Button>
             </div>
           </div>
@@ -170,7 +171,7 @@ export function Step4Refinement({
             onTogglePreview={() => setShowPreview(!showPreview)}
           />
           <div className="mt-6 flex gap-3">
-            <Button variant="outline" onClick={onBack}>戻る</Button>
+            <Button variant="outline" onClick={onBack}><ArrowLeft className="mr-1 h-4 w-4" />戻る</Button>
             <Button onClick={handleNext} className="flex-1">確定・出力へ進む</Button>
           </div>
         </div>

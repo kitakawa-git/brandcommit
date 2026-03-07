@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
+import { ArrowLeft } from 'lucide-react'
 import { PalettePreview } from '../../components/PalettePreview'
 import { AccessibilityBadge } from '../../components/AccessibilityBadge'
 import type { BrandColorProject, PaletteProposal, ColorValue } from '@/lib/types/color-tool'
@@ -261,6 +262,7 @@ export function Step5Export({
       {/* ナビゲーション（スティッキー） */}
       <div className="sticky bottom-0 mt-6 -mx-4 bg-background/80 backdrop-blur border-t border-border px-4 py-3 flex gap-3">
         <Button variant="outline" onClick={onBack}>
+          <ArrowLeft className="mr-1 h-4 w-4" />
           調整に戻る
         </Button>
       </div>
