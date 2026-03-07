@@ -69,12 +69,13 @@ interface BasicInfo {
   company_name: string
   industry_category: string
   industry_subcategory: string
-  products: string
+  business_descriptions: Array<{ title: string; description: string }>
   current_customers: string
   competitors: Array<{ name: string; url: string }>
   // 旧フィールド（後方互換）
   industry?: string
   industry_other?: string
+  products?: string
 }
 
 interface Step5Props {
@@ -264,6 +265,7 @@ export function Step5Result({
               industry_category: basicInfo.industry_category,
               industry_subcategory: basicInfo.industry_subcategory,
               competitors: basicInfo.competitors,
+              business_descriptions: basicInfo.business_descriptions,
             }),
           })
         }
@@ -277,7 +279,7 @@ export function Step5Result({
     } finally {
       setConnectLoading(false)
     }
-  }, [sessionId, adminCompanyId, router])
+  }, [sessionId, adminCompanyId, router, basicInfo])
 
   // 最初からやり直す
   const handleRestart = useCallback(async () => {

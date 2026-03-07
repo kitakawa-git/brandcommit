@@ -48,7 +48,19 @@ export async function POST(request: NextRequest) {
         : basic_info.industry
       parts.push(`- 業種: ${industry}`)
     }
-    if (basic_info.products) {
+    // 事業内容（構造化データ or 旧テキスト形式に対応）
+    if (basic_info.business_descriptions && Array.isArray(basic_info.business_descriptions)) {
+      const descriptions = basic_info.business_descriptions
+        .filter((b: { title: string; description: string }) => b.title?.trim())
+        .map((b: { title: string; description: string }, i: number) => {
+          const desc = b.description?.trim() ? `: ${b.description.trim()}` : ''
+          return `  ${i + 1}. ${b.title.trim()}${desc}`
+        })
+        .join('\n')
+      if (descriptions) {
+        parts.push(`- 事業内容:\n${descriptions}`)
+      }
+    } else if (basic_info.products) {
       parts.push(`- 事業内容: ${basic_info.products}`)
     }
     if (basic_info.current_customers) {

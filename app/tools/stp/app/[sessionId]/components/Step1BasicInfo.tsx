@@ -14,16 +14,22 @@ interface Competitor {
   url: string
 }
 
+interface BusinessDescription {
+  title: string
+  description: string
+}
+
 interface BasicInfo {
   company_name: string
   industry_category: string
   industry_subcategory: string
-  products: string
+  business_descriptions: BusinessDescription[]
   current_customers: string
   competitors: Competitor[]
   // 旧フィールド（後方互換）
   industry?: string
   industry_other?: string
+  products?: string
 }
 
 interface Step1Props {
@@ -51,15 +57,28 @@ function migrateCompetitors(
   competitorsField: string | Competitor[] | undefined
 ): Competitor[] {
   if (!competitorsField) return []
-  // 既に配列なら（新形式）そのまま
   if (Array.isArray(competitorsField)) return competitorsField
-  // 旧形式（テキスト）をパース
   if (typeof competitorsField === 'string' && competitorsField.trim()) {
     return competitorsField
       .split(/[、,\n]/)
       .map(s => s.trim())
       .filter(Boolean)
       .map(name => ({ name, url: '' }))
+  }
+  return []
+}
+
+// 旧 products テキストを構造化データに変換
+function migrateProducts(
+  basicInfo: BasicInfo
+): BusinessDescription[] {
+  // 新形式があればそのまま
+  if (basicInfo.business_descriptions?.length > 0) {
+    return basicInfo.business_descriptions
+  }
+  // 旧形式（productsテキスト）があれば変換
+  if (basicInfo.products && basicInfo.products.trim()) {
+    return [{ title: basicInfo.products.trim(), description: '' }]
   }
   return []
 }
@@ -77,7 +96,9 @@ export function Step1BasicInfo({ basicInfo, onNext, onSaveField }: Step1Props) {
   const [industrySubcategory, setIndustrySubcategory] = useState(
     basicInfo.industry_subcategory || migratedIndustry?.subcategory || ''
   )
-  const [products, setProducts] = useState(basicInfo.products || '')
+  const [businessDescriptions, setBusinessDescriptions] = useState<BusinessDescription[]>(
+    migrateProducts(basicInfo)
+  )
   const [currentCustomers, setCurrentCustomers] = useState(basicInfo.current_customers || '')
   const [competitors, setCompetitors] = useState<Competitor[]>(
     migrateCompetitors(basicInfo.competitors)
@@ -119,8 +140,8 @@ export function Step1BasicInfo({ basicInfo, onNext, onSaveField }: Step1Props) {
           setIndustrySubcategory(d.industry_subcategory)
           changed = true
         }
-        if (d.business_description && !products) {
-          setProducts(d.business_description)
+        if (d.business_descriptions?.length > 0 && businessDescriptions.length === 0) {
+          setBusinessDescriptions(d.business_descriptions)
           changed = true
         }
         if (d.target_customers && !currentCustomers) {
@@ -155,10 +176,10 @@ export function Step1BasicInfo({ basicInfo, onNext, onSaveField }: Step1Props) {
     company_name: companyName.trim(),
     industry_category: industryCategory,
     industry_subcategory: industrySubcategory,
-    products: products.trim(),
+    business_descriptions: businessDescriptions.filter(b => b.title.trim()),
     current_customers: currentCustomers.trim(),
     competitors: competitors.filter(c => c.name.trim()),
-  }), [companyName, industryCategory, industrySubcategory, products, currentCustomers, competitors])
+  }), [companyName, industryCategory, industrySubcategory, businessDescriptions, currentCustomers, competitors])
 
   // 1秒デバウンスのオートセーブ
   const triggerAutoSave = useCallback(() => {
@@ -172,7 +193,7 @@ export function Step1BasicInfo({ basicInfo, onNext, onSaveField }: Step1Props) {
 
   // フォーム値が変わるたびにオートセーブをトリガー
   useEffect(() => {
-    const hasData = companyName || industryCategory || products || currentCustomers || competitors.length > 0
+    const hasData = companyName || industryCategory || businessDescriptions.length > 0 || currentCustomers || competitors.length > 0
     if (hasData) {
       triggerAutoSave()
     }
@@ -182,7 +203,7 @@ export function Step1BasicInfo({ basicInfo, onNext, onSaveField }: Step1Props) {
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [companyName, industryCategory, industrySubcategory, products, currentCustomers, competitors])
+  }, [companyName, industryCategory, industrySubcategory, businessDescriptions, currentCustomers, competitors])
 
   // バリデーション
   const validate = (): boolean => {
@@ -200,8 +221,9 @@ export function Step1BasicInfo({ basicInfo, onNext, onSaveField }: Step1Props) {
       newErrors.industrySubcategory = '業種（中分類）を選択してください'
     }
 
-    if (!products.trim()) {
-      newErrors.products = '事業内容を入力してください'
+    const validDescriptions = businessDescriptions.filter(b => b.title.trim())
+    if (validDescriptions.length === 0) {
+      newErrors.businessDescriptions = '事業内容を1つ以上入力してください'
     }
 
     setErrors(newErrors)
@@ -219,6 +241,21 @@ export function Step1BasicInfo({ basicInfo, onNext, onSaveField }: Step1Props) {
     const data = getCurrentData()
     const success = await onNext(data)
     if (!success) setSaving(false)
+  }
+
+  // 事業内容操作
+  const addBusinessDescription = () => {
+    setBusinessDescriptions([...businessDescriptions, { title: '', description: '' }])
+  }
+
+  const removeBusinessDescription = (index: number) => {
+    setBusinessDescriptions(businessDescriptions.filter((_, i) => i !== index))
+  }
+
+  const updateBusinessDescription = (index: number, field: 'title' | 'description', value: string) => {
+    const updated = [...businessDescriptions]
+    updated[index] = { ...updated[index], [field]: value }
+    setBusinessDescriptions(updated)
   }
 
   // 競合企業操作
@@ -242,7 +279,7 @@ export function Step1BasicInfo({ basicInfo, onNext, onSaveField }: Step1Props) {
     companyName.trim() !== '' &&
     industryCategory !== '' &&
     industrySubcategory !== '' &&
-    products.trim() !== ''
+    businessDescriptions.some(b => b.title.trim() !== '')
 
   return (
     <div className="space-y-8">
@@ -305,22 +342,58 @@ export function Step1BasicInfo({ basicInfo, onNext, onSaveField }: Step1Props) {
         )}
       </div>
 
-      {/* 事業内容 */}
+      {/* 事業内容（構造化入力） */}
       <div>
         <div className="mb-2 flex items-center gap-1.5">
           <label className="text-sm font-bold text-gray-700">事業内容</label>
           <span className="text-xs text-red-500">*</span>
         </div>
-        <Textarea
-          value={products}
-          onChange={(e) => setProducts(e.target.value)}
-          placeholder="例: Webマーケティング支援サービス、自社開発のCRMツール など"
-          rows={3}
-          maxLength={500}
-          className={errors.products ? 'border-red-400' : ''}
-        />
-        {errors.products && (
-          <p className="mt-1 text-xs text-red-500">{errors.products}</p>
+
+        <div className="space-y-2">
+          {businessDescriptions.map((item, i) => (
+            <div key={i} className="rounded-lg border bg-white p-3">
+              <div className="mb-2 flex items-center gap-2">
+                <Input
+                  value={item.title}
+                  onChange={(e) => updateBusinessDescription(i, 'title', e.target.value)}
+                  placeholder="事業タイトル"
+                  className="h-10 flex-1"
+                />
+                <button
+                  type="button"
+                  onClick={() => removeBusinessDescription(i)}
+                  className="shrink-0 rounded p-1.5 text-gray-400 hover:bg-red-50 hover:text-red-500"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </button>
+              </div>
+              <Textarea
+                value={item.description}
+                onChange={(e) => updateBusinessDescription(i, 'description', e.target.value)}
+                placeholder="事業の説明"
+                className="min-h-[60px] resize-none"
+                rows={2}
+                onInput={(e) => {
+                  const target = e.target as HTMLTextAreaElement
+                  target.style.height = 'auto'
+                  target.style.height = target.scrollHeight + 'px'
+                }}
+              />
+            </div>
+          ))}
+
+          <button
+            type="button"
+            onClick={addBusinessDescription}
+            className="flex items-center gap-1 text-xs text-blue-600 hover:text-blue-700"
+          >
+            <Plus className="h-3.5 w-3.5" />
+            事業内容を追加
+          </button>
+        </div>
+
+        {errors.businessDescriptions && (
+          <p className="mt-1 text-xs text-red-500">{errors.businessDescriptions}</p>
         )}
       </div>
 

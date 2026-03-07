@@ -11,7 +11,7 @@ const DEFAULT_SESSION_DATA = {
     company_name: '',
     industry_category: '',
     industry_subcategory: '',
-    products: '',
+    business_descriptions: [] as Array<{ title: string; description: string }>,
     current_customers: '',
     competitors: [] as Array<{ name: string; url: string }>,
   },

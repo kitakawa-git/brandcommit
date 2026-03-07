@@ -46,10 +46,12 @@ export async function GET(request: NextRequest) {
         .maybeSingle()
 
       if (company) {
-        // business_content 配列を文字列に変換
-        const businessDescription = extractBusinessDescription(
-          guidelines?.business_content as Array<{ title: string; description: string }> | null
-        )
+        // business_content 配列（構造化データ）
+        const businessContent = (guidelines?.business_content as Array<{ title: string; description: string }>) || []
+        const businessDescriptions = businessContent.map(c => ({
+          title: c.title || '',
+          description: c.description || '',
+        }))
 
         return NextResponse.json({
           source: 'company',
@@ -61,7 +63,7 @@ export async function GET(request: NextRequest) {
             competitor_colors: extractCompetitorColors(company.competitors || []),
             // STPツール向け追加フィールド
             competitors: extractCompetitors(company.competitors || []),
-            business_description: businessDescription,
+            business_descriptions: businessDescriptions,
             target_customers: persona?.target || '',
           },
         })
@@ -89,7 +91,7 @@ export async function GET(request: NextRequest) {
             brand_stage: meta.brand_stage || '',
             competitor_colors: meta.competitor_colors || [],
             competitors: meta.competitors || [],
-            business_description: meta.business_description || '',
+            business_descriptions: meta.business_descriptions || [],
             target_customers: meta.target_customers || '',
           },
         })
@@ -110,7 +112,7 @@ export async function PATCH(request: NextRequest) {
   try {
     const supabaseAdmin = getSupabaseAdmin()
     const body = await request.json()
-    const { userId, industry_category, industry_subcategory, brand_stage, competitor_colors, competitors } = body
+    const { userId, industry_category, industry_subcategory, brand_stage, competitor_colors, competitors, business_descriptions } = body
 
     if (!userId) {
       return NextResponse.json({ error: 'userId が必要です' }, { status: 400 })
@@ -167,21 +169,53 @@ export async function PATCH(request: NextRequest) {
       }
     }
 
+    // brand_guidelines の事業内容を更新
+    if (business_descriptions !== undefined && Array.isArray(business_descriptions)) {
+      const businessContent = business_descriptions.map(
+        (item: { title: string; description: string }, i: number) => ({
+          title: item.title || '',
+          description: item.description || '',
+          added_index: i,
+        })
+      )
+
+      // brand_guidelines レコードが存在するか確認
+      const { data: existingGuidelines } = await supabaseAdmin
+        .from('brand_guidelines')
+        .select('id')
+        .eq('company_id', adminUser.company_id)
+        .maybeSingle()
+
+      if (existingGuidelines) {
+        // 既存レコードを更新
+        const { error: guidelinesError } = await supabaseAdmin
+          .from('brand_guidelines')
+          .update({ business_content: businessContent })
+          .eq('id', existingGuidelines.id)
+
+        if (guidelinesError) {
+          console.error('[SharedProfile PATCH] brand_guidelines更新エラー:', guidelinesError)
+        }
+      } else {
+        // レコードがなければ新規作成
+        const { error: guidelinesError } = await supabaseAdmin
+          .from('brand_guidelines')
+          .insert({
+            company_id: adminUser.company_id,
+            business_content: businessContent,
+          })
+
+        if (guidelinesError) {
+          console.error('[SharedProfile PATCH] brand_guidelines挿入エラー:', guidelinesError)
+        }
+      }
+    }
+
     return NextResponse.json({ updated: true })
   } catch (err) {
     console.error('[SharedProfile PATCH] エラー:', err)
     return NextResponse.json({ error: 'サーバーエラー' }, { status: 500 })
   }
-}
-
-// brand_guidelines.business_content から事業内容テキストを生成
-function extractBusinessDescription(
-  content: Array<{ title: string; description: string }> | null
-): string {
-  if (!content || content.length === 0) return ''
-  return content
-    .map(c => c.title + (c.description ? `（${c.description}）` : ''))
-    .join('、')
 }
 
 // companies.competitors から競合カラー情報を抽出（カラーツール向け）
