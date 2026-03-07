@@ -90,7 +90,7 @@ export function Step3Proposals({
   if (generating) {
     return (
       <div>
-        <h1 className="text-2xl font-bold text-foreground mb-6">AI提案</h1>
+        <h1 className="text-2xl font-bold text-foreground mb-6">Step 3: AI提案</h1>
         <Card className="bg-[hsl(0_0%_97%)] border shadow-none">
           <CardContent className="p-5">
             <div className="space-y-4 rounded-lg border border-gray-200 bg-white p-8 text-center">
@@ -133,7 +133,7 @@ export function Step3Proposals({
   if (error) {
     return (
       <div>
-        <h1 className="text-2xl font-bold text-foreground mb-6">AI提案</h1>
+        <h1 className="text-2xl font-bold text-foreground mb-6">Step 3: AI提案</h1>
         <Card className="bg-[hsl(0_0%_97%)] border shadow-none">
           <CardContent className="p-5">
             <div className="rounded-lg border border-red-200 bg-red-50 p-8 text-center">

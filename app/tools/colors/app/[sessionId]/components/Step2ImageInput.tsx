@@ -115,7 +115,7 @@ export function Step2ImageInput({ project, onNext, onBack, onSaveField }: Step2P
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-foreground mb-6">イメージ入力</h1>
+      <h1 className="text-2xl font-bold text-foreground mb-6">Step 2: イメージ入力</h1>
 
       <Card className="bg-[hsl(0_0%_97%)] border shadow-none">
         <CardContent className="p-5">

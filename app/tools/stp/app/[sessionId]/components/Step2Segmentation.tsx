@@ -280,7 +280,7 @@ export function Step2Segmentation({
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-foreground mb-6">セグメンテーション</h1>
+      <h1 className="text-2xl font-bold text-foreground mb-6">Step 2: セグメンテーション</h1>
 
       <Card className="bg-[hsl(0_0%_97%)] border shadow-none">
         <CardContent className="p-5">

@@ -98,7 +98,7 @@ export function Step4Refinement({
   if (isMobile) {
     return (
       <div>
-        <h1 className="text-2xl font-bold text-foreground mb-6">調整・磨き込み</h1>
+        <h1 className="text-2xl font-bold text-foreground mb-6">Step 4: 調整</h1>
 
         {/* タブ */}
         <div className="mb-5 flex gap-1 rounded-lg bg-gray-100 p-1">
@@ -155,7 +155,7 @@ export function Step4Refinement({
   // デスクトップ: 2ペインレイアウト
   return (
     <div>
-      <h1 className="text-2xl font-bold text-foreground mb-6">調整・磨き込み</h1>
+      <h1 className="text-2xl font-bold text-foreground mb-6">Step 4: 調整</h1>
       <p className="mb-5 text-[13px] text-muted-foreground">
         色をクリックして直接調整するか、AIに相談してパレットを磨き込みましょう
       </p>

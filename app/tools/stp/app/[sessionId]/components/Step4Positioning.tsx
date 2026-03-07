@@ -229,7 +229,7 @@ export function Step4Positioning({
     <div>
       {/* ヘッダー */}
       <div className="mb-6 flex items-start justify-between">
-        <h1 className="text-2xl font-bold text-foreground">ポジショニング</h1>
+        <h1 className="text-2xl font-bold text-foreground">Step 4: ポジショニング</h1>
         {!aiLoading && (
           <Button
             variant="outline"

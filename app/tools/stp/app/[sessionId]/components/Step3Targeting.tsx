@@ -199,7 +199,7 @@ export function Step3Targeting({
   if (selectedSegments.length === 0) {
     return (
       <div>
-        <h1 className="text-2xl font-bold text-foreground mb-6">ターゲティング</h1>
+        <h1 className="text-2xl font-bold text-foreground mb-6">Step 3: ターゲティング</h1>
         <div className="flex min-h-[300px] flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-200 bg-white">
           <p className="text-sm text-gray-500">
             Step2でセグメントを1つ以上選択してください
@@ -215,7 +215,7 @@ export function Step3Targeting({
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-foreground mb-6">ターゲティング</h1>
+      <h1 className="text-2xl font-bold text-foreground mb-6">Step 3: ターゲティング</h1>
 
       <Card className="bg-[hsl(0_0%_97%)] border shadow-none">
         <CardContent className="p-5">

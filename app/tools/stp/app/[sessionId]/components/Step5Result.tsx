@@ -328,7 +328,7 @@ export function Step5Result({
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-foreground mb-6">確認・出力</h1>
+      <h1 className="text-2xl font-bold text-foreground mb-6">Step 5: 確認・出力</h1>
 
       <Card className="bg-[hsl(0_0%_97%)] border shadow-none">
         <CardContent className="p-5">
