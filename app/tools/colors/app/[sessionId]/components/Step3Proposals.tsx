@@ -5,7 +5,7 @@ import { toast } from 'sonner'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft, RefreshCw } from 'lucide-react'
 import { PaletteCard } from '../../components/PaletteCard'
 import type { BrandColorProject, PaletteProposal } from '@/lib/types/color-tool'
 
@@ -174,17 +174,6 @@ export function Step3Proposals({
 
       <Card className="bg-[hsl(0_0%_97%)] border shadow-none">
         <CardContent className="p-5">
-          <div className="mb-5 flex items-center justify-end">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={generateProposals}
-              disabled={generating}
-            >
-              再生成
-            </Button>
-          </div>
-
           {/* パレットカード（1カラム縦積み） */}
           <div className="space-y-4">
             {proposals.map((proposal) => (
@@ -205,12 +194,22 @@ export function Step3Proposals({
           <ArrowLeft className="mr-1 h-4 w-4" />
           戻る
         </Button>
-        <Button
-          onClick={handleNext}
-          disabled={!selectedId}
-        >
-          {selectedId ? 'この案で調整に進む' : 'パレットを選択してください'}
-        </Button>
+        <div className="flex gap-3">
+          <Button
+            variant="outline"
+            onClick={generateProposals}
+            disabled={generating}
+          >
+            <RefreshCw className={`mr-1 h-4 w-4 ${generating ? 'animate-spin' : ''}`} />
+            再生成
+          </Button>
+          <Button
+            onClick={handleNext}
+            disabled={!selectedId}
+          >
+            {selectedId ? 'この案で調整に進む' : 'パレットを選択してください'}
+          </Button>
+        </div>
       </div>
     </div>
   )
