@@ -2,23 +2,45 @@
 
 // 企業情報編集ページ（マルチテナント対応: 自社のレコードのみ表示・編集）
 // ブランド関連項目（スローガン、MVV、ブランドストーリー、提供価値、ブランドカラー）は
-// ブランド掲示の各ページで管理するため、ここでは企業名・ロゴ・WebサイトURLのみ管理
+// ブランド掲示の各ページで管理するため、ここでは基本情報のみ管理
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '../components/AuthProvider'
 import { ImageUpload } from '../components/ImageUpload'
+import { IndustrySelect } from '@/components/shared/IndustrySelect'
 import { Card, CardContent } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { getPageCache, setPageCache } from '@/lib/page-cache'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { Plus, Trash2 } from 'lucide-react'
+
+// 競合企業の型
+interface Competitor {
+  name: string
+  url: string
+  colors: string[]
+  notes: string
+}
+
 type Company = {
   id: string
   name: string
   logo_url: string
   website_url: string
+  industry_category: string
+  industry_subcategory: string
+  brand_stage: string
+  competitors: Competitor[]
 }
+
+// ブランドステージの定義
+const BRAND_STAGES = [
+  { value: 'new', label: '新規ブランド', description: 'ブランドをゼロから構築' },
+  { value: 'rebrand', label: 'リブランド', description: '既存ブランドを大幅に刷新' },
+  { value: 'refine', label: '微調整', description: '既存ブランドを少し改善' },
+] as const
 
 export default function CompanyPage() {
   const { companyId } = useAuth()
@@ -42,7 +64,7 @@ export default function CompanyPage() {
       const result = await Promise.race([
         supabase
           .from('companies')
-          .select('id, name, logo_url, website_url')
+          .select('id, name, logo_url, website_url, industry_category, industry_subcategory, brand_stage, competitors')
           .eq('id', companyId)
           .single(),
         new Promise<never>((_, reject) =>
@@ -52,11 +74,15 @@ export default function CompanyPage() {
 
       if (result.error) throw new Error(result.error.message)
       if (result.data) {
-        const companyData = {
+        const companyData: Company = {
           id: result.data.id,
           name: result.data.name || '',
           logo_url: result.data.logo_url || '',
           website_url: result.data.website_url || '',
+          industry_category: result.data.industry_category || '',
+          industry_subcategory: result.data.industry_subcategory || '',
+          brand_stage: result.data.brand_stage || '',
+          competitors: (result.data.competitors as Competitor[]) || [],
         }
         setCompany(companyData)
         setPageCache(cacheKey, companyData)
@@ -84,7 +110,7 @@ export default function CompanyPage() {
     fetchCompany()
   }, [companyId, cacheKey])
 
-  const handleChange = (field: keyof Company, value: string) => {
+  const handleChange = (field: keyof Company, value: string | Competitor[]) => {
     setCompany(prev => prev ? { ...prev, [field]: value } : null)
   }
 
@@ -94,6 +120,29 @@ export default function CompanyPage() {
     if (!trimmed) return ''
     if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) return trimmed
     return 'https://' + trimmed
+  }
+
+  // 競合企業の操作
+  const addCompetitor = () => {
+    if (!company) return
+    if (company.competitors.length >= 10) {
+      toast.error('競合企業は最大10社まで登録できます')
+      return
+    }
+    handleChange('competitors', [...company.competitors, { name: '', url: '', colors: [], notes: '' }])
+  }
+
+  const updateCompetitor = (index: number, field: keyof Competitor, value: string) => {
+    if (!company) return
+    const updated = [...company.competitors]
+    updated[index] = { ...updated[index], [field]: value }
+    handleChange('competitors', updated)
+  }
+
+  const removeCompetitor = (index: number) => {
+    if (!company) return
+    const updated = company.competitors.filter((_, i) => i !== index)
+    handleChange('competitors', updated)
   }
 
   // Supabase REST APIに直接fetchで保存（JSクライアントの認証ハングを回避）
@@ -142,10 +191,24 @@ export default function CompanyPage() {
     try {
       const normalizedWebsiteUrl = normalizeUrl(company.website_url)
 
+      // 競合企業のURLも正規化し、空名を除外
+      const cleanedCompetitors = company.competitors
+        .filter(c => c.name.trim() !== '')
+        .map(c => ({
+          ...c,
+          name: c.name.trim(),
+          url: normalizeUrl(c.url),
+          notes: c.notes.trim(),
+        }))
+
       const updateData: Record<string, unknown> = {
         name: company.name,
         logo_url: company.logo_url,
         website_url: normalizedWebsiteUrl,
+        industry_category: company.industry_category || null,
+        industry_subcategory: company.industry_subcategory || null,
+        brand_stage: company.brand_stage || null,
+        competitors: cleanedCompetitors,
       }
 
       const result = await supabasePatch('companies', company.id, updateData)
@@ -156,6 +219,7 @@ export default function CompanyPage() {
       } else {
         toast.success('保存しました')
         handleChange('website_url', normalizedWebsiteUrl)
+        handleChange('competitors', cleanedCompetitors)
       }
     } catch (err) {
       console.error('[Company Save] 予期しないエラー:', err)
@@ -229,9 +293,9 @@ export default function CompanyPage() {
               />
             </div>
 
-            {/* 企業名 */}
+            {/* 企業名・ブランド名 */}
             <div className="mb-5">
-              <h2 className="text-sm font-bold mb-3">ブランド名</h2>
+              <h2 className="text-sm font-bold mb-3">企業名・ブランド名</h2>
               <Input
                 type="text"
                 value={company.name}
@@ -244,8 +308,41 @@ export default function CompanyPage() {
               </p>
             </div>
 
+            {/* 業種 */}
+            <div className="mb-5">
+              <h2 className="text-sm font-bold mb-3">業種</h2>
+              <IndustrySelect
+                category={company.industry_category}
+                subcategory={company.industry_subcategory}
+                onCategoryChange={(val) => handleChange('industry_category', val)}
+                onSubcategoryChange={(val) => handleChange('industry_subcategory', val)}
+              />
+            </div>
+
+            {/* ブランドステージ */}
+            <div className="mb-5">
+              <h2 className="text-sm font-bold mb-3">ブランドステージ</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                {BRAND_STAGES.map((stage) => (
+                  <button
+                    key={stage.value}
+                    type="button"
+                    onClick={() => handleChange('brand_stage', company.brand_stage === stage.value ? '' : stage.value)}
+                    className={`rounded-lg border-2 p-4 text-left transition-all ${
+                      company.brand_stage === stage.value
+                        ? 'border-blue-500 bg-blue-50'
+                        : 'border-gray-200 bg-white hover:border-gray-300'
+                    }`}
+                  >
+                    <div className="text-sm font-bold text-gray-900">{stage.label}</div>
+                    <div className="text-xs text-gray-500 mt-1">{stage.description}</div>
+                  </button>
+                ))}
+              </div>
+            </div>
+
             {/* WebサイトURL */}
-            <div>
+            <div className="mb-5">
               <h2 className="text-sm font-bold mb-3">ウェブサイトURL</h2>
               <Input
                 type="text"
@@ -254,6 +351,80 @@ export default function CompanyPage() {
                 placeholder="https://example.com"
                 className="h-10"
               />
+            </div>
+
+            {/* 競合企業 */}
+            <div>
+              <h2 className="text-sm font-bold mb-3">競合企業</h2>
+              {company.competitors.length > 0 && (
+                <div className="space-y-3 mb-3">
+                  {company.competitors.map((comp, index) => (
+                    <div key={index} className="flex items-start gap-2 rounded-lg border border-gray-200 bg-white p-3">
+                      <div className="flex-1 space-y-2">
+                        <div className="flex items-center gap-2">
+                          <Input
+                            value={comp.name}
+                            onChange={(e) => updateCompetitor(index, 'name', e.target.value)}
+                            placeholder="企業名（必須）"
+                            className="h-9 text-sm"
+                          />
+                          {/* 色ドット表示（閲覧のみ） */}
+                          {comp.colors && comp.colors.length > 0 && (
+                            <div className="flex gap-1 shrink-0">
+                              {comp.colors.map((color, ci) => (
+                                <div
+                                  key={ci}
+                                  className="h-4 w-4 rounded-full border border-gray-200"
+                                  style={{ backgroundColor: color }}
+                                  title={color}
+                                />
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                          <Input
+                            value={comp.url}
+                            onChange={(e) => updateCompetitor(index, 'url', e.target.value)}
+                            placeholder="https://..."
+                            className="h-9 text-sm"
+                          />
+                          <Input
+                            value={comp.notes}
+                            onChange={(e) => updateCompetitor(index, 'notes', e.target.value)}
+                            placeholder="メモ"
+                            className="h-9 text-sm"
+                          />
+                        </div>
+                      </div>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => removeCompetitor(index)}
+                        className="shrink-0 h-9 w-9 p-0 text-gray-400 hover:text-red-500"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
+              {company.competitors.length < 10 && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={addCompetitor}
+                  className="text-sm"
+                >
+                  <Plus className="h-4 w-4 mr-1" />
+                  競合企業を追加
+                </Button>
+              )}
+              {company.competitors.length >= 10 && (
+                <p className="text-xs text-muted-foreground mt-1">最大10社まで登録できます</p>
+              )}
             </div>
           </CardContent>
         </Card>
