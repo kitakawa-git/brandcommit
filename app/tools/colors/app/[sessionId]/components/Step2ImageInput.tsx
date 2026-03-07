@@ -4,6 +4,7 @@
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { Card, CardContent } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
 import { ArrowLeft, Plus, Trash2 } from 'lucide-react'
 import { KeywordSelector } from '../../components/KeywordSelector'
@@ -113,15 +114,16 @@ export function Step2ImageInput({ project, onNext, onBack, onSaveField }: Step2P
   }
 
   return (
-    <div className="space-y-8">
-      <div>
-        <h2 className="text-xl font-bold text-gray-900">イメージ入力</h2>
-        <p className="mt-1 text-sm text-gray-500">
-          ブランドのイメージに近い方向性を選んでください
-        </p>
-      </div>
+    <div>
+      <h1 className="text-2xl font-bold text-foreground mb-6">イメージ入力</h1>
 
-      {/* アプローチ選択 */}
+      <Card className="bg-[hsl(0_0%_97%)] border shadow-none">
+        <CardContent className="p-5">
+          <p className="mb-5 text-[13px] text-muted-foreground">
+            ブランドのイメージに近い方向性を選んでください
+          </p>
+
+          {/* アプローチ選択 */}
       {!approach && (
         <div className="grid gap-4 md:grid-cols-2">
           <button
@@ -158,12 +160,14 @@ export function Step2ImageInput({ project, onNext, onBack, onSaveField }: Step2P
           )}>
             {approach === 'keyword' ? 'キーワード' : 'ムードボード'}
           </span>
-          <button
+          <Button
+            variant="ghost"
+            size="sm"
             onClick={() => { setApproach(null); setErrors({}) }}
-            className="text-xs text-gray-500 hover:text-gray-700"
+            className="text-xs"
           >
             変更する
-          </button>
+          </Button>
         </div>
       )}
 
@@ -175,13 +179,14 @@ export function Step2ImageInput({ project, onNext, onBack, onSaveField }: Step2P
             <p className="mt-2 text-xs text-red-500">{errors.keywords}</p>
           )}
           {keywords.length >= 3 && !showAdditional && (
-            <div className="mt-6">
-              <button
+            <div className="mt-5">
+              <Button
+                variant="outline"
+                size="sm"
                 onClick={() => setShowAdditional(true)}
-                className="text-sm text-blue-600 hover:text-blue-700"
               >
                 追加の質問に答える（任意）→
-              </button>
+              </Button>
             </div>
           )}
         </div>
@@ -203,14 +208,14 @@ export function Step2ImageInput({ project, onNext, onBack, onSaveField }: Step2P
 
       {/* 共通の追加質問 */}
       {showAdditional && (
-        <div className="space-y-6 rounded-xl border bg-white p-6">
-          <h3 className="text-sm font-bold text-gray-900">追加の質問（任意）</h3>
+        <div className="mt-5 space-y-5 rounded-lg border border-gray-200 bg-white p-4">
+          <h2 className="text-sm font-bold mb-3">追加の質問（任意）</h2>
 
           {/* 避けたい色 */}
           <div>
-            <label className="mb-2 block text-sm font-medium text-gray-700">
+            <h2 className="text-sm font-bold mb-3">
               避けたい色はありますか？
-            </label>
+            </h2>
             <div className="space-y-2">
               {avoidColors.map((color, i) => (
                 <div key={i} className="flex items-center gap-2">
@@ -218,31 +223,35 @@ export function Step2ImageInput({ project, onNext, onBack, onSaveField }: Step2P
                     value={color}
                     onChange={(hex) => updateAvoidColor(i, hex)}
                   />
-                  <button
+                  <Button
+                    variant="ghost"
+                    size="sm"
                     onClick={() => removeAvoidColor(i)}
-                    className="text-gray-400 hover:text-red-500"
+                    className="shrink-0 h-9 w-9 p-0 text-gray-400 hover:text-red-500"
                   >
                     <Trash2 className="h-4 w-4" />
-                  </button>
+                  </Button>
                 </div>
               ))}
               {avoidColors.length < 3 && (
-                <button
+                <Button
+                  variant="outline"
+                  size="sm"
                   onClick={addAvoidColor}
-                  className="flex items-center gap-1 text-xs text-blue-600 hover:text-blue-700"
+                  className="text-sm"
                 >
-                  <Plus className="h-3.5 w-3.5" />
+                  <Plus className="h-4 w-4 mr-1" />
                   色を追加（最大3色）
-                </button>
+                </Button>
               )}
             </div>
           </div>
 
           {/* 参考ブランド */}
           <div>
-            <label className="mb-2 block text-sm font-medium text-gray-700">
+            <h2 className="text-sm font-bold mb-3">
               参考にしたいブランドがあれば教えてください
-            </label>
+            </h2>
             <div className="space-y-2">
               {referenceBrands.map((brand, i) => (
                 <div key={i} className="flex items-center gap-2">
@@ -250,32 +259,39 @@ export function Step2ImageInput({ project, onNext, onBack, onSaveField }: Step2P
                     value={brand}
                     onChange={(e) => updateReferenceBrand(i, e.target.value)}
                     placeholder="ブランド名"
-                    className="h-8 text-sm"
+                    className="h-10 text-sm"
                   />
-                  <button
+                  <Button
+                    variant="ghost"
+                    size="sm"
                     onClick={() => removeReferenceBrand(i)}
-                    className="text-gray-400 hover:text-red-500"
+                    className="shrink-0 h-9 w-9 p-0 text-gray-400 hover:text-red-500"
                   >
                     <Trash2 className="h-4 w-4" />
-                  </button>
+                  </Button>
                 </div>
               ))}
               {referenceBrands.length < 3 && (
-                <button
+                <Button
+                  variant="outline"
+                  size="sm"
                   onClick={addReferenceBrand}
-                  className="flex items-center gap-1 text-xs text-blue-600 hover:text-blue-700"
+                  className="text-sm"
                 >
-                  <Plus className="h-3.5 w-3.5" />
+                  <Plus className="h-4 w-4 mr-1" />
                   ブランドを追加（最大3件）
-                </button>
+                </Button>
               )}
             </div>
           </div>
         </div>
       )}
 
+        </CardContent>
+      </Card>
+
       {/* ナビゲーション */}
-      <div className="flex gap-3 pt-4">
+      <div className="mt-6 flex gap-3">
         <Button variant="outline" onClick={onBack}>
           <ArrowLeft className="mr-1 h-4 w-4" />
           戻る

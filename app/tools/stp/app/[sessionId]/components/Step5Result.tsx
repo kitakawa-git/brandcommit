@@ -4,6 +4,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
+import { Card, CardContent } from '@/components/ui/card'
 import { PositioningMap } from '@/components/PositioningMap'
 import type { PositioningMapData } from '@/lib/types/positioning-map'
 import { supabase } from '@/lib/supabase'
@@ -326,17 +327,17 @@ export function Step5Result({
   }, [sessionId, router])
 
   return (
-    <div className="space-y-8">
-      {/* ヘッダー */}
-      <div>
-        <h2 className="text-xl font-bold text-gray-900">確認・出力</h2>
-        <p className="mt-1 text-sm text-gray-500">
-          STP分析の結果を確認し、PDF出力や branding.bz への連携を行いましょう
-        </p>
-      </div>
+    <div>
+      <h1 className="text-2xl font-bold text-foreground mb-6">確認・出力</h1>
 
-      {/* ===== S — セグメンテーション ===== */}
-      <div className="rounded-xl border bg-white p-5">
+      <Card className="bg-[hsl(0_0%_97%)] border shadow-none">
+        <CardContent className="p-5">
+          <p className="mb-5 text-[13px] text-muted-foreground">
+            STP分析の結果を確認し、PDF出力や branding.bz への連携を行いましょう
+          </p>
+
+          {/* ===== S — セグメンテーション ===== */}
+          <div className="mb-5 rounded-lg border border-gray-200 bg-white p-5">
         <div className="mb-4 flex items-center gap-2">
           <LayoutGrid className="h-5 w-5 text-blue-600" />
           <h3 className="text-base font-bold text-gray-900">
@@ -368,8 +369,8 @@ export function Step5Result({
         </div>
       </div>
 
-      {/* ===== T — ターゲティング ===== */}
-      <div className="rounded-xl border bg-white p-5">
+          {/* ===== T — ターゲティング ===== */}
+          <div className="mb-5 rounded-lg border border-gray-200 bg-white p-5">
         <div className="mb-4 flex items-center gap-2">
           <Target className="h-5 w-5 text-blue-600" />
           <h3 className="text-base font-bold text-gray-900">
@@ -436,8 +437,8 @@ export function Step5Result({
         )}
       </div>
 
-      {/* ===== P — ポジショニング ===== */}
-      <div className="rounded-xl border bg-white p-5">
+          {/* ===== P — ポジショニング ===== */}
+          <div className="mb-5 rounded-lg border border-gray-200 bg-white p-5">
         <div className="mb-4 flex items-center gap-2">
           <MapPin className="h-5 w-5 text-blue-600" />
           <h3 className="text-base font-bold text-gray-900">
@@ -469,8 +470,8 @@ export function Step5Result({
         </div>
       </div>
 
-      {/* ===== アクションボタン ===== */}
-      <div className="space-y-3 rounded-xl border bg-gray-50 p-5">
+          {/* ===== アクションボタン ===== */}
+          <div className="space-y-3 rounded-lg border border-gray-200 bg-white p-5">
         <div className="flex flex-col gap-3 sm:flex-row">
           {/* PDF出力 */}
           <Button
@@ -508,21 +509,24 @@ export function Step5Result({
           )}
         </div>
 
-        {/* 最初からやり直す */}
-        <div className="text-center">
-          <button
-            type="button"
-            onClick={handleRestart}
-            className="inline-flex items-center gap-1 text-xs text-gray-500 underline hover:text-gray-700"
-          >
-            <RotateCcw className="h-3 w-3" />
-            最初からやり直す
-          </button>
-        </div>
-      </div>
+            {/* 最初からやり直す */}
+            <div className="text-center">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleRestart}
+                className="text-xs text-gray-500"
+              >
+                <RotateCcw className="h-3 w-3 mr-1" />
+                最初からやり直す
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* フッターナビゲーション */}
-      <div className="flex items-center justify-between border-t pt-6">
+      <div className="mt-6 flex items-center justify-between">
         <Button variant="outline" onClick={onBack} className="gap-1">
           <ChevronLeft className="h-4 w-4" />
           戻る

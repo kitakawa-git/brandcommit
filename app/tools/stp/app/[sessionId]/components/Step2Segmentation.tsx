@@ -4,6 +4,7 @@
 import { useState, useCallback, useEffect, useRef } from 'react'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
+import { Card, CardContent } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Checkbox } from '@/components/ui/checkbox'
 import { ChevronLeft, ChevronRight, Plus, Trash2, Sparkles, RefreshCw } from 'lucide-react'
@@ -278,16 +279,16 @@ export function Step2Segmentation({
   }
 
   return (
-    <div className="space-y-6">
-      {/* ヘッダー */}
-      <div>
-        <h2 className="text-xl font-bold text-gray-900">セグメンテーション</h2>
-        <p className="mt-1 text-sm text-gray-500">
-          市場をどのような切り口で分けるか定義しましょう
-        </p>
-      </div>
+    <div>
+      <h1 className="text-2xl font-bold text-foreground mb-6">セグメンテーション</h1>
 
-      {/* モード切替タブ */}
+      <Card className="bg-[hsl(0_0%_97%)] border shadow-none">
+        <CardContent className="p-5">
+          <p className="mb-5 text-[13px] text-muted-foreground">
+            市場をどのような切り口で分けるか定義しましょう
+          </p>
+
+          {/* モード切替タブ */}
       <div className="flex rounded-lg border bg-gray-100 p-1">
         <button
           type="button"
@@ -360,31 +361,32 @@ export function Step2Segmentation({
         </div>
       )}
 
-      {/* 変数グループ一覧 */}
-      {!aiLoading && (
-        <div className="space-y-5">
-          {variables.map((variable, varIndex) => (
-            <div
-              key={varIndex}
-              className="rounded-xl border bg-white p-5"
-            >
-              {/* 変数名ヘッダー */}
-              <div className="mb-4 flex items-center gap-2">
-                <Input
-                  value={variable.name}
-                  onChange={(e) => updateVariableName(varIndex, e.target.value)}
-                  placeholder="変数名（例: 購買動機）"
-                  className="h-9 flex-1 text-sm font-bold"
-                />
-                <button
-                  type="button"
-                  onClick={() => removeVariable(varIndex)}
-                  className="rounded p-1 text-gray-400 hover:bg-red-50 hover:text-red-500"
-                  title="変数を削除"
+          {/* 変数グループ一覧 */}
+          {!aiLoading && (
+            <div className="space-y-5">
+              {variables.map((variable, varIndex) => (
+                <div
+                  key={varIndex}
+                  className="rounded-lg border border-gray-200 bg-white p-5"
                 >
-                  <Trash2 className="h-4 w-4" />
-                </button>
-              </div>
+                  {/* 変数名ヘッダー */}
+                  <div className="mb-4 flex items-center gap-2">
+                    <Input
+                      value={variable.name}
+                      onChange={(e) => updateVariableName(varIndex, e.target.value)}
+                      placeholder="変数名（例: 購買動機）"
+                      className="h-9 flex-1 text-sm font-bold"
+                    />
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => removeVariable(varIndex)}
+                      className="shrink-0 h-9 w-9 p-0 text-gray-400 hover:text-red-500"
+                      title="変数を削除"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
 
               {/* セグメントカード一覧 */}
               <div className="space-y-3">
@@ -435,46 +437,53 @@ export function Step2Segmentation({
                     </div>
 
                     {/* 削除ボタン */}
-                    <button
-                      type="button"
+                    <Button
+                      variant="ghost"
+                      size="sm"
                       onClick={() => removeSegment(varIndex, segIndex)}
-                      className="rounded p-1 text-gray-400 hover:bg-red-50 hover:text-red-500"
+                      className="shrink-0 h-8 w-8 p-0 text-gray-400 hover:text-red-500"
                       title="セグメントを削除"
                     >
                       <Trash2 className="h-3.5 w-3.5" />
-                    </button>
+                    </Button>
                   </div>
                 ))}
               </div>
 
-              {/* セグメント追加ボタン */}
-              <button
-                type="button"
-                onClick={() => addSegment(varIndex)}
-                className="mt-3 flex items-center gap-1 text-xs text-blue-600 hover:text-blue-700"
-              >
-                <Plus className="h-3.5 w-3.5" />
-                セグメントを追加
-              </button>
-            </div>
+                  {/* セグメント追加ボタン */}
+                  <div className="mt-3">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => addSegment(varIndex)}
+                      className="text-sm"
+                    >
+                      <Plus className="h-4 w-4 mr-1" />
+                      セグメントを追加
+                    </Button>
+                  </div>
+                </div>
           ))}
 
-          {/* 変数追加ボタン */}
-          {!aiLoading && (
-            <button
-              type="button"
-              onClick={addVariable}
-              className="flex w-full items-center justify-center gap-1.5 rounded-xl border-2 border-dashed border-gray-200 py-4 text-sm text-gray-500 transition-colors hover:border-gray-300 hover:text-gray-700"
-            >
-              <Plus className="h-4 w-4" />
-              変数を追加
-            </button>
+              {/* 変数追加ボタン */}
+              {!aiLoading && (
+                <button
+                  type="button"
+                  onClick={addVariable}
+                  className="flex w-full items-center justify-center gap-1.5 rounded-lg border-2 border-dashed border-gray-200 py-4 text-sm text-gray-500 transition-colors hover:border-gray-300 hover:text-gray-700"
+                >
+                  <Plus className="h-4 w-4" />
+                  変数を追加
+                </button>
+              )}
+            </div>
           )}
-        </div>
-      )}
+
+        </CardContent>
+      </Card>
 
       {/* フッターナビゲーション */}
-      <div className="flex items-center justify-between border-t pt-6">
+      <div className="mt-6 flex items-center justify-between">
         <Button variant="outline" onClick={onBack} className="gap-1">
           <ChevronLeft className="h-4 w-4" />
           戻る

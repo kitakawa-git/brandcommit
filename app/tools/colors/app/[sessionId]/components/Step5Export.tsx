@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
+import { Card, CardContent } from '@/components/ui/card'
 import { PalettePreview } from '../../components/PalettePreview'
 import { AccessibilityBadge } from '../../components/AccessibilityBadge'
 import type { BrandColorProject, PaletteProposal, ColorValue } from '@/lib/types/color-tool'
@@ -139,16 +140,17 @@ export function Step5Export({
   ]
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h2 className="text-xl font-bold text-gray-900">Step 5: 確定・出力</h2>
-        <p className="mt-1 text-sm text-gray-500">
-          パレットを確認して確定し、出力や連携を行いましょう
-        </p>
-      </div>
+    <div>
+      <h1 className="text-2xl font-bold text-foreground mb-6">確定・出力</h1>
 
-      {/* パレット確認 */}
-      <div className="rounded-xl border border-gray-200 bg-white p-6">
+      <Card className="bg-[hsl(0_0%_97%)] border shadow-none">
+        <CardContent className="p-5">
+          <p className="mb-5 text-[13px] text-muted-foreground">
+            パレットを確認して確定し、出力や連携を行いましょう
+          </p>
+
+          {/* パレット確認 */}
+          <div className="rounded-lg border border-gray-200 bg-white p-5">
         <div className="mb-4 flex items-start justify-between">
           <div>
             <h3 className="text-lg font-bold text-gray-900">{palette.name}</h3>
@@ -181,28 +183,28 @@ export function Step5Export({
         <PalettePreview proposal={palette} />
       </div>
 
-      {/* 確定ボタン */}
-      {!confirmed && (
-        <div className="rounded-xl border-2 border-dashed border-blue-200 bg-blue-50 p-6 text-center">
+          {/* 確定ボタン */}
+          {!confirmed && (
+            <div className="mt-5 rounded-lg border-2 border-dashed border-blue-200 bg-blue-50 p-5 text-center">
           <p className="mb-3 text-sm text-blue-700">
             このパレットでよろしいですか？確定後も調整ステップに戻れます。
           </p>
           <Button onClick={handleConfirm} size="lg">
             このパレットで確定する
           </Button>
-        </div>
-      )}
+            </div>
+          )}
 
-      {/* 出力オプション */}
-      {confirmed && (
-        <div className="space-y-3">
-          <h3 className="text-base font-bold text-gray-900">出力・連携</h3>
-          <div className="grid gap-3 sm:grid-cols-3">
-            {/* PDF */}
-            <button
-              onClick={handleExportPdf}
-              disabled={exporting === 'pdf'}
-              className="rounded-xl border border-gray-200 bg-white p-4 text-left transition-all hover:border-gray-300 hover:shadow-md disabled:opacity-50"
+          {/* 出力オプション */}
+          {confirmed && (
+            <div className="mt-5 space-y-3">
+              <h2 className="text-sm font-bold mb-3">出力・連携</h2>
+              <div className="grid gap-3 sm:grid-cols-3">
+                {/* PDF */}
+                <button
+                  onClick={handleExportPdf}
+                  disabled={exporting === 'pdf'}
+                  className="rounded-lg border border-gray-200 bg-white p-4 text-left transition-all hover:border-gray-300 hover:shadow-md disabled:opacity-50"
             >
               <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-lg bg-red-50">
                 <svg className="h-5 w-5 text-red-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -216,10 +218,10 @@ export function Step5Export({
               <p className="mt-0.5 text-xs text-gray-500">カラーガイドシートをPDFで保存</p>
             </button>
 
-            {/* CSS */}
-            <button
-              onClick={handleExportCss}
-              className="rounded-xl border border-gray-200 bg-white p-4 text-left transition-all hover:border-gray-300 hover:shadow-md"
+                {/* CSS */}
+                <button
+                  onClick={handleExportCss}
+                  className="rounded-lg border border-gray-200 bg-white p-4 text-left transition-all hover:border-gray-300 hover:shadow-md"
             >
               <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50">
                 <svg className="h-5 w-5 text-blue-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -231,11 +233,11 @@ export function Step5Export({
               <p className="mt-0.5 text-xs text-gray-500">カスタムプロパティをクリップボードに</p>
             </button>
 
-            {/* branding.bz連携 */}
-            <button
-              onClick={handleLink}
-              disabled={linked || exporting === 'link'}
-              className="rounded-xl border border-gray-200 bg-white p-4 text-left transition-all hover:border-gray-300 hover:shadow-md disabled:opacity-50"
+                {/* branding.bz連携 */}
+                <button
+                  onClick={handleLink}
+                  disabled={linked || exporting === 'link'}
+                  className="rounded-lg border border-gray-200 bg-white p-4 text-left transition-all hover:border-gray-300 hover:shadow-md disabled:opacity-50"
             >
               <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-lg bg-green-50">
                 <svg className="h-5 w-5 text-green-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -249,13 +251,15 @@ export function Step5Export({
               <p className="mt-0.5 text-xs text-gray-500">
                 {linked ? 'ビジュアルアイデンティティに反映済み' : '管理画面のカラーパレットに反映'}
               </p>
-            </button>
-          </div>
-        </div>
-      )}
+                </button>
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       {/* ナビゲーション */}
-      <div className="flex gap-3">
+      <div className="mt-6 flex gap-3">
         <Button variant="outline" onClick={onBack}>
           調整に戻る
         </Button>

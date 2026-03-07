@@ -4,6 +4,7 @@
 import { useState, useCallback, useEffect, useRef } from 'react'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
+import { Card, CardContent } from '@/components/ui/card'
 import { Slider } from '@/components/ui/slider'
 import { Skeleton } from '@/components/ui/skeleton'
 import { PositioningMap } from '@/components/PositioningMap'
@@ -225,15 +226,10 @@ export function Step4Positioning({
   }
 
   return (
-    <div className="space-y-6">
+    <div>
       {/* ヘッダー */}
-      <div className="flex items-start justify-between">
-        <div>
-          <h2 className="text-xl font-bold text-gray-900">ポジショニング</h2>
-          <p className="mt-1 text-sm text-gray-500">
-            自社と競合をマップ上に配置して差別化ポイントを可視化しましょう
-          </p>
-        </div>
+      <div className="mb-6 flex items-start justify-between">
+        <h1 className="text-2xl font-bold text-foreground">ポジショニング</h1>
         {!aiLoading && (
           <Button
             variant="outline"
@@ -277,8 +273,8 @@ export function Step4Positioning({
           {/* 左: フォーム */}
           <div className="space-y-5">
             {/* 軸設定 */}
-            <div className="rounded-xl border bg-white p-4">
-              <h3 className="mb-3 text-sm font-bold text-gray-700">軸の設定</h3>
+            <div className="rounded-lg border border-gray-200 bg-white p-4">
+              <h2 className="text-sm font-bold mb-3">軸の設定</h2>
 
               {/* X軸 */}
               <div className="mb-3">
@@ -329,10 +325,10 @@ export function Step4Positioning({
 
             {/* 要素リスト */}
             <div className="space-y-3">
-              <h3 className="text-sm font-bold text-gray-700">要素の配置</h3>
+              <h2 className="text-sm font-bold mb-3">要素の配置</h2>
 
               {items.map((item, index) => (
-                <div key={index} className="rounded-xl border bg-white p-4">
+                <div key={index} className="rounded-lg border border-gray-200 bg-white p-4">
                   {/* 項目名・色・削除 */}
                   <div className="mb-3 flex items-center gap-2">
                     <input
@@ -353,13 +349,14 @@ export function Step4Positioning({
                       </span>
                     )}
                     {items.length > 2 && (
-                      <button
-                        type="button"
+                      <Button
+                        variant="ghost"
+                        size="sm"
                         onClick={() => removeItem(index)}
-                        className="shrink-0 rounded p-1 text-gray-400 hover:bg-red-50 hover:text-red-500"
+                        className="shrink-0 h-8 w-8 p-0 text-gray-400 hover:text-red-500"
                       >
                         <Trash2 className="h-3.5 w-3.5" />
-                      </button>
+                      </Button>
                     )}
                   </div>
 
@@ -409,7 +406,7 @@ export function Step4Positioning({
               <button
                 type="button"
                 onClick={addItem}
-                className="flex w-full items-center justify-center gap-1.5 rounded-xl border-2 border-dashed border-gray-200 py-3 text-sm text-gray-500 transition-colors hover:border-gray-300 hover:text-gray-700"
+                className="flex w-full items-center justify-center gap-1.5 rounded-lg border-2 border-dashed border-gray-200 py-3 text-sm text-gray-500 transition-colors hover:border-gray-300 hover:text-gray-700"
               >
                 <Plus className="h-4 w-4" />
                 要素を追加
@@ -419,8 +416,8 @@ export function Step4Positioning({
 
           {/* 右: マッププレビュー */}
           <div className="lg:sticky lg:top-20">
-            <h3 className="mb-2 text-sm font-bold text-gray-700">プレビュー</h3>
-            <div className="rounded-xl border bg-white p-3" style={{ minHeight: 300 }}>
+            <h2 className="text-sm font-bold mb-3">プレビュー</h2>
+            <div className="rounded-lg border border-gray-200 bg-white p-3" style={{ minHeight: 300 }}>
               <PositioningMap data={toMapData(getCurrentData())} />
             </div>
           </div>
@@ -428,7 +425,7 @@ export function Step4Positioning({
       )}
 
       {/* フッターナビゲーション */}
-      <div className="flex items-center justify-between border-t pt-6">
+      <div className="mt-6 flex items-center justify-between">
         <Button variant="outline" onClick={onBack} className="gap-1">
           <ChevronLeft className="h-4 w-4" />
           戻る

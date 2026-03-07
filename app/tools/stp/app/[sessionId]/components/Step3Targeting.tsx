@@ -3,6 +3,7 @@
 // Step 3: ターゲティング（セグメント評価 → メイン/サブターゲット選択）
 import { useState, useCallback, useEffect, useRef, useMemo } from 'react'
 import { Button } from '@/components/ui/button'
+import { Card, CardContent } from '@/components/ui/card'
 import { Textarea } from '@/components/ui/textarea'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Slider } from '@/components/ui/slider'
@@ -197,11 +198,9 @@ export function Step3Targeting({
   // セグメントが0個の場合
   if (selectedSegments.length === 0) {
     return (
-      <div className="space-y-6">
-        <div>
-          <h2 className="text-xl font-bold text-gray-900">ターゲティング</h2>
-        </div>
-        <div className="flex min-h-[300px] flex-col items-center justify-center rounded-xl border-2 border-dashed border-gray-200 bg-white">
+      <div>
+        <h1 className="text-2xl font-bold text-foreground mb-6">ターゲティング</h1>
+        <div className="flex min-h-[300px] flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-200 bg-white">
           <p className="text-sm text-gray-500">
             Step2でセグメントを1つ以上選択してください
           </p>
@@ -215,23 +214,23 @@ export function Step3Targeting({
   }
 
   return (
-    <div className="space-y-8">
-      {/* ヘッダー */}
-      <div>
-        <h2 className="text-xl font-bold text-gray-900">ターゲティング</h2>
-        <p className="mt-1 text-sm text-gray-500">
-          各セグメントを評価し、狙うべきターゲットを決めましょう
-        </p>
-      </div>
+    <div>
+      <h1 className="text-2xl font-bold text-foreground mb-6">ターゲティング</h1>
 
-      {/* セグメント評価テーブル */}
-      <div className="space-y-4">
-        <h3 className="text-sm font-bold text-gray-700">セグメント評価</h3>
+      <Card className="bg-[hsl(0_0%_97%)] border shadow-none">
+        <CardContent className="p-5">
+          <p className="mb-5 text-[13px] text-muted-foreground">
+            各セグメントを評価し、狙うべきターゲットを決めましょう
+          </p>
+
+          {/* セグメント評価テーブル */}
+          <div className="mb-5 space-y-4">
+            <h2 className="text-sm font-bold mb-3">セグメント評価</h2>
         <div className="space-y-3">
           {sortedEvaluations.map((ev) => (
             <div
               key={ev.segment_name}
-              className="rounded-xl border bg-white p-4"
+              className="rounded-lg border border-gray-200 bg-white p-4"
             >
               {/* セグメント名・説明 */}
               <div className="mb-3">
@@ -315,11 +314,11 @@ export function Step3Targeting({
         </div>
       </div>
 
-      {/* ターゲット選択 */}
-      <div className="space-y-6 border-t pt-6">
-        {/* メインターゲット */}
-        <div>
-          <h3 className="text-sm font-bold text-gray-700">メインターゲット</h3>
+          {/* ターゲット選択 */}
+          <div className="space-y-5">
+            {/* メインターゲット */}
+            <div>
+              <h2 className="text-sm font-bold mb-3">メインターゲット</h2>
           <p className="mt-1 text-xs text-gray-500">
             最も注力するセグメントを1つ選んでください
           </p>
@@ -364,9 +363,9 @@ export function Step3Targeting({
           </div>
         </div>
 
-        {/* サブターゲット */}
-        <div>
-          <h3 className="text-sm font-bold text-gray-700">サブターゲット</h3>
+            {/* サブターゲット */}
+            <div>
+              <h2 className="text-sm font-bold mb-3">サブターゲット</h2>
           <p className="mt-1 text-xs text-gray-500">
             補助的に狙うセグメントを選んでください（任意、最大2つ）
           </p>
@@ -408,14 +407,14 @@ export function Step3Targeting({
                   </div>
                 </div>
               ))}
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
 
-      {/* ターゲット定義テキスト */}
-      <div>
-        <div className="mb-2 flex items-center gap-1.5">
-          <label className="text-sm font-bold text-gray-700">ターゲットの詳細定義</label>
+          {/* ターゲット定義テキスト */}
+          <div className="mb-5">
+            <div className="mb-2 flex items-center gap-1.5">
+              <h2 className="text-sm font-bold">ターゲットの詳細定義</h2>
           <span className="text-xs text-gray-400">（任意）</span>
         </div>
         <Textarea
@@ -425,10 +424,12 @@ export function Step3Targeting({
           rows={4}
           maxLength={500}
         />
-      </div>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* フッターナビゲーション */}
-      <div className="flex items-center justify-between border-t pt-6">
+      <div className="mt-6 flex items-center justify-between">
         <Button variant="outline" onClick={onBack} className="gap-1">
           <ChevronLeft className="h-4 w-4" />
           戻る

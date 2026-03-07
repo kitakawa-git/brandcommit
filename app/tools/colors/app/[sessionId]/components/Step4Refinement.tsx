@@ -3,6 +3,7 @@
 import { useState, useCallback } from 'react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
+import { Card, CardContent } from '@/components/ui/card'
 import { useIsMobile } from '@/hooks/use-mobile'
 import { ColorPicker } from '../../components/ColorPicker'
 import { AccessibilityBadge } from '../../components/AccessibilityBadge'
@@ -96,11 +97,11 @@ export function Step4Refinement({
   // モバイル: タブ切り替え
   if (isMobile) {
     return (
-      <div className="space-y-4">
-        <h2 className="text-xl font-bold text-gray-900">Step 4: 調整・磨き込み</h2>
+      <div>
+        <h1 className="text-2xl font-bold text-foreground mb-6">調整・磨き込み</h1>
 
         {/* タブ */}
-        <div className="flex gap-1 rounded-lg bg-gray-100 p-1">
+        <div className="mb-5 flex gap-1 rounded-lg bg-gray-100 p-1">
           <button
             onClick={() => setActiveTab('palette')}
             className={`flex-1 rounded-md py-2 text-sm font-medium transition-colors ${
@@ -131,13 +132,13 @@ export function Step4Refinement({
               showPreview={showPreview}
               onTogglePreview={() => setShowPreview(!showPreview)}
             />
-            <div className="flex gap-3">
+            <div className="mt-6 flex gap-3">
               <Button variant="outline" onClick={onBack}>戻る</Button>
               <Button onClick={handleNext} className="flex-1">確定・出力へ進む</Button>
             </div>
           </div>
         ) : (
-          <div className="h-[60vh] rounded-xl border border-gray-200 bg-white">
+          <div className="h-[60vh] rounded-lg border border-gray-200 bg-white">
             <ChatInterface
               sessionId={sessionId}
               currentPalette={palette}
@@ -153,9 +154,9 @@ export function Step4Refinement({
 
   // デスクトップ: 2ペインレイアウト
   return (
-    <div className="space-y-4">
-      <h2 className="text-xl font-bold text-gray-900">Step 4: 調整・磨き込み</h2>
-      <p className="text-sm text-gray-500">
+    <div>
+      <h1 className="text-2xl font-bold text-foreground mb-6">調整・磨き込み</h1>
+      <p className="mb-5 text-[13px] text-muted-foreground">
         色をクリックして直接調整するか、AIに相談してパレットを磨き込みましょう
       </p>
 
@@ -168,14 +169,14 @@ export function Step4Refinement({
             showPreview={showPreview}
             onTogglePreview={() => setShowPreview(!showPreview)}
           />
-          <div className="flex gap-3">
+          <div className="mt-6 flex gap-3">
             <Button variant="outline" onClick={onBack}>戻る</Button>
             <Button onClick={handleNext} className="flex-1">確定・出力へ進む</Button>
           </div>
         </div>
 
         {/* 右: AIチャット */}
-        <div className="h-[600px] rounded-xl border border-gray-200 bg-white">
+        <div className="h-[600px] rounded-lg border border-gray-200 bg-white">
           <ChatInterface
             sessionId={sessionId}
             currentPalette={palette}
@@ -216,7 +217,7 @@ function PaletteEditor({
   return (
     <div className="space-y-4">
       {/* パレット名・コンセプト */}
-      <div className="rounded-xl border border-gray-200 bg-white p-4">
+      <div className="rounded-lg border border-gray-200 bg-white p-4">
         <div className="flex items-start justify-between">
           <div>
             <h3 className="font-bold text-gray-900">{palette.name}</h3>
@@ -231,7 +232,7 @@ function PaletteEditor({
         {colorRows.map((row) => (
           <div
             key={row.path}
-            className="flex items-center gap-3 rounded-lg border border-gray-200 bg-white p-3"
+            className="flex items-center gap-3 rounded-md border border-gray-200 bg-white p-3"
           >
             <div className="w-24 text-xs font-medium text-gray-500">{row.label}</div>
             <ColorPicker

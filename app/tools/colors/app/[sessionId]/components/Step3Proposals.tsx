@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { toast } from 'sonner'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Button } from '@/components/ui/button'
+import { Card, CardContent } from '@/components/ui/card'
 import { PaletteCard } from '../../components/PaletteCard'
 import type { BrandColorProject, PaletteProposal } from '@/lib/types/color-tool'
 
@@ -88,9 +89,11 @@ export function Step3Proposals({
   // ローディング状態
   if (generating) {
     return (
-      <div className="space-y-6">
-        <h2 className="text-xl font-bold text-gray-900">Step 3: AI提案</h2>
-        <div className="space-y-4 rounded-xl border border-gray-200 bg-white p-8 text-center">
+      <div>
+        <h1 className="text-2xl font-bold text-foreground mb-6">AI提案</h1>
+        <Card className="bg-[hsl(0_0%_97%)] border shadow-none">
+          <CardContent className="p-5">
+            <div className="space-y-4 rounded-lg border border-gray-200 bg-white p-8 text-center">
           <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-blue-50">
             <svg className="h-8 w-8 animate-spin text-blue-500" viewBox="0 0 24 24" fill="none">
               <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" strokeLinecap="round" className="opacity-25" />
@@ -118,8 +121,10 @@ export function Step3Proposals({
                 </div>
               </div>
             ))}
+            </div>
           </div>
-        </div>
+          </CardContent>
+        </Card>
       </div>
     )
   }
@@ -127,9 +132,11 @@ export function Step3Proposals({
   // エラー状態
   if (error) {
     return (
-      <div className="space-y-6">
-        <h2 className="text-xl font-bold text-gray-900">Step 3: AI提案</h2>
-        <div className="rounded-xl border border-red-200 bg-red-50 p-8 text-center">
+      <div>
+        <h1 className="text-2xl font-bold text-foreground mb-6">AI提案</h1>
+        <Card className="bg-[hsl(0_0%_97%)] border shadow-none">
+          <CardContent className="p-5">
+            <div className="rounded-lg border border-red-200 bg-red-50 p-8 text-center">
           <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
             <svg className="h-6 w-6 text-red-500" viewBox="0 0 24 24" fill="none">
               <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" />
@@ -144,34 +151,37 @@ export function Step3Proposals({
             <Button onClick={generateProposals}>
               再生成する
             </Button>
+            </div>
           </div>
-        </div>
+          </CardContent>
+        </Card>
       </div>
     )
   }
 
   // 提案表示
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-xl font-bold text-gray-900">Step 3: AI提案</h2>
-          <p className="mt-1 text-sm text-gray-500">
-            3パターンの提案からお好みのパレットを選んでください
-          </p>
-        </div>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={generateProposals}
-          disabled={generating}
-        >
-          再生成
-        </Button>
-      </div>
+    <div>
+      <h1 className="text-2xl font-bold text-foreground mb-6">AI提案</h1>
 
-      {/* パレットカード */}
-      <div className="grid gap-6 md:grid-cols-3">
+      <Card className="bg-[hsl(0_0%_97%)] border shadow-none">
+        <CardContent className="p-5">
+          <div className="mb-5 flex items-center justify-between">
+            <p className="text-[13px] text-muted-foreground">
+              3パターンの提案からお好みのパレットを選んでください
+            </p>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={generateProposals}
+              disabled={generating}
+            >
+              再生成
+            </Button>
+          </div>
+
+          {/* パレットカード */}
+          <div className="grid gap-6 md:grid-cols-3">
         {proposals.map((proposal) => (
           <PaletteCard
             key={proposal.id}
@@ -180,10 +190,12 @@ export function Step3Proposals({
             onSelect={handleSelect}
           />
         ))}
-      </div>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* ナビゲーション */}
-      <div className="flex gap-3">
+      <div className="mt-6 flex gap-3">
         <Button variant="outline" onClick={onBack}>
           戻る
         </Button>
