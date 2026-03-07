@@ -3,9 +3,7 @@
 import { useState, useCallback } from 'react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
-import { ArrowLeft } from 'lucide-react'
-import { useIsMobile } from '@/hooks/use-mobile'
+import { ArrowLeft, ArrowRight, ChevronRight } from 'lucide-react'
 import { ColorPicker } from '../../components/ColorPicker'
 import { AccessibilityBadge } from '../../components/AccessibilityBadge'
 import { PalettePreview } from '../../components/PalettePreview'
@@ -21,8 +19,6 @@ interface Step4RefinementProps {
   onSaveField: (data: Record<string, unknown>) => Promise<void>
 }
 
-type ActiveTab = 'palette' | 'chat'
-
 export function Step4Refinement({
   project,
   sessionId,
@@ -30,13 +26,24 @@ export function Step4Refinement({
   onBack,
   onSaveField,
 }: Step4RefinementProps) {
-  const isMobile = useIsMobile()
-  const [activeTab, setActiveTab] = useState<ActiveTab>('palette')
   const [palette, setPalette] = useState<PaletteProposal>(
     project.current_palette || project.proposals[0]
   )
   const [adjustmentCount, setAdjustmentCount] = useState(project.adjustment_count)
   const [showPreview, setShowPreview] = useState(false)
+
+  // 5色の定義
+  const allColors: { label: string; path: string; color: ColorValue }[] = [
+    { label: 'メインカラー', path: 'primary', color: palette.primary },
+    ...palette.secondary.map((s, i) => ({
+      label: `サブカラー${i + 1}`,
+      path: `secondary.${i}`,
+      color: s,
+    })),
+    { label: 'アクセントカラー', path: 'accent', color: palette.accent },
+    { label: '明るい背景', path: 'neutrals.light', color: palette.neutrals.light },
+    { label: '暗い背景/文字', path: 'neutrals.dark', color: palette.neutrals.dark },
+  ]
 
   // パレットの色を更新
   const updateColor = useCallback(
@@ -85,9 +92,8 @@ export function Step4Refinement({
       setPalette(updatedPalette)
       onSaveField({ current_palette: updatedPalette })
       toast.success('パレットが更新されました')
-      if (isMobile) setActiveTab('palette')
     },
-    [onSaveField, isMobile]
+    [onSaveField]
   )
 
   const handleNext = async () => {
@@ -95,51 +101,69 @@ export function Step4Refinement({
     if (!ok) toast.error('保存に失敗しました')
   }
 
-  // モバイル: タブ切り替え
-  if (isMobile) {
-    return (
-      <div>
-        <h1 className="text-2xl font-bold text-foreground mb-6">Step 4: 調整</h1>
+  // HEX→RGB文字列
+  const hexToRgbStr = (hex: string) => {
+    const clean = hex.replace('#', '')
+    const r = parseInt(clean.slice(0, 2), 16) || 0
+    const g = parseInt(clean.slice(2, 4), 16) || 0
+    const b = parseInt(clean.slice(4, 6), 16) || 0
+    return `${r}, ${g}, ${b}`
+  }
 
-        {/* タブ */}
-        <div className="mb-5 flex gap-1 rounded-lg bg-gray-100 p-1">
-          <button
-            onClick={() => setActiveTab('palette')}
-            className={`flex-1 rounded-md py-2 text-sm font-medium transition-colors ${
-              activeTab === 'palette'
-                ? 'bg-white text-gray-900 shadow-sm'
-                : 'text-gray-500'
-            }`}
-          >
-            パレット編集
-          </button>
-          <button
-            onClick={() => setActiveTab('chat')}
-            className={`flex-1 rounded-md py-2 text-sm font-medium transition-colors ${
-              activeTab === 'chat'
-                ? 'bg-white text-gray-900 shadow-sm'
-                : 'text-gray-500'
-            }`}
-          >
-            AIに相談
-          </button>
+  return (
+    <div className="space-y-5">
+      {/* 【1】パレット情報ヘッダー */}
+      <div>
+        <div className="flex items-center justify-between gap-3">
+          <h2 className="text-lg font-bold text-foreground">{palette.name}</h2>
+          <AccessibilityBadge score={palette.accessibilityScore} />
+        </div>
+        <p className="mt-1 text-sm text-gray-600">{palette.concept}</p>
+      </div>
+
+      {/* 【2】カラーバー */}
+      <div className="flex h-[60px] w-full overflow-hidden rounded-lg">
+        {allColors.map((c) => (
+          <div
+            key={c.path}
+            className="flex-1"
+            style={{ backgroundColor: c.color.hex }}
+          />
+        ))}
+      </div>
+
+      {/* 【3】2カラムエリア */}
+      <div className="flex flex-col gap-5 md:flex-row">
+        {/* 左カラム: 5色カラーカード */}
+        <div className="w-full md:w-1/2">
+          <div className="grid grid-cols-2 gap-3">
+            {allColors.map((c) => (
+              <div
+                key={c.path}
+                className="rounded-lg border border-gray-200 bg-white p-3"
+              >
+                {/* 色の丸 + 役割名 */}
+                <div className="mb-2 flex items-center gap-2">
+                  <ColorPicker
+                    value={c.color.hex}
+                    onChange={(hex) => updateColor(c.path, hex)}
+                  />
+                  <span className="text-xs font-medium text-gray-700">{c.label}</span>
+                </div>
+                {/* HEX + RGB */}
+                <div className="space-y-0.5 pl-10">
+                  <p className="font-mono text-xs text-gray-600">{c.color.hex.toUpperCase()}</p>
+                  <p className="text-[11px] text-gray-400">RGB({hexToRgbStr(c.color.hex)})</p>
+                  <p className="text-[11px] text-gray-500">{c.color.name}</p>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
 
-        {activeTab === 'palette' ? (
-          <div className="space-y-6">
-            <PaletteEditor
-              palette={palette}
-              onUpdateColor={updateColor}
-              showPreview={showPreview}
-              onTogglePreview={() => setShowPreview(!showPreview)}
-            />
-            <div className="sticky bottom-0 mt-6 -mx-4 bg-background/80 backdrop-blur border-t border-border px-4 py-3 flex gap-3">
-              <Button variant="outline" onClick={onBack}><ArrowLeft className="mr-1 h-4 w-4" />戻る</Button>
-              <Button onClick={handleNext} className="flex-1">確定・出力へ進む</Button>
-            </div>
-          </div>
-        ) : (
-          <div className="h-[60vh] rounded-lg border border-gray-200 bg-white">
+        {/* 右カラム: AIチャット */}
+        <div className="w-full md:w-1/2">
+          <div className="h-[300px] rounded-lg border border-gray-200 bg-white md:h-full md:min-h-[400px]">
             <ChatInterface
               sessionId={sessionId}
               currentPalette={palette}
@@ -148,119 +172,38 @@ export function Step4Refinement({
               onAdjustmentCountChange={setAdjustmentCount}
             />
           </div>
+        </div>
+      </div>
+
+      {/* 【4】プレビュー（アコーディオン） */}
+      <div>
+        <button
+          onClick={() => setShowPreview(!showPreview)}
+          className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700 transition-colors"
+        >
+          <ChevronRight
+            className={`h-4 w-4 transition-transform ${showPreview ? 'rotate-90' : ''}`}
+          />
+          プレビュー
+        </button>
+        {showPreview && (
+          <div className="mt-3">
+            <PalettePreview proposal={palette} />
+          </div>
         )}
       </div>
-    )
-  }
 
-  // デスクトップ: 2ペインレイアウト
-  return (
-    <div>
-      <h1 className="text-2xl font-bold text-foreground mb-6">Step 4: 調整</h1>
-      <p className="mb-5 text-[13px] text-muted-foreground">
-        色をクリックして直接調整するか、AIに相談してパレットを磨き込みましょう
-      </p>
-
-      <div className="grid grid-cols-2 gap-6">
-        {/* 左: パレット編集 */}
-        <div className="space-y-6">
-          <PaletteEditor
-            palette={palette}
-            onUpdateColor={updateColor}
-            showPreview={showPreview}
-            onTogglePreview={() => setShowPreview(!showPreview)}
-          />
-          <div className="mt-6 flex gap-3">
-            <Button variant="outline" onClick={onBack}><ArrowLeft className="mr-1 h-4 w-4" />戻る</Button>
-            <Button onClick={handleNext} className="flex-1">確定・出力へ進む</Button>
-          </div>
-        </div>
-
-        {/* 右: AIチャット */}
-        <div className="h-[600px] rounded-lg border border-gray-200 bg-white">
-          <ChatInterface
-            sessionId={sessionId}
-            currentPalette={palette}
-            adjustmentCount={adjustmentCount}
-            onPaletteUpdate={handlePaletteUpdate}
-            onAdjustmentCountChange={setAdjustmentCount}
-          />
-        </div>
+      {/* 【5】フッター */}
+      <div className="sticky bottom-0 -mx-4 mt-6 flex items-center justify-between border-t border-border bg-background/80 px-4 py-3 backdrop-blur">
+        <Button variant="outline" onClick={onBack}>
+          <ArrowLeft className="mr-1 h-4 w-4" />
+          戻る
+        </Button>
+        <Button onClick={handleNext}>
+          確定・出力へ進む
+          <ArrowRight className="ml-1 h-4 w-4" />
+        </Button>
       </div>
-    </div>
-  )
-}
-
-// パレット編集エリア
-function PaletteEditor({
-  palette,
-  onUpdateColor,
-  showPreview,
-  onTogglePreview,
-}: {
-  palette: PaletteProposal
-  onUpdateColor: (path: string, hex: string) => void
-  showPreview: boolean
-  onTogglePreview: () => void
-}) {
-  const colorRows: { label: string; path: string; color: ColorValue }[] = [
-    { label: 'メインカラー', path: 'primary', color: palette.primary },
-    ...palette.secondary.map((s, i) => ({
-      label: `サブカラー${i + 1}`,
-      path: `secondary.${i}`,
-      color: s,
-    })),
-    { label: 'アクセントカラー', path: 'accent', color: palette.accent },
-    { label: '明るい背景', path: 'neutrals.light', color: palette.neutrals.light },
-    { label: '暗い背景/文字', path: 'neutrals.dark', color: palette.neutrals.dark },
-  ]
-
-  return (
-    <div className="space-y-4">
-      {/* パレット名・コンセプト */}
-      <div className="rounded-lg border border-gray-200 bg-white p-4">
-        <div className="flex items-start justify-between">
-          <div>
-            <h3 className="font-bold text-gray-900">{palette.name}</h3>
-            <p className="mt-0.5 text-sm text-gray-500">{palette.concept}</p>
-          </div>
-          <AccessibilityBadge score={palette.accessibilityScore} />
-        </div>
-      </div>
-
-      {/* カラー一覧 */}
-      <div className="space-y-2">
-        {colorRows.map((row) => (
-          <div
-            key={row.path}
-            className="flex items-center gap-3 rounded-md border border-gray-200 bg-white p-3"
-          >
-            <div className="w-24 text-xs font-medium text-gray-500">{row.label}</div>
-            <ColorPicker
-              value={row.color.hex}
-              onChange={(hex) => onUpdateColor(row.path, hex)}
-              showRgb
-            />
-            <span className="text-xs text-gray-400">{row.color.name}</span>
-          </div>
-        ))}
-      </div>
-
-      {/* プレビュートグル */}
-      <button
-        onClick={onTogglePreview}
-        className="flex items-center gap-1 text-xs text-gray-500 hover:text-gray-700"
-      >
-        <svg
-          className={`h-3 w-3 transition-transform ${showPreview ? 'rotate-90' : ''}`}
-          viewBox="0 0 12 12"
-          fill="none"
-        >
-          <path d="M4 3l4 3-4 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
-        プレビュー
-      </button>
-      {showPreview && <PalettePreview proposal={palette} />}
     </div>
   )
 }
