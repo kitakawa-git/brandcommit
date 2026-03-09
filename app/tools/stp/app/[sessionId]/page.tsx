@@ -51,6 +51,9 @@ interface STPSessionData {
     main_target: string
     sub_targets: string[]
     target_description: string
+    buying_factors?: string[]
+    strengths?: string
+    competitors_analysis?: Array<{ name: string; traits: string }>
   }
   positioning: {
     x_axis: { left: string; right: string }

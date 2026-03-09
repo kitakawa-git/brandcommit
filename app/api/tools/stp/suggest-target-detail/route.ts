@@ -3,22 +3,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { callClaude } from '@/lib/claude-api'
 
-const SYSTEM_PROMPT = `あなたはブランドマーケティングの専門家です。STP分析のターゲティングにおいて、選択されたメインターゲットの深掘り情報を提案してください。企業情報とセグメンテーション結果を踏まえ、実践的で具体的な内容を提案してください。回答はJSON形式のみで、前後に説明文やマークダウンのコードブロックを含めないでください。
-
-出力JSONスキーマ:
-{
-  "buying_factors": ["購買決定要因1", "購買決定要因2", "購買決定要因3"],
-  "strengths": "自社の強み（ターゲットに対して活かせる強み。2〜3文）",
-  "competitor_traits": "競合の特徴（主な競合の強みや弱み。2〜3文）",
-  "target_description": "ターゲットの詳細定義（具体的なペルソナ像。2〜3文）"
-}
-
-注意:
-- buying_factors は3〜5個の短いキーワードで
-- strengths はターゲットに刺さる自社の強みを具体的に
-- competitor_traits は主要な競合との差別化ポイントがわかるように
-- target_description は企業規模・業種・課題・行動パターンなどを含む具体的なペルソナ`
-
 export async function POST(request: NextRequest) {
   console.log('[SuggestTargetDetail] ===== API呼び出し開始 =====')
 
@@ -32,6 +16,36 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       )
     }
+
+    // Step1の競合企業リストを抽出
+    const competitors: Array<{ name: string; url?: string; notes?: string }> =
+      Array.isArray(basic_info.competitors)
+        ? basic_info.competitors.filter((c: { name: string }) => c.name?.trim())
+        : []
+
+    // 競合がある場合のみ competitors_analysis を含むスキーマを使う
+    const competitorsAnalysisSchema = competitors.length > 0
+      ? `"competitors_analysis": [
+${competitors.map(c => `    { "name": "${c.name.trim()}", "traits": "この競合の特徴・強み・弱み（2〜3文）" }`).join(',\n')}
+  ],`
+      : ''
+
+    const competitorsNote = competitors.length > 0
+      ? `- competitors_analysis は必ず指定された競合企業ごとに個別の分析を記載すること。各競合のURL・メモを踏まえて具体的に`
+      : ''
+
+    const SYSTEM_PROMPT = `あなたはブランドマーケティングの専門家です。STP分析のターゲティングにおいて、選択されたメインターゲットの深掘り情報を提案してください。企業情報とセグメンテーション結果を踏まえ、実践的で具体的な内容を提案してください。回答はJSON形式のみで、前後に説明文やマークダウンのコードブロックを含めないでください。
+
+出力JSONスキーマ:
+{
+  "buying_factors": ["購買決定要因1", "購買決定要因2", "購買決定要因3"],
+  "strengths": "自社の強み（ターゲットに対して活かせる強み。2〜3文）"${competitorsAnalysisSchema ? ',\n  ' + competitorsAnalysisSchema.trim() : ''}
+}
+
+注意:
+- buying_factors は3〜5個の短いキーワードで
+- strengths はターゲットに刺さる自社の強みを具体的に
+${competitorsNote}`
 
     // ユーザープロンプト構築
     const parts: string[] = []
@@ -79,27 +93,19 @@ export async function POST(request: NextRequest) {
     } else if (basic_info.current_customers) {
       parts.push(`- 現在の主な顧客層: ${basic_info.current_customers}`)
     }
-    // 競合情報（メモ付き）
-    if (basic_info.competitors) {
-      if (Array.isArray(basic_info.competitors)) {
-        const competitorLines = basic_info.competitors
-          .filter((c: { name: string }) => c.name?.trim())
-          .map((c: { name: string; url?: string; notes?: string }) => {
-            let line = c.name.trim()
-            if (c.notes?.trim()) {
-              line += `（メモ: ${c.notes.trim()}）`
-            }
-            if (c.url?.trim()) {
-              line += ` [${c.url.trim()}]`
-            }
-            return line
-          })
-        if (competitorLines.length > 0) {
-          parts.push(`- 競合企業:\n${competitorLines.map((l: string, i: number) => `  ${i + 1}. ${l}`).join('\n')}`)
+    // 競合情報（名前、URL、メモを詳細に）
+    if (competitors.length > 0) {
+      const competitorLines = competitors.map((c: { name: string; url?: string; notes?: string }, i: number) => {
+        let line = `  ${i + 1}. ${c.name.trim()}`
+        if (c.url?.trim()) {
+          line += ` [${c.url.trim()}]`
         }
-      } else {
-        parts.push(`- 競合企業・サービス: ${basic_info.competitors}`)
-      }
+        if (c.notes?.trim()) {
+          line += `（メモ: ${c.notes.trim()}）`
+        }
+        return line
+      })
+      parts.push(`- 競合企業・サービス:\n${competitorLines.join('\n')}`)
     }
 
     // セグメンテーション情報
@@ -128,7 +134,10 @@ export async function POST(request: NextRequest) {
     }
 
     parts.push('')
-    parts.push('上記のメインターゲットについて、購買決定要因・自社の強み・競合の特徴・ターゲット詳細定義をJSON形式で提案してください。')
+    parts.push('上記のメインターゲットについて、購買決定要因・自社の強み・競合分析をJSON形式で提案してください。')
+    if (competitors.length > 0) {
+      parts.push('競合企業ごとに個別の特徴分析を competitors_analysis に含めてください。')
+    }
 
     const userMessage = parts.join('\n')
 
@@ -149,8 +158,7 @@ export async function POST(request: NextRequest) {
     let parsed: {
       buying_factors: string[]
       strengths: string
-      competitor_traits: string
-      target_description: string
+      competitors_analysis?: Array<{ name: string; traits: string }>
     }
     try {
       parsed = JSON.parse(jsonStr)
@@ -169,7 +177,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    console.log('[SuggestTargetDetail] ===== 提案完了 ===== buying_factors=', parsed.buying_factors.length)
+    console.log('[SuggestTargetDetail] ===== 提案完了 ===== buying_factors=', parsed.buying_factors.length, 'competitors_analysis=', parsed.competitors_analysis?.length || 0)
     return NextResponse.json(parsed)
   } catch (err) {
     console.error('[SuggestTargetDetail] エラー:', err)

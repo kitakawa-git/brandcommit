@@ -37,6 +37,11 @@ interface SegmentationData {
   variables: VariableSource[]
 }
 
+interface CompetitorAnalysis {
+  name: string
+  traits: string
+}
+
 // 後方互換のため evaluations フィールドは残す（UIからは使わない）
 interface TargetingData {
   evaluations: Array<{ segment_name: string; attractiveness: number; competitiveness: number; priority: string }>
@@ -45,7 +50,8 @@ interface TargetingData {
   target_description: string
   buying_factors?: string[]
   strengths?: string
-  competitor_traits?: string
+  competitor_traits?: string  // 後方互換（旧フィールド）
+  competitors_analysis?: CompetitorAnalysis[]
 }
 
 interface BasicInfo {
@@ -54,7 +60,7 @@ interface BasicInfo {
   industry_subcategory: string
   business_descriptions: Array<{ title: string; description: string }>
   target_segments: Array<{ name: string; description: string }>
-  competitors: Array<{ name: string; url: string }>
+  competitors: Array<{ name: string; url: string; notes?: string }>
   industry?: string
   industry_other?: string
   products?: string
@@ -104,16 +110,58 @@ export function Step3Targeting({
 
   const [mainTarget, setMainTarget] = useState(targeting.main_target || '')
   const [subTargets, setSubTargets] = useState<string[]>(targeting.sub_targets || [])
-  const [targetDescription, setTargetDescription] = useState(targeting.target_description || '')
   const [buyingFactors, setBuyingFactors] = useState<string[]>(targeting.buying_factors || [])
   const [strengths, setStrengths] = useState(targeting.strengths || '')
-  const [competitorTraits, setCompetitorTraits] = useState(targeting.competitor_traits || '')
+
+  // 競合分析: セッションから復元 or 空で初期化
+  const [competitorsAnalysis, setCompetitorsAnalysis] = useState<CompetitorAnalysis[]>(() => {
+    const saved = targeting.competitors_analysis
+    if (saved && saved.length > 0) return saved
+    // 後方互換: 旧 competitor_traits がある場合は最初の競合に入れる
+    return []
+  })
+
   const [tagInput, setTagInput] = useState('')
   const [saving, setSaving] = useState(false)
   const [aiLoading, setAiLoading] = useState(false)
 
+  // Step1の競合企業からカードリストを構築（competitors_analysis と同期）
+  const competitorCards = useMemo(() => {
+    const comps = (basicInfo.competitors || []).filter(c => c.name?.trim())
+    return comps.map(c => {
+      const existing = competitorsAnalysis.find(
+        ca => ca.name.trim().toLowerCase() === c.name.trim().toLowerCase()
+      )
+      return {
+        name: c.name.trim(),
+        notes: (c.notes || '').trim(),
+        traits: existing?.traits || '',
+      }
+    })
+  }, [basicInfo.competitors, competitorsAnalysis])
+
+  // 競合カードの traits 更新
+  const updateCompetitorTraits = (name: string, traits: string) => {
+    setCompetitorsAnalysis(prev => {
+      const idx = prev.findIndex(ca => ca.name.trim().toLowerCase() === name.trim().toLowerCase())
+      if (idx >= 0) {
+        const updated = [...prev]
+        updated[idx] = { ...updated[idx], traits }
+        return updated
+      }
+      return [...prev, { name, traits }]
+    })
+  }
+
   // デバウンス
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  // メインターゲットのセグメント説明をtarget_descriptionとして利用
+  const mainSegDescription = useMemo(() => {
+    if (!mainTarget) return ''
+    const seg = allSegments.find(s => s.name === mainTarget)
+    return seg?.description || ''
+  }, [mainTarget, allSegments])
 
   // 現在のデータ
   const getCurrentData = useCallback(
@@ -121,12 +169,12 @@ export function Step3Targeting({
       evaluations: [],
       main_target: mainTarget,
       sub_targets: subTargets,
-      target_description: targetDescription,
+      target_description: mainSegDescription,
       buying_factors: buyingFactors,
       strengths,
-      competitor_traits: competitorTraits,
+      competitors_analysis: competitorsAnalysis,
     }),
-    [mainTarget, subTargets, targetDescription, buyingFactors, strengths, competitorTraits]
+    [mainTarget, subTargets, mainSegDescription, buyingFactors, strengths, competitorsAnalysis]
   )
 
   // オートセーブ（1秒デバウンス）
@@ -144,7 +192,7 @@ export function Step3Targeting({
       if (debounceRef.current) clearTimeout(debounceRef.current)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mainTarget, subTargets, targetDescription, buyingFactors, strengths, competitorTraits])
+  }, [mainTarget, subTargets, mainSegDescription, buyingFactors, strengths, competitorsAnalysis])
 
   // mainTarget / subTargets が現在のセグメントに存在するかチェック
   useEffect(() => {
@@ -196,6 +244,15 @@ export function Step3Targeting({
   }
 
   const handleNext = async () => {
+    // バリデーション
+    if (buyingFactors.length === 0) {
+      toast.error('購買決定要因を1つ以上入力してください')
+      return
+    }
+    if (!strengths.trim()) {
+      toast.error('自社の強みを入力してください')
+      return
+    }
     setSaving(true)
     if (debounceRef.current) clearTimeout(debounceRef.current)
     const success = await onNext(getCurrentData())
@@ -208,8 +265,7 @@ export function Step3Targeting({
   const hasExistingInput =
     buyingFactors.length > 0 ||
     strengths.trim() !== '' ||
-    competitorTraits.trim() !== '' ||
-    targetDescription.trim() !== ''
+    competitorsAnalysis.some(ca => ca.traits.trim() !== '')
 
   const handleAISuggestClick = () => {
     if (hasExistingInput) {
@@ -250,8 +306,9 @@ export function Step3Targeting({
       const data = await res.json()
       if (data.buying_factors) setBuyingFactors(data.buying_factors)
       if (data.strengths) setStrengths(data.strengths)
-      if (data.competitor_traits) setCompetitorTraits(data.competitor_traits)
-      if (data.target_description) setTargetDescription(data.target_description)
+      if (data.competitors_analysis && Array.isArray(data.competitors_analysis)) {
+        setCompetitorsAnalysis(data.competitors_analysis)
+      }
     } catch (err) {
       if (err instanceof DOMException && err.name === 'AbortError') {
         toast.error('リクエストがタイムアウトしました。再度お試しください。')
@@ -342,7 +399,7 @@ export function Step3Targeting({
                     <div className="overflow-hidden">
                       <div className="border-t border-blue-200 mx-4 mb-4 pt-4 space-y-4">
 
-                        {/* AI提案ボタン */}
+                        {/* AIに提案してもらうボタン */}
                         <div className="flex justify-end">
                           <Button
                             variant="outline"
@@ -360,9 +417,9 @@ export function Step3Targeting({
                           </Button>
                         </div>
 
-                        {/* 購買決定要因（タグ入力） */}
+                        {/* 1. 購買決定要因（タグ入力） */}
                         <div>
-                          <label className="text-[11px] text-gray-500 mb-1 block">購買決定要因</label>
+                          <label className="text-[11px] text-gray-500 mb-1 block">購買決定要因 <span className="text-red-500">*</span></label>
                           <div className="flex flex-wrap gap-1.5 rounded-md border border-gray-200 bg-white p-2 min-h-[36px] focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-1">
                             {buyingFactors.map((tag, i) => (
                               <span
@@ -389,9 +446,9 @@ export function Step3Targeting({
                           </div>
                         </div>
 
-                        {/* 自社の強み */}
+                        {/* 2. 自社の強み */}
                         <div>
-                          <label className="text-[11px] text-gray-500 mb-1 block">自社の強み</label>
+                          <label className="text-[11px] text-gray-500 mb-1 block">自社の強み <span className="text-red-500">*</span></label>
                           <AutoResizeTextarea
                             value={strengths}
                             onChange={(e) => setStrengths(e.target.value)}
@@ -401,34 +458,37 @@ export function Step3Targeting({
                           />
                         </div>
 
-                        {/* 競合の特徴（任意） */}
+                        {/* 3. 競合分析（任意） — 競合ごとの個別カード */}
                         <div>
                           <div className="flex items-center gap-1.5 mb-1">
-                            <label className="text-[11px] text-gray-500">競合の特徴</label>
+                            <label className="text-[11px] text-gray-500">競合分析</label>
                             <span className="text-[10px] text-gray-400">（任意）</span>
                           </div>
-                          <AutoResizeTextarea
-                            value={competitorTraits}
-                            onChange={(e) => setCompetitorTraits(e.target.value)}
-                            placeholder="例: 大手コンサル会社は高額で大企業向け、フリーランスはデザイン中心で戦略支援が弱い"
-                            className="min-h-[60px]"
-                            maxLength={300}
-                          />
-                        </div>
-
-                        {/* ターゲットの詳細定義（任意） */}
-                        <div>
-                          <div className="flex items-center gap-1.5 mb-1">
-                            <label className="text-[11px] text-gray-500">ターゲットの詳細定義</label>
-                            <span className="text-[10px] text-gray-400">（任意）</span>
-                          </div>
-                          <AutoResizeTextarea
-                            value={targetDescription}
-                            onChange={(e) => setTargetDescription(e.target.value)}
-                            placeholder="例: 従業員50〜200名の中小製造業で、ブランディングに課題を感じているが、コンサルに頼む予算がない経営者"
-                            className="min-h-[60px]"
-                            maxLength={500}
-                          />
+                          {competitorCards.length > 0 ? (
+                            <div className="space-y-2">
+                              {competitorCards.map((comp) => (
+                                <div key={comp.name} className="rounded-md border border-gray-200 bg-white p-3">
+                                  <div className="flex items-center gap-2 mb-1.5">
+                                    <span className="text-xs font-bold text-gray-900">{comp.name}</span>
+                                    {comp.notes && (
+                                      <span className="text-[10px] text-gray-400">{comp.notes}</span>
+                                    )}
+                                  </div>
+                                  <AutoResizeTextarea
+                                    value={comp.traits}
+                                    onChange={(e) => updateCompetitorTraits(comp.name, e.target.value)}
+                                    placeholder="例: 高額だが大手実績が豊富。フルサポート型で柔軟性は低い"
+                                    className="min-h-[40px]"
+                                    maxLength={300}
+                                  />
+                                </div>
+                              ))}
+                            </div>
+                          ) : (
+                            <p className="text-xs text-gray-400 rounded-md border border-dashed border-gray-200 bg-white p-3">
+                              Step 1で競合企業・サービスを入力すると、ここに競合ごとの分析欄が表示されます
+                            </p>
+                          )}
                         </div>
 
                       </div>
@@ -465,7 +525,7 @@ export function Step3Targeting({
           <AlertDialogHeader>
             <AlertDialogTitle>確認</AlertDialogTitle>
             <AlertDialogDescription>
-              入力済みの内容が上書きされます。よろしいですか？
+              現在の入力内容が上書きされます。よろしいですか？
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

@@ -64,7 +64,8 @@ interface TargetingData {
   target_description: string
   buying_factors?: string[]
   strengths?: string
-  competitor_traits?: string
+  competitor_traits?: string  // 後方互換
+  competitors_analysis?: Array<{ name: string; traits: string }>
 }
 
 interface Step4Props {

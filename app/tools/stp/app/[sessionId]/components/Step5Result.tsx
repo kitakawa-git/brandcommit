@@ -393,6 +393,11 @@ export function Step5Result({
           <p className="text-sm font-bold text-gray-900">
             {targeting.main_target || '未選択'}
           </p>
+          {targeting.target_description && (
+            <p className="mt-1 text-sm text-gray-600 leading-relaxed">
+              {targeting.target_description}
+            </p>
+          )}
           {mainEval && (
             <div className="mt-2 flex items-center gap-4 text-xs text-gray-600">
               <span>
@@ -436,14 +441,6 @@ export function Step5Result({
           </div>
         )}
 
-        {/* ターゲット定義テキスト */}
-        {targeting.target_description && (
-          <div className="mt-4 border-l-4 border-blue-300 pl-4">
-            <p className="text-sm italic text-gray-600 leading-relaxed">
-              {targeting.target_description}
-            </p>
-          </div>
-        )}
       </div>
 
           {/* ===== P — ポジショニング ===== */}

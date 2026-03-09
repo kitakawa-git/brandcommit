@@ -358,6 +358,11 @@ export function StpPdfDocument({ data }: { data: StpPdfData }) {
           <Text style={styles.targetCardName}>
             {data.targeting.main_target || '未選択'}
           </Text>
+          {data.targeting.target_description && (
+            <Text style={{ fontSize: 9, color: '#4B5563', marginTop: 3, lineHeight: 1.5 }}>
+              {data.targeting.target_description}
+            </Text>
+          )}
           {mainEval && (
             <Text style={styles.targetCardEval}>
               市場の魅力度: {stars(mainEval.attractiveness)}　自社の競争力: {stars(mainEval.competitiveness)}
@@ -387,15 +392,6 @@ export function StpPdfDocument({ data }: { data: StpPdfData }) {
           <View style={styles.subTargetCard}>
             <Text style={[styles.subTargetName, { color: '#9CA3AF' }]}>
               サブターゲット: なし
-            </Text>
-          </View>
-        )}
-
-        {/* ターゲット定義テキスト */}
-        {data.targeting.target_description && (
-          <View style={styles.quoteBlock}>
-            <Text style={styles.quoteText}>
-              {data.targeting.target_description}
             </Text>
           </View>
         )}

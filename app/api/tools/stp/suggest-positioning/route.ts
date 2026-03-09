@@ -120,7 +120,20 @@ export async function POST(request: NextRequest) {
       if (targeting.strengths) {
         parts.push(`- 自社の強み: ${targeting.strengths}`)
       }
-      if (targeting.competitor_traits) {
+      // 競合分析（構造化データ）
+      if (targeting.competitors_analysis && Array.isArray(targeting.competitors_analysis)) {
+        const analyses = targeting.competitors_analysis
+          .filter((ca: { name: string; traits: string }) => ca.name?.trim())
+          .map((ca: { name: string; traits: string }) => {
+            const traits = ca.traits?.trim() ? `: ${ca.traits.trim()}` : '（分析なし）'
+            return `  - ${ca.name.trim()}${traits}`
+          })
+        if (analyses.length > 0) {
+          parts.push(`- 競合分析:\n${analyses.join('\n')}`)
+          parts.push('  ※ 各競合の特徴を踏まえて正確にポジショニングマップ上に配置してください')
+        }
+      } else if (targeting.competitor_traits) {
+        // 後方互換: 旧テキスト形式
         parts.push(`- 競合の特徴: ${targeting.competitor_traits}`)
       }
     }
