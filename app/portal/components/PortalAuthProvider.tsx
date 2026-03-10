@@ -161,7 +161,7 @@ export function PortalAuthProvider({ children }: { children: React.ReactNode }) 
       console.warn('[PortalAuth] 10秒タイムアウト')
       setLoading(false)
       if (!isPublicPath) {
-        router.replace('/portal/login')
+        router.replace('/portal/auth')
       }
     }, 10000)
 
@@ -177,7 +177,7 @@ export function PortalAuthProvider({ children }: { children: React.ReactNode }) 
             setUser(null)
             setLoading(false)
             if (!isPublicPath) {
-              router.replace('/portal/login')
+              router.replace('/portal/auth')
             }
             return
           }
@@ -197,7 +197,7 @@ export function PortalAuthProvider({ children }: { children: React.ReactNode }) 
           setCompanyId(null)
           setMember(null)
           setLoading(false)
-          router.replace('/portal/login')
+          router.replace('/portal/auth')
         }
       }
     )
@@ -222,7 +222,7 @@ export function PortalAuthProvider({ children }: { children: React.ReactNode }) 
     setProfileName(null)
     setProfilePhotoUrl(null)
     setProfileSlug(null)
-    router.push('/portal/login')
+    router.push('/portal/auth')
   }
 
   const contextValue = { user, companyId, companyName, companyLogoUrl, portalSubtitles, slogan, member, profileName, profilePhotoUrl, profileSlug, isAdmin, loading, signOut }

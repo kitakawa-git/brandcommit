@@ -135,7 +135,7 @@ function Header() {
               {item.label}
             </Link>
           ))}
-          <Link href="/portal/login" className="ml-3">
+          <Link href="/portal/auth" className="ml-3">
             <button
               className={`relative h-8 px-4 rounded-full text-sm font-semibold overflow-hidden transition-all duration-300 hover:scale-105 hover:shadow-lg ${isOverDark ? 'text-white' : 'text-gray-900'}`}
               style={{
@@ -197,7 +197,7 @@ function Header() {
             </Link>
           ))}
           <Link
-            href="/portal/login"
+            href="/portal/auth"
             className="block px-3 py-2.5 text-sm font-medium text-gray-900"
             onClick={() => setMenuOpen(false)}
           >

@@ -13,12 +13,13 @@ const footerLinks = {
     { href: '/tools/stp', label: 'STP分析' },
   ],
   legal: [
-    { href: '/portal/terms', label: '利用規約' },
+    { href: '/terms', label: '利用規約' },
     { href: '/privacy-policy', label: 'プライバシーポリシー' },
     { href: '/tokusho', label: '特定商取引法に基づく表記' },
+    { href: 'https://include.bz/', label: '開発・運営企業', external: true },
   ],
   login: [
-    { href: '/portal/login', label: 'メンバーログイン' },
+    { href: '/portal/auth', label: 'メンバーログイン' },
     { href: '/admin/login', label: '管理者ログイン' },
   ],
 }
@@ -64,9 +65,15 @@ export default function Footer() {
             <ul className="space-y-1.5">
               {footerLinks.legal.map((link) => (
                 <li key={link.href}>
-                  <Link href={link.href} className="text-xs text-gray-600 hover:text-gray-900 transition-colors">
-                    {link.label}
-                  </Link>
+                  {link.external ? (
+                    <a href={link.href} target="_blank" rel="noopener noreferrer" className="text-xs text-gray-600 hover:text-gray-900 transition-colors">
+                      {link.label}
+                    </a>
+                  ) : (
+                    <Link href={link.href} className="text-xs text-gray-600 hover:text-gray-900 transition-colors">
+                      {link.label}
+                    </Link>
+                  )}
                 </li>
               ))}
             </ul>
@@ -84,6 +91,7 @@ export default function Footer() {
               ))}
             </ul>
           </div>
+
         </div>
 
         {/* 下部: ブランド + コピーライト */}

@@ -168,7 +168,7 @@ export default function LoginPage() {
           </form>
 
           <p className="text-center text-xs mt-6 mb-0">
-            <Link href="/portal/login" className="text-[hsl(217_91%_70%)] no-underline hover:underline">
+            <Link href="/portal/auth" className="text-[hsl(217_91%_70%)] no-underline hover:underline">
               メンバーログインはこちら
             </Link>
           </p>
