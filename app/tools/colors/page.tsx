@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Palette, Sparkles, Download, ArrowRight, CheckCircle2, Plug } from 'lucide-react'
+import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 
 const EXAMPLE_PALETTES = [
@@ -87,38 +88,7 @@ const STEPS = [
 export default function ColorsLandingPage() {
   return (
     <div className="min-h-screen bg-white">
-      {/* ロゴ（独立レイヤー: mix-blend-mode: difference で背景色に応じて自動反転） */}
-      <div
-        className="fixed top-0 left-0 right-0 z-50 pointer-events-none"
-        style={{ mixBlendMode: 'difference' }}
-      >
-        <div className="mx-auto flex h-14 max-w-7xl items-center px-6">
-          <Link href="/" className="text-lg font-bold text-white no-underline hover:opacity-80 pointer-events-auto">
-            branding.bz
-          </Link>
-        </div>
-      </div>
-
-      {/* ヘッダー */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-transparent">
-        <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-6">
-          <Link href="/" className="text-lg font-bold opacity-0">branding.bz</Link>
-          <Link href="/portal/auth?from=colors">
-            <button
-              className="relative h-8 px-4 rounded-full text-sm font-semibold text-gray-900 overflow-hidden transition-all hover:scale-105 hover:shadow-lg"
-              style={{
-                background: 'rgba(255, 255, 255, 0.25)',
-                backdropFilter: 'blur(12px) saturate(120%)',
-                WebkitBackdropFilter: 'blur(12px) saturate(120%)',
-                border: '1px solid rgba(255, 255, 255, 0.4)',
-                boxShadow: '0px 4px 12px 0 rgba(12, 74, 110, 0.08), inset 0px 1px 0px 0px rgba(255, 255, 255, 0.3)',
-              }}
-            >
-              <span className="relative z-10">ログイン</span>
-            </button>
-          </Link>
-        </div>
-      </header>
+      <Header />
 
       {/* ヒーロー */}
       <section className="mx-auto max-w-7xl px-6 py-16 text-center md:py-24">

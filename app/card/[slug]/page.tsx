@@ -6,6 +6,7 @@ import { generateHighResQRDataURL, getQRFilename } from '@/lib/qr-download'
 import { parseFontsFromDB, getCssFontFamily, getGoogleFontsUrl } from '@/lib/brand-fonts'
 import { CardViewTracker } from './CardViewTracker'
 import { VCardButton } from './VCardButton'
+import { CardEventWrapper } from './CardEventWrapper'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
@@ -288,16 +289,23 @@ export default async function CardPage({ params }: Props) {
         {snsLinks.length > 0 && (
           <div className="flex justify-center gap-3">
             {snsLinks.map((sns) => (
-              <a
+              <CardEventWrapper
                 key={sns.label}
-                href={sns.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                title={sns.label}
-                className="sns-icon w-11 h-11 rounded-full bg-muted flex items-center justify-center no-underline text-[var(--brand-primary)]"
+                profileId={profile.id}
+                companyId={companyId}
+                eventType="sns_click"
+                eventData={{ sns_type: sns.label.toLowerCase() }}
               >
-                {sns.icon}
-              </a>
+                <a
+                  href={sns.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  title={sns.label}
+                  className="sns-icon w-11 h-11 rounded-full bg-muted flex items-center justify-center no-underline text-[var(--brand-primary)]"
+                >
+                  {sns.icon}
+                </a>
+              </CardEventWrapper>
             ))}
           </div>
         )}
@@ -305,28 +313,40 @@ export default async function CardPage({ params }: Props) {
         {/* 4. 連絡先ボタン（メール・電話） */}
         <div className="flex gap-3">
           {profile.email && (
-            <Button
-              asChild
-              className="flex-1 h-11 rounded-lg text-sm font-bold gap-2"
-              style={{ backgroundColor: primaryColor }}
+            <CardEventWrapper
+              profileId={profile.id}
+              companyId={companyId}
+              eventType="email_click"
             >
-              <a href={`mailto:${profile.email}`}>
-                <Mail size={16} />
-                メール
-              </a>
-            </Button>
+              <Button
+                asChild
+                className="flex-1 h-11 rounded-lg text-sm font-bold gap-2"
+                style={{ backgroundColor: primaryColor }}
+              >
+                <a href={`mailto:${profile.email}`}>
+                  <Mail size={16} />
+                  メール
+                </a>
+              </Button>
+            </CardEventWrapper>
           )}
           {profile.phone && (
-            <Button
-              asChild
-              className="flex-1 h-11 rounded-lg text-sm font-bold gap-2"
-              style={{ backgroundColor: primaryColor }}
+            <CardEventWrapper
+              profileId={profile.id}
+              companyId={companyId}
+              eventType="phone_click"
             >
-              <a href={`tel:${profile.phone}`}>
-                <Phone size={16} />
-                電話
-              </a>
-            </Button>
+              <Button
+                asChild
+                className="flex-1 h-11 rounded-lg text-sm font-bold gap-2"
+                style={{ backgroundColor: primaryColor }}
+              >
+                <a href={`tel:${profile.phone}`}>
+                  <Phone size={16} />
+                  電話
+                </a>
+              </Button>
+            </CardEventWrapper>
           )}
         </div>
 
@@ -341,6 +361,8 @@ export default async function CardPage({ params }: Props) {
           websiteUrl={company?.website_url || undefined}
           photoUrl={profile.photo_url || undefined}
           primaryColor={primaryColor}
+          profileId={profile.id}
+          companyId={companyId}
         />
 
         {/* 5. 企業情報（ロゴ・企業名・スローガン・MVV） */}
@@ -439,16 +461,22 @@ export default async function CardPage({ params }: Props) {
 
         {/* 8. コーポレートサイトリンク */}
         {company?.website_url && (
-          <Button
-            asChild
-            className="w-full h-11 rounded-lg text-sm font-bold gap-2"
-            style={{ backgroundColor: primaryColor }}
+          <CardEventWrapper
+            profileId={profile.id}
+            companyId={companyId}
+            eventType="website_click"
           >
-            <a href={company.website_url} target="_blank" rel="noopener noreferrer">
-              コーポレートサイトを見る
-              <ExternalLink size={14} />
-            </a>
-          </Button>
+            <Button
+              asChild
+              className="w-full h-11 rounded-lg text-sm font-bold gap-2"
+              style={{ backgroundColor: primaryColor }}
+            >
+              <a href={company.website_url} target="_blank" rel="noopener noreferrer">
+                コーポレートサイトを見る
+                <ExternalLink size={14} />
+              </a>
+            </Button>
+          </CardEventWrapper>
         )}
 
         {/* 9. QRコード */}

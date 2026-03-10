@@ -17,6 +17,7 @@ import {
   ChartTooltipContent,
 } from '@/components/ui/chart'
 import { Eye, CalendarDays, CalendarClock, BarChart3, Trophy, Clock } from 'lucide-react'
+import { OuterScoreSection } from './OuterScoreSection'
 
 type ViewRecord = {
   id: string
@@ -246,6 +247,9 @@ export default function AnalyticsPage() {
           </Link>
         ))}
       </div>
+
+      {/* === アウターブランドスコア === */}
+      {companyId && <OuterScoreSection companyId={companyId} />}
 
       {/* === 全体サマリー === */}
       <div className="grid grid-cols-[repeat(auto-fit,minmax(180px,1fr))] gap-3 mb-3">

@@ -12,6 +12,7 @@ import { getCssFontFamily } from '@/lib/brand-fonts'
 import { Card, CardContent } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { getPageCache, setPageCache } from '@/lib/page-cache'
+import { BrandPageTracker } from '@/components/analytics/BrandPageTracker'
 import { Separator } from '@/components/ui/separator'
 import {
   RadarChart,
@@ -171,6 +172,7 @@ export default function PortalGuidelinesPage() {
   return (
     <>
     <BrandFontLoader fonts={brandFonts} />
+    {companyId && <BrandPageTracker companyId={companyId} pageType="guidelines" />}
     <div className="max-w-4xl mx-auto px-5 pt-4 pb-6 space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-foreground mb-1">ブランド方針</h1>

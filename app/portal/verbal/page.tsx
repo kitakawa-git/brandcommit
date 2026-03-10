@@ -12,6 +12,7 @@ import { getCssFontFamily } from '@/lib/brand-fonts'
 import { Card, CardContent } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { getPageCache, setPageCache } from '@/lib/page-cache'
+import { BrandPageTracker } from '@/components/analytics/BrandPageTracker'
 import { Input } from '@/components/ui/input'
 import { Search } from 'lucide-react'
 
@@ -156,6 +157,7 @@ export default function PortalVerbalIdentityPage() {
   return (
     <>
     <BrandFontLoader fonts={brandFonts} />
+    {companyId && <BrandPageTracker companyId={companyId} pageType="verbal" />}
     <div className="max-w-4xl mx-auto px-5 pt-4 pb-6 space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-foreground mb-1">バーバルアイデンティティ</h1>

@@ -2,6 +2,7 @@
 
 import { UserPlus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { trackCardEvent } from '@/lib/analytics/track'
 
 type VCardProps = {
   name: string
@@ -13,6 +14,8 @@ type VCardProps = {
   websiteUrl?: string
   photoUrl?: string
   primaryColor: string
+  profileId: string
+  companyId: string
 }
 
 function splitJapaneseName(name: string): { family: string; given: string } {
@@ -42,8 +45,12 @@ export function VCardButton({
   websiteUrl,
   photoUrl,
   primaryColor,
+  profileId,
+  companyId,
 }: VCardProps) {
   const handleDownload = () => {
+    // vCardダウンロードイベントを記録（fire-and-forget）
+    trackCardEvent({ profileId, companyId, eventType: 'vcard_download' })
     const { family, given } = splitJapaneseName(name)
     const lines: string[] = [
       'BEGIN:VCARD',
