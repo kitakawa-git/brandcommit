@@ -17,7 +17,7 @@ export default function ColorsAppPage() {
         const { data: { user } } = await supabase.auth.getUser()
 
         if (!user) {
-          router.replace('/tools/colors/auth')
+          router.replace('/portal/auth?from=colors')
           return
         }
 

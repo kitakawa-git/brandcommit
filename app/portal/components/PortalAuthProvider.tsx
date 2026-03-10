@@ -50,7 +50,7 @@ const PortalAuthContext = createContext<PortalAuthContextType>({
 })
 
 // 認証不要のパス
-const publicPaths = ['/portal/login', '/portal/register']
+const publicPaths = ['/portal/login', '/portal/register', '/portal/auth']
 
 export function PortalAuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)

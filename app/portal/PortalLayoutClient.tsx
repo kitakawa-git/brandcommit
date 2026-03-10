@@ -13,7 +13,7 @@ import { Separator } from '@/components/ui/separator'
 import { Bell } from 'lucide-react'
 
 // 認証不要のパス
-const publicPaths = ['/portal/login', '/portal/register']
+const publicPaths = ['/portal/login', '/portal/register', '/portal/auth']
 
 function PortalLayoutInner({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()

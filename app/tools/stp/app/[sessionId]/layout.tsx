@@ -1,7 +1,7 @@
 'use client'
 
-// STPセッションページレイアウト: STPAuthProvider + STPHeader
-import { STPAuthProvider, useSTPAuth } from '../../components/STPAuthProvider'
+// STPセッションページレイアウト: UnifiedAuthProvider + STPHeader
+import { UnifiedAuthProvider, useUnifiedAuth } from '@/components/providers/UnifiedAuthProvider'
 import { STPHeader } from '../../components/STPHeader'
 import Footer from '@/components/Footer'
 
@@ -11,14 +11,14 @@ export default function STPSessionLayout({
   children: React.ReactNode
 }) {
   return (
-    <STPAuthProvider>
+    <UnifiedAuthProvider redirectTo="/portal/auth?from=stp">
       <STPSessionLayoutInner>{children}</STPSessionLayoutInner>
-    </STPAuthProvider>
+    </UnifiedAuthProvider>
   )
 }
 
 function STPSessionLayoutInner({ children }: { children: React.ReactNode }) {
-  const { signOut } = useSTPAuth()
+  const { signOut } = useUnifiedAuth()
 
   return (
     <div className="flex min-h-screen flex-col bg-background">

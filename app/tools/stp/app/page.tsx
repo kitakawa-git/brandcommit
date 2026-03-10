@@ -17,7 +17,7 @@ export default function STPAppPage() {
         const { data: { user } } = await supabase.auth.getUser()
 
         if (!user) {
-          router.replace('/tools/stp/auth')
+          router.replace('/portal/auth?from=stp')
           return
         }
 

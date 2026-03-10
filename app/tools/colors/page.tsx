@@ -103,7 +103,7 @@ export default function ColorsLandingPage() {
       <header className="fixed top-0 left-0 right-0 z-50 bg-transparent">
         <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-6">
           <Link href="/" className="text-lg font-bold opacity-0">branding.bz</Link>
-          <Link href="/tools/colors/auth">
+          <Link href="/portal/auth?from=colors">
             <button
               className="relative h-8 px-4 rounded-full text-sm font-semibold text-gray-900 overflow-hidden transition-all hover:scale-105 hover:shadow-lg"
               style={{
@@ -146,7 +146,7 @@ export default function ColorsLandingPage() {
           経営者・ブランド担当者のための無料ツール。
         </p>
         <div className="mt-10">
-          <Link href="/tools/colors/auth">
+          <Link href="/portal/auth?from=colors">
             <button
               className="relative h-12 px-12 rounded-full text-base font-bold text-white overflow-hidden transition-all hover:scale-105 hover:shadow-2xl"
               style={{
@@ -224,7 +224,7 @@ export default function ColorsLandingPage() {
           </h2>
           <div className="relative flex flex-col gap-4 md:flex-row md:items-start md:gap-24">
             {/* デスクトップ: ステップ間の接続線（1つ目〜5つ目の丸中心を結ぶ） */}
-            <div className="hidden md:block absolute top-5 h-px bg-gray-300" style={{ left: 'calc((100% - 24rem) / 10)', right: 'calc((100% - 24rem) / 10)' }} />
+            <div className="hidden md:block absolute top-5 h-px bg-gray-900" style={{ left: 'calc((100% - 24rem) / 10)', right: 'calc((100% - 24rem) / 10)' }} />
             {STEPS.map((step) => (
               <div key={step.title} className="flex items-center gap-3 md:flex-1 md:flex-col md:gap-0 md:text-center">
                 <div className="relative z-10 flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-gray-900 text-sm font-bold text-white md:mb-3">
@@ -352,7 +352,7 @@ export default function ColorsLandingPage() {
             ブランドは、作った瞬間から走り出す。<br />branding.bz で、その加速を始めませんか。
           </p>
           <div className="mt-10">
-            <Link href="/tools/colors/auth">
+            <Link href="/portal/auth?from=colors">
               <button
                 className="relative h-12 px-12 rounded-full text-base font-bold text-white overflow-hidden transition-all hover:scale-105 hover:shadow-2xl"
                 style={{
