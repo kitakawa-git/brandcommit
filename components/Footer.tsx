@@ -4,6 +4,7 @@ import Link from 'next/link'
 const footerLinks = {
   product: [
     { href: '/', label: 'トップ' },
+    { href: '/news', label: 'ニュース' },
     { href: '/plan', label: '料金プラン' },
     { href: '/faq', label: 'よくある質問' },
     { href: '/contact', label: 'お問い合わせ' },

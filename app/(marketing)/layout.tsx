@@ -14,6 +14,7 @@ import Footer from '@/components/Footer'
 
 const navItems = [
   { href: '/', label: 'トップ' },
+  { href: '/news', label: 'ニュース' },
   { href: '/plan', label: '料金' },
   { href: '/faq', label: 'FAQ' },
   { href: '/contact', label: 'お問い合わせ' },

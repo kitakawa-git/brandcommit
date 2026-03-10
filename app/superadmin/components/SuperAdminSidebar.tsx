@@ -3,12 +3,13 @@
 // スーパー管理画面サイドバー（紺色: 通常管理画面と区別）
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Building2, ArrowLeft, type LucideIcon } from 'lucide-react'
+import { Building2, Newspaper, ArrowLeft, type LucideIcon } from 'lucide-react'
 
 type NavItem = { href: string; label: string; icon: LucideIcon }
 
 const navItems: NavItem[] = [
   { href: '/superadmin/companies', label: '企業一覧', icon: Building2 },
+  { href: '/superadmin/news', label: 'ニュース', icon: Newspaper },
 ]
 
 export function SuperAdminSidebar() {
