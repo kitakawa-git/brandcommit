@@ -36,7 +36,7 @@ function HeroSection() {
           <span className="relative z-10">AIガイドで約5〜10分</span>
         </div>
         <h1 className="text-3xl md:text-5xl font-bold tracking-tight text-gray-900">
-          AIで、ブランディングを加速させる
+          AIでブランディングを加速させる
         </h1>
         <p className="mt-6 text-lg md:text-xl text-gray-700 max-w-2xl mx-auto leading-relaxed">
           社員が体現し、顧客に届く。<br className="hidden sm:block" />
