@@ -187,17 +187,17 @@ export default function Header() {
             >
               <Link
                 href="/news"
-                className="block px-3 py-2.5 text-sm text-gray-700 rounded-xl hover:bg-white/60 hover:text-gray-900 transition-colors"
+                className="block px-3 py-2.5 text-base font-semibold text-gray-700 rounded-xl hover:bg-white/60 hover:text-gray-900 transition-colors"
                 onClick={() => setMenuOpen(false)}
               >
                 お知らせ
               </Link>
-              <div className="px-3 pt-2 pb-1 text-xs font-semibold text-gray-400">無料ツール</div>
+              <div className="px-3 pt-2 pb-1 text-sm font-semibold text-gray-400">無料ツール</div>
               {toolItems.map((tool) => (
                 <Link
                   key={tool.href}
                   href={tool.href}
-                  className="block px-3 py-2.5 pl-5 text-sm text-gray-700 rounded-xl hover:bg-white/60 hover:text-gray-900 transition-colors"
+                  className="block px-3 py-2.5 pl-5 text-base font-semibold text-gray-700 rounded-xl hover:bg-white/60 hover:text-gray-900 transition-colors"
                   onClick={() => setMenuOpen(false)}
                 >
                   {tool.label}
@@ -207,7 +207,7 @@ export default function Header() {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className="block px-3 py-2.5 text-sm text-gray-700 rounded-xl hover:bg-white/60 hover:text-gray-900 transition-colors"
+                  className="block px-3 py-2.5 text-base font-semibold text-gray-700 rounded-xl hover:bg-white/60 hover:text-gray-900 transition-colors"
                   onClick={() => setMenuOpen(false)}
                 >
                   {item.label}
@@ -219,14 +219,14 @@ export default function Header() {
               />
               <Link
                 href="/portal/auth"
-                className="block px-3 py-2.5 text-sm font-semibold text-gray-900 rounded-xl hover:bg-white/60 transition-colors"
+                className="block px-3 py-2.5 text-base font-semibold text-gray-900 rounded-xl hover:bg-white/60 transition-colors"
                 onClick={() => setMenuOpen(false)}
               >
                 ログイン
               </Link>
               <Link
                 href="/admin/login"
-                className="block px-3 py-2 text-xs text-gray-400 rounded-xl hover:bg-white/40 transition-colors"
+                className="block px-3 py-2 text-sm text-gray-400 rounded-xl hover:bg-white/40 transition-colors"
                 onClick={() => setMenuOpen(false)}
               >
                 管理者ログイン
